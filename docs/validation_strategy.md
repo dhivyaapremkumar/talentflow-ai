@@ -211,8 +211,28 @@ tested**.
 - **Expected positive hits:** exactly 15 (full) / 3 (starter) non-canonical attempts —
   note this is a *count correction* from Rev 1, which (under the old model) expected
   30 affected `Application` rows; Rev 2's figure is the attempt-level count.
+- **`rule_category` sub-split (Phase 5/6 boundary clarification, added this pass):**
+  this rule's findings are not all the same kind of thing, even though they all share
+  `rule_id="VAL-11"`. Three structurally distinct `rule_category` values distinguish
+  them — never message-string matching:
+  - `duplicate_submission_consistency` — the *stored* fields disagree with a fresh
+    recompute; always a genuine defect (the write path is broken), never expected.
+  - `duplicate_submission_detected` — the algorithm determines this attempt is a
+    duplicate; not a defect, this **is** the "expected positive hits" count above.
+    Phase 6's offline evaluator must select only this category (via
+    `duplicate_submissions.select_detected_duplicates()`, which filters on
+    `rule_category`, not on `message` text) before matching against ground truth —
+    the consistency and invariant findings are never part of that comparison.
+  - `duplicate_submission_invariant` — more than one canonical attempt for the same
+    `Application`; a structural defect, independent of the above (and, like PK
+    uniqueness, structurally impossible to construct given `uq_attempt_canonical` —
+    verified only on clean data, never by deliberate corruption).
 - **Test:** `test_validation.py::test_duplicate_submissions_matches_seeded_count`,
-  `test_validation.py::test_duplicate_detector_never_imports_anomaly_label`.
+  `test_validation.py::test_duplicate_detector_never_imports_anomaly_label`,
+  `test_validation.py::test_val11_consistency_mismatch_has_consistency_category`,
+  `test_validation.py::test_val11_detected_duplicate_has_detected_category`,
+  `test_validation.py::test_val11_invariant_category_clean_on_baseline`,
+  `test_validation.py::test_val11_select_detected_duplicates_filters_by_structured_field`.
 
 ## 12. Reconciliation of generated records
 - **Check:** row counts match targets (including the corrected

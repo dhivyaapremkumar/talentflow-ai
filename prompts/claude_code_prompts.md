@@ -3240,3 +3240,102 @@ Do not push to GitHub. Do not begin Phase 6.
   against real generated data, each traceable to a specific before/after
   diff and the specific check (a validation rule or a checksum comparison)
   that caught it.
+
+---
+
+### Prompt ID: P023
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: A small, scoped preparatory change before Phase 6 — add a
+  structured, machine-readable way to distinguish three different kinds of
+  `VAL-11` finding (consistency mismatch / genuine detection / structural
+  invariant), so Phase 6's evaluator can select only the detection findings
+  without matching on message text. Immediately preceded by a clarifying
+  Q&A turn (not logged as its own prompt entry — a discussion/question
+  exchange about the Phase 5/6 boundary, not an implementation directive)
+  in which the user asked whether `duplicate_submissions.py` independently
+  detects duplicates, whether it reads ground truth, and whether it
+  overlaps with the planned Phase 6 work; the answer surfaced the one real
+  ambiguity (message-string-only distinction between finding kinds) that
+  this prompt then resolves.
+- Development phase: **Between Phase 5 and Phase 6** — a boundary-
+  clarifying refactor of Phase 4/5's existing `validation/rules/
+  duplicate_submissions.py`, not Phase 6 itself (Phase 6 — independent
+  anomaly detection and ground-truth evaluation — explicitly not started
+  by this prompt).
+- Context/files supplied: The repository state as of Phase 5's completion,
+  plus the immediately preceding Q&A turn's analysis of
+  `duplicate_submissions.py`.
+- Exact prompt:
+
+```text
+Proceed with option (b) before implementing Phase 6.
+
+## Small preparatory change
+
+Update the shared Finding/report structure to support a stable, machine-readable `finding_type` (or an equivalent existing structured field).
+
+For VAL-11, distinguish:
+
+- `duplicate_submission_detected`
+- `duplicate_submission_consistency`
+- `duplicate_submission_invariant`
+
+Requirements:
+1. Preserve `rule_id="VAL-11"` for all three categories.
+2. Do not use message-string matching to identify detection findings.
+3. Preserve existing validation behavior, messages, severity and rule counts wherever possible.
+4. Ensure existing tests continue to pass; add tests proving that each finding has the correct category.
+5. Confirm that the Phase 6 evaluator can select only `duplicate_submission_detected` findings.
+6. Do not introduce any ground-truth access into duplicate_submissions.py.
+7. Keep ground-truth comparison exclusively in the offline evaluation layer.
+8. Update documentation if the report schema changes.
+
+Run the full existing test suite and report actual results.
+
+Do not implement Phase 6 yet. Do not push to GitHub.
+```
+
+- Output summary: Reused the existing `rule_category` field on `Finding`
+  (already a stable, structured, per-finding string — no new field or
+  schema change needed) rather than adding a redundant `finding_type`
+  field; documented this choice explicitly in the module docstring. Added
+  three module-level constants to `duplicate_submissions.py` —
+  `CATEGORY_CONSISTENCY`, `CATEGORY_DETECTED`, `CATEGORY_INVARIANT` —
+  and retagged each of the three finding-emission blocks with the correct
+  one (all still `rule_id="VAL-11"`). Added `select_detected_duplicates()`,
+  a small reusable filter Phase 6 can call to select only
+  `CATEGORY_DETECTED` findings by structured field, never by message text.
+  **Caught a real regression immediately**: the new docstrings (explaining
+  the three categories) literally contained the string `AnomalyLabel` in
+  prose, which VAL-15's whole-package leakage scanner correctly flagged as
+  a violation the instant the baseline gate ran — the same self-inflicted
+  false-positive class hit twice before in this project (Phase 3's
+  `closed_req_active_apps.py`, Phase 5's same file again). Reworded every
+  occurrence to describe the ground-truth label table generically instead
+  of naming it, re-verified zero leakage findings. Added 4 new tests to
+  `tests/test_validation.py`: one proving a pure consistency mismatch gets
+  `CATEGORY_CONSISTENCY` (and not `CATEGORY_DETECTED`); one proving a
+  correctly-constructed duplicate gets `CATEGORY_DETECTED` (and not
+  `CATEGORY_CONSISTENCY`); one proving `CATEGORY_INVARIANT` reports zero
+  findings on clean data (true invariant violations are structurally
+  unconstructable — blocked by the `uq_attempt_canonical` partial unique
+  index at INSERT time, verified directly before writing the test, same
+  category as PK-uniqueness tests elsewhere in this project); and one
+  proving `select_detected_duplicates()` correctly filters a mixed
+  finding list by structured field. Updated `validation_strategy.md` §11
+  with a new bullet documenting the three `rule_category` values and
+  pointing Phase 6 at `select_detected_duplicates()`. Regenerated both
+  starter and full datasets end-to-end afterward — identical checksums to
+  before this change (starter `e026ca7b...`, full `649898f0...`),
+  confirming the refactor is purely internal to finding categorization and
+  changes no generated data or `counts_by_rule` value (keyed on `rule_id`,
+  not `rule_category`).
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: `pytest tests/` → **165 passed, 0 failed** (161
+  pre-existing + 4 new), run after the leakage-regression fix, not before.
+  Both datasets regenerated and their checksums compared byte-for-byte
+  against the pre-change values. No test result or execution is invented.

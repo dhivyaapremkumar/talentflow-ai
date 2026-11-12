@@ -266,6 +266,132 @@ def test_val11_duplicate_submissions_detects_wrong_duplicate_pointer(starter_ses
     assert all(f.rule_id == "VAL-11" for f in findings)
 
 
+# --- VAL-11 rule_category correctness (preparatory change before Phase 6) --
+# Three structurally distinct finding kinds, all rule_id="VAL-11", must be
+# distinguishable by the *structured* rule_category field alone, never by
+# matching on message text.
+
+
+def test_val11_consistency_mismatch_has_consistency_category(starter_session):
+    """A corrupted is_canonical flag on an attempt that is alone in its
+    (candidate_id, requisition_id) group is a pure consistency mismatch —
+    the recompute still expects issue_type='None' (no real duplicate
+    exists), so this must produce a CATEGORY_CONSISTENCY finding and no
+    CATEGORY_DETECTED finding."""
+    assert duplicate_submissions.check(starter_session) == []
+
+    attempts = starter_session.query(ApplicationSubmissionAttempt).limit(2).all()
+    attempt, other = attempts[0], attempts[1]
+    # is_canonical/duplicate_of_attempt_id are DB CHECK-tied (one NULL iff
+    # the other isn't) — set a (wrong, but non-null) pointer to satisfy
+    # that CHECK while still producing a genuine recompute mismatch, since
+    # `attempt` is alone in its own (candidate_id, requisition_id) group
+    # and the recompute expects duplicate_of_attempt_id=None there.
+    starter_session.execute(
+        text(
+            "UPDATE application_submission_attempt SET is_canonical = 0, "
+            "duplicate_of_attempt_id = :other WHERE attempt_id = :id"
+        ),
+        {"other": other.attempt_id, "id": attempt.attempt_id},
+    )
+    starter_session.commit()
+
+    findings = duplicate_submissions.check(starter_session)
+    matching = [f for f in findings if f.entity_id == attempt.attempt_id]
+    assert matching
+    assert all(f.rule_id == "VAL-11" for f in matching)
+    assert all(f.rule_category == duplicate_submissions.CATEGORY_CONSISTENCY for f in matching)
+    assert not any(f.rule_category == duplicate_submissions.CATEGORY_DETECTED for f in matching)
+
+
+def test_val11_detected_duplicate_has_detected_category(starter_session):
+    """A correctly-constructed duplicate attempt (stored fields already
+    agree with the recompute, exactly as the real injector produces) must
+    yield a CATEGORY_DETECTED finding and no CATEGORY_CONSISTENCY finding
+    for that same attempt — a detection is not a defect."""
+    assert duplicate_submissions.check(starter_session) == []
+
+    canonical = starter_session.query(ApplicationSubmissionAttempt).first()
+    starter_session.execute(
+        text(
+            "INSERT INTO application_submission_attempt "
+            "(attempt_id, canonical_application_id, candidate_id, requisition_id, submitted_at, "
+            "is_canonical, duplicate_of_attempt_id, issue_type) "
+            "VALUES ('ATT-7777777', :app, :cand, :req, :sub, 0, :canon_id, 'DuplicateSubmission')"
+        ),
+        {
+            "app": canonical.canonical_application_id,
+            "cand": canonical.candidate_id,
+            "req": canonical.requisition_id,
+            "sub": canonical.submitted_at + __import__("datetime").timedelta(days=1),
+            "canon_id": canonical.attempt_id,
+        },
+    )
+    starter_session.commit()
+
+    findings = duplicate_submissions.check(starter_session)
+    matching = [f for f in findings if f.entity_id == "ATT-7777777"]
+    assert matching
+    assert all(f.rule_id == "VAL-11" for f in matching)
+    assert all(f.rule_category == duplicate_submissions.CATEGORY_DETECTED for f in matching)
+    assert not any(f.rule_category == duplicate_submissions.CATEGORY_CONSISTENCY for f in matching)
+
+
+def test_val11_invariant_category_clean_on_baseline(starter_session):
+    """Two canonical attempts for the same Application is structurally
+    impossible to construct (the uq_attempt_canonical partial unique
+    index blocks it at INSERT time, same category as PK uniqueness) — so
+    this is a positive-only test: the category exists and correctly
+    reports zero findings on valid data, consistent with the project's
+    established pattern for structurally-guaranteed invariants."""
+    findings = duplicate_submissions.check(starter_session)
+    assert not any(f.rule_category == duplicate_submissions.CATEGORY_INVARIANT for f in findings)
+
+
+def test_val11_select_detected_duplicates_filters_by_structured_field(starter_session):
+    """Phase 6's evaluator selection path: select_detected_duplicates()
+    must return only CATEGORY_DETECTED findings, filtering on the
+    structured rule_category field — never by inspecting message text."""
+    canonical = starter_session.query(ApplicationSubmissionAttempt).first()
+    starter_session.execute(
+        text(
+            "INSERT INTO application_submission_attempt "
+            "(attempt_id, canonical_application_id, candidate_id, requisition_id, submitted_at, "
+            "is_canonical, duplicate_of_attempt_id, issue_type) "
+            "VALUES ('ATT-6666666', :app, :cand, :req, :sub, 0, :canon_id, 'DuplicateSubmission')"
+        ),
+        {
+            "app": canonical.canonical_application_id,
+            "cand": canonical.candidate_id,
+            "req": canonical.requisition_id,
+            "sub": canonical.submitted_at + __import__("datetime").timedelta(days=1),
+            "canon_id": canonical.attempt_id,
+        },
+    )
+    # Also corrupt an unrelated attempt to produce a CONSISTENCY finding,
+    # proving the selector excludes it even when both kinds are present.
+    others = starter_session.query(ApplicationSubmissionAttempt).filter(
+        ApplicationSubmissionAttempt.attempt_id != canonical.attempt_id
+    ).limit(2).all()
+    other, other_pointer = others[0], others[1]
+    starter_session.execute(
+        text(
+            "UPDATE application_submission_attempt SET is_canonical = 0, "
+            "duplicate_of_attempt_id = :pointer WHERE attempt_id = :id"
+        ),
+        {"pointer": other_pointer.attempt_id, "id": other.attempt_id},
+    )
+    starter_session.commit()
+
+    all_findings = duplicate_submissions.check(starter_session)
+    detected_only = duplicate_submissions.select_detected_duplicates(all_findings)
+
+    assert len(detected_only) >= 1
+    assert all(f.rule_category == duplicate_submissions.CATEGORY_DETECTED for f in detected_only)
+    assert any(f.entity_id == "ATT-6666666" for f in detected_only)
+    assert not any(f.entity_id == other.attempt_id for f in detected_only)
+
+
 def test_val12_reconciliation_detects_unexpected_anomaly_label(starter_session):
     from app.validation import reconcile
 

@@ -15,6 +15,28 @@ file contains no reference to the ground-truth label model or field by
 name anywhere in its source — the detection function's input type below
 carries only `attempt_id`, `candidate_id`, `requisition_id`,
 `submitted_at`, `is_canonical`, `duplicate_of_attempt_id`, `issue_type`.
+Ground-truth comparison happens exclusively in the offline evaluation
+layer (`validation/reconcile.py`'s evaluation step, validation_strategy.md
+§17/§22 — Phase 6), which consumes this module's output but is never
+imported by it.
+
+**`rule_category` distinguishes three structurally different kinds of
+`VAL-11` finding** (all share `rule_id="VAL-11"` — this is a sub-category
+within one rule, not a new rule), via the `CATEGORY_*` constants below,
+never via message-string matching:
+- `CATEGORY_CONSISTENCY`: the *stored* fields disagree with a fresh
+  recompute — always a genuine defect (the write path is broken), never
+  an expected outcome.
+- `CATEGORY_DETECTED`: the algorithm determines this attempt is a
+  duplicate — not a defect; this is the actual detection output
+  validation_strategy.md §11/§21 means by "zero at baseline; 15/3
+  non-canonical attempts post-injection." Phase 6's evaluator must
+  select only these findings (via `rule_category ==
+  duplicate_submissions.CATEGORY_DETECTED`) before comparing against
+  the ground-truth label table — never the consistency or invariant
+  findings.
+- `CATEGORY_INVARIANT`: more than one canonical attempt exists for the
+  same `Application` — a structural defect, independent of the above.
 """
 
 from dataclasses import dataclass
@@ -26,7 +48,10 @@ from app.db.models import ApplicationSubmissionAttempt
 from app.validation.report import Finding
 
 RULE_ID = "VAL-11"
-RULE_CATEGORY = "duplicate_submissions"
+
+CATEGORY_CONSISTENCY = "duplicate_submission_consistency"
+CATEGORY_DETECTED = "duplicate_submission_detected"
+CATEGORY_INVARIANT = "duplicate_submission_invariant"
 
 
 @dataclass(frozen=True)
@@ -88,7 +113,7 @@ def check(session: Session) -> list[Finding]:
         if stored.is_canonical != exp["is_canonical"]:
             findings.append(
                 Finding(
-                    RULE_ID, RULE_CATEGORY, "application_submission_attempt", attempt_id,
+                    RULE_ID, CATEGORY_CONSISTENCY, "application_submission_attempt", attempt_id,
                     f"is_canonical={stored.is_canonical} but recomputed detection expects "
                     f"{exp['is_canonical']}",
                     "violation",
@@ -97,7 +122,7 @@ def check(session: Session) -> list[Finding]:
         if stored.duplicate_of_attempt_id != exp["duplicate_of_attempt_id"]:
             findings.append(
                 Finding(
-                    RULE_ID, RULE_CATEGORY, "application_submission_attempt", attempt_id,
+                    RULE_ID, CATEGORY_CONSISTENCY, "application_submission_attempt", attempt_id,
                     f"duplicate_of_attempt_id={stored.duplicate_of_attempt_id!r} but recomputed "
                     f"detection expects {exp['duplicate_of_attempt_id']!r}",
                     "violation",
@@ -106,7 +131,7 @@ def check(session: Session) -> list[Finding]:
         if stored.issue_type != exp["issue_type"]:
             findings.append(
                 Finding(
-                    RULE_ID, RULE_CATEGORY, "application_submission_attempt", attempt_id,
+                    RULE_ID, CATEGORY_CONSISTENCY, "application_submission_attempt", attempt_id,
                     f"issue_type={stored.issue_type!r} but recomputed detection expects "
                     f"{exp['issue_type']!r}",
                     "violation",
@@ -120,12 +145,15 @@ def check(session: Session) -> list[Finding]:
     # attempts post-injection." A finding here does not mean something is
     # broken (unlike the consistency-mismatch findings above) — it means a
     # duplicate submission was correctly detected, which is the intended,
-    # expected outcome once Phase 5 has injected any.
+    # expected outcome once Phase 5 has injected any. rule_category=
+    # CATEGORY_DETECTED is how Phase 6's evaluator selects exactly these
+    # findings for comparison against the ground-truth label table —
+    # never by matching on this message text.
     for attempt_id, exp in expected.items():
         if exp["issue_type"] == "DuplicateSubmission":
             findings.append(
                 Finding(
-                    RULE_ID, RULE_CATEGORY, "application_submission_attempt", attempt_id,
+                    RULE_ID, CATEGORY_DETECTED, "application_submission_attempt", attempt_id,
                     f"detected duplicate submission (duplicate_of_attempt_id="
                     f"{exp['duplicate_of_attempt_id']!r})",
                     "violation",
@@ -144,10 +172,22 @@ def check(session: Session) -> list[Finding]:
         if count > 1:
             findings.append(
                 Finding(
-                    RULE_ID, RULE_CATEGORY, "application", app_id,
+                    RULE_ID, CATEGORY_INVARIANT, "application", app_id,
                     f"{count} canonical ApplicationSubmissionAttempt rows (expected exactly 1)",
                     "violation",
                 )
             )
 
     return findings
+
+
+def select_detected_duplicates(findings: list[Finding]) -> list[Finding]:
+    """Returns only the `CATEGORY_DETECTED` findings from a VAL-11 finding
+    list — the subset Phase 6's offline evaluator must compare against
+    the ground-truth label table (matching key: `entity_id` ==
+    `attempt_id`, validation_strategy.md §22). Never selects
+    `CATEGORY_CONSISTENCY` or `CATEGORY_INVARIANT` findings, which
+    represent defects, not detections.
+    Exists so Phase 6 selects by structured field, never by matching on
+    `message` text."""
+    return [f for f in findings if f.rule_id == RULE_ID and f.rule_category == CATEGORY_DETECTED]
