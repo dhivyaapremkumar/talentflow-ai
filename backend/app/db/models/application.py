@@ -121,11 +121,10 @@ class Application(Base):
 class ApplicationSubmissionAttempt(Base):
     """Append-only audit trail of every submission event for a
     (candidate_id, requisition_id) pair — business_rules.md §10,
-    data_dictionary.md §8a. `ground_truth_label_id` deliberately has no
-    SQL FOREIGN KEY yet: `AnomalyLabel` is built in a later Phase 2 unit
-    and does not exist in `Base.metadata` at this point. It stays a plain
-    nullable string column until that unit adds the table, at which point
-    the FK is added here."""
+    data_dictionary.md §8a. `ground_truth_label_id` FKs to `AnomalyLabel`
+    (added in Phase 2, Unit 8, once that table exists in `Base.metadata`)
+    — set only at generation time for the 15 seeded duplicate-submission
+    attempts; never consulted by the `issue_type` detector."""
 
     __tablename__ = "application_submission_attempt"
     __table_args__ = (
@@ -165,4 +164,6 @@ class ApplicationSubmissionAttempt(Base):
         Enum(*ATTEMPT_ISSUE_TYPES, name="attempt_issue_type", create_constraint=True),
         nullable=False,
     )
-    ground_truth_label_id: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    ground_truth_label_id: Mapped[str | None] = mapped_column(
+        String(20), ForeignKey("anomaly_label.label_id"), nullable=True
+    )

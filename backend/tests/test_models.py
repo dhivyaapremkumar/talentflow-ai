@@ -23,11 +23,17 @@ Unit 6: Offer — the 1:1 Offer<->Application unique FK, and the
 required-iff-status / chronological-ordering CHECK constraints
 (approval/extension/decision/expiry).
 
-Unit 7 (this commit): RequisitionStatusHistory, ApplicationStageHistory,
+Unit 7: RequisitionStatusHistory, ApplicationStageHistory,
 OfferStatusHistory — the three append-only event-history tables. Mostly
 FK-enforcement and ID-format tests; the transition-legality and
 strictly-increasing-changed_at rules are cross-row and deferred to
 Phase 4 (not tested here, consistent with every other such deferral).
+
+Unit 8 (this commit, FINAL Phase 2 unit): AnomalyLabel, GenerationRun —
+the last 2 of 22 tables. Also covers the
+ApplicationSubmissionAttempt.ground_truth_label_id FK, added in this
+unit now that AnomalyLabel exists (previously a plain column, per the
+Unit 4 commit's documented deferral).
 
 Each test gets a fresh in-memory SQLite database with foreign_keys=ON, so
 these tests exercise the exact same engine configuration as app.db.session
@@ -42,6 +48,7 @@ from sqlalchemy.orm import Session
 
 from app.db.base import Base
 from app.db.models import (
+    AnomalyLabel,
     Application,
     ApplicationStageHistory,
     ApplicationSubmissionAttempt,
@@ -49,6 +56,7 @@ from app.db.models import (
     CandidateSkill,
     Department,
     Feedback,
+    GenerationRun,
     Interview,
     Interviewer,
     InterviewerAvailabilitySlot,
@@ -63,6 +71,7 @@ from app.db.models import (
     Skill,
     SystemActor,
 )
+from app.config import SEED
 from app.db.session import make_engine
 
 
@@ -1672,6 +1681,204 @@ def test_offer_status_history_requires_existing_offer(session):
             to_status="Drafted",
             changed_at=datetime(2026, 1, 1),
             actor_id="ACT-0001",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+# --- Unit 8: AnomalyLabel, GenerationRun (FINAL Phase 2 unit) --------------
+
+
+def _anomaly_label(
+    session,
+    label_id="ANOM-0001",
+    entity_type="ApplicationSubmissionAttempt",
+    entity_id="ATT-0000002",
+    anomaly_type="DuplicateApplication",
+):
+    label = AnomalyLabel(
+        label_id=label_id,
+        entity_type=entity_type,
+        entity_id=entity_id,
+        anomaly_type=anomaly_type,
+        related_entity_id="ATT-0000001",
+        injected_at=datetime(2026, 1, 1),
+        description="Seeded duplicate submission for audit traceability.",
+    )
+    session.add(label)
+    session.commit()
+    return label
+
+
+def test_anomaly_label_valid_insert(session):
+    _anomaly_label(session)
+    assert session.query(AnomalyLabel).count() == 1
+
+
+def test_anomaly_label_id_format_rejected(session):
+    session.add(
+        AnomalyLabel(
+            label_id="BADID",
+            entity_type="Application",
+            entity_id="APP-REQ-00001-CAND-000001",
+            anomaly_type="SalaryOutsideBand",
+            related_entity_id=None,
+            injected_at=datetime(2026, 1, 1),
+            description="x",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_anomaly_label_entity_type_enum_rejected(session):
+    session.add(
+        AnomalyLabel(
+            label_id="ANOM-0001",
+            entity_type="NotAnEntityType",
+            entity_id="APP-REQ-00001-CAND-000001",
+            anomaly_type="SalaryOutsideBand",
+            related_entity_id=None,
+            injected_at=datetime(2026, 1, 1),
+            description="x",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_anomaly_label_anomaly_type_enum_rejected(session):
+    session.add(
+        AnomalyLabel(
+            label_id="ANOM-0001",
+            entity_type="Application",
+            entity_id="APP-REQ-00001-CAND-000001",
+            anomaly_type="NotAnAnomalyType",
+            related_entity_id=None,
+            injected_at=datetime(2026, 1, 1),
+            description="x",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_application_submission_attempt_ground_truth_label_fk_roundtrip(session):
+    """Real insert-level proof that ground_truth_label_id, added in this
+    unit, correctly FKs AnomalyLabel now that the table exists
+    (data_dictionary.md §8a/§16)."""
+    _application(session)
+    _attempt(session, attempt_id="ATT-0000001", is_canonical=True)
+    _anomaly_label(session, label_id="ANOM-0001", entity_id="ATT-0000002")
+    session.add(
+        ApplicationSubmissionAttempt(
+            attempt_id="ATT-0000002",
+            canonical_application_id="APP-REQ-00001-CAND-000001",
+            candidate_id="CAND-000001",
+            requisition_id="REQ-00001",
+            submitted_at=datetime(2026, 1, 2),
+            is_canonical=False,
+            duplicate_of_attempt_id="ATT-0000001",
+            issue_type="DuplicateSubmission",
+            ground_truth_label_id="ANOM-0001",
+        )
+    )
+    session.commit()
+    saved = session.get(ApplicationSubmissionAttempt, "ATT-0000002")
+    assert saved.ground_truth_label_id == "ANOM-0001"
+
+
+def test_application_submission_attempt_ground_truth_label_bad_fk_rejected(session):
+    _application(session)
+    _attempt(session, attempt_id="ATT-0000001", is_canonical=True)
+    session.add(
+        ApplicationSubmissionAttempt(
+            attempt_id="ATT-0000002",
+            canonical_application_id="APP-REQ-00001-CAND-000001",
+            candidate_id="CAND-000001",
+            requisition_id="REQ-00001",
+            submitted_at=datetime(2026, 1, 2),
+            is_canonical=False,
+            duplicate_of_attempt_id="ATT-0000001",
+            issue_type="DuplicateSubmission",
+            ground_truth_label_id="ANOM-9999",  # does not exist
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def _generation_run(session, run_id="GEN-0001", seed=SEED, mode="starter"):
+    _actor(session)
+    run = GenerationRun(
+        run_id=run_id,
+        seed=seed,
+        mode=mode,
+        generator_version="0.1.0",
+        generated_by_actor_id="ACT-0001",
+        generated_at=datetime(2026, 1, 1),
+        entity_counts_json="{}",
+        table_checksums_json="{}",
+        overall_checksum="0" * 64,
+        baseline_validation_report_json="{}",
+        post_injection_validation_report_json="{}",
+    )
+    session.add(run)
+    session.commit()
+    return run
+
+
+def test_generation_run_valid_insert(session):
+    _generation_run(session)
+    assert session.query(GenerationRun).count() == 1
+
+
+def test_generation_run_id_format_rejected(session):
+    _actor(session)
+    session.add(
+        GenerationRun(
+            run_id="BADID",
+            seed=SEED,
+            mode="starter",
+            generator_version="0.1.0",
+            generated_by_actor_id="ACT-0001",
+            generated_at=datetime(2026, 1, 1),
+            entity_counts_json="{}",
+            table_checksums_json="{}",
+            overall_checksum="0" * 64,
+            baseline_validation_report_json="{}",
+            post_injection_validation_report_json="{}",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_generation_run_wrong_seed_rejected(session):
+    with pytest.raises(IntegrityError):
+        _generation_run(session, seed=SEED + 1)
+
+
+def test_generation_run_mode_enum_rejected(session):
+    with pytest.raises(IntegrityError):
+        _generation_run(session, mode="partial")
+
+
+def test_generation_run_requires_existing_actor(session):
+    session.add(
+        GenerationRun(
+            run_id="GEN-0001",
+            seed=SEED,
+            mode="starter",
+            generator_version="0.1.0",
+            generated_by_actor_id="ACT-9999",  # does not exist
+            generated_at=datetime(2026, 1, 1),
+            entity_counts_json="{}",
+            table_checksums_json="{}",
+            overall_checksum="0" * 64,
+            baseline_validation_report_json="{}",
+            post_injection_validation_report_json="{}",
         )
     )
     with pytest.raises(IntegrityError):

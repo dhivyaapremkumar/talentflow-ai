@@ -9,15 +9,18 @@ Phase 2, Unit 3: Candidate, ResumeArtifact, CandidateSkill.
 Phase 2, Unit 4: Application, ApplicationSubmissionAttempt, ScreeningRun.
 Phase 2, Unit 5: Interview, Feedback.
 Phase 2, Unit 6: Offer.
-Phase 2, Unit 7 (this commit): RequisitionStatusHistory,
-ApplicationStageHistory, OfferStatusHistory.
-Remaining tables are added unit by unit.
+Phase 2, Unit 7: RequisitionStatusHistory, ApplicationStageHistory,
+OfferStatusHistory.
+Phase 2, Unit 8 (this commit, FINAL unit): AnomalyLabel, GenerationRun.
+All 22 tables are now built.
 """
 
 from app.db.models.actor import SystemActor
+from app.db.models.anomaly import AnomalyLabel
 from app.db.models.application import Application, ApplicationSubmissionAttempt
 from app.db.models.candidate import Candidate, ResumeArtifact
 from app.db.models.department import Department
+from app.db.models.generation_run import GenerationRun
 from app.db.models.history import (
     ApplicationStageHistory,
     OfferStatusHistory,
@@ -50,4 +53,6 @@ __all__ = [
     "RequisitionStatusHistory",
     "ApplicationStageHistory",
     "OfferStatusHistory",
+    "AnomalyLabel",
+    "GenerationRun",
 ]
