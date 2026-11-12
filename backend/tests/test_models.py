@@ -21,11 +21,14 @@ from sqlalchemy.orm import Session
 
 from app.db.base import Base
 from app.db.models import (
+    Candidate,
+    CandidateSkill,
     Department,
     Interviewer,
     InterviewerAvailabilitySlot,
     JobRequisition,
     JobRequisitionSkill,
+    ResumeArtifact,
     ScreeningRule,
     Skill,
     SystemActor,
@@ -495,3 +498,185 @@ def test_screening_rule_historical_noncurrent_row_for_same_requisition_allowed(s
     )
     session.commit()
     assert session.query(ScreeningRule).count() == 2
+
+
+# --- Unit 3: Candidate, ResumeArtifact, CandidateSkill ------------------------
+
+
+def _candidate(session, cand_id="CAND-000001", years_experience=6.0):
+    c = Candidate(
+        candidate_id=cand_id,
+        full_name="Casey Candidate",
+        email=f"{cand_id.lower()}@example.com",
+        phone=None,
+        location_city="Chennai",
+        location_country="India",
+        years_experience=years_experience,
+        highest_education_level="Bachelor",
+        source_channel="Website",
+        created_at=datetime(2026, 1, 1),
+    )
+    session.add(c)
+    session.commit()
+    return c
+
+
+def test_candidate_valid_insert(session):
+    _candidate(session)
+    assert session.query(Candidate).count() == 1
+
+
+def test_candidate_id_format_rejected(session):
+    session.add(
+        Candidate(
+            candidate_id="BADID",
+            full_name="Bad ID",
+            email="bad@example.com",
+            phone=None,
+            location_city="Chennai",
+            location_country="India",
+            years_experience=1.0,
+            highest_education_level="Bachelor",
+            source_channel="Website",
+            created_at=datetime(2026, 1, 1),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_candidate_years_experience_out_of_bounds_rejected(session):
+    with pytest.raises(IntegrityError):
+        _candidate(session, years_experience=51.0)
+
+
+def test_candidate_unique_email_rejected(session):
+    _candidate(session, cand_id="CAND-000001")
+    session.add(
+        Candidate(
+            candidate_id="CAND-000002",
+            full_name="Dup Email",
+            email="cand-000001@example.com",  # same email as the first
+            phone=None,
+            location_city="Chennai",
+            location_country="India",
+            years_experience=1.0,
+            highest_education_level="Bachelor",
+            source_channel="Website",
+            created_at=datetime(2026, 1, 1),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_resume_artifact_valid_insert(session):
+    _candidate(session)
+    session.add(
+        ResumeArtifact(
+            resume_artifact_id="RES-000001",
+            candidate_id="CAND-000001",
+            file_name="casey_resume.pdf",
+            file_format="PDF",
+            parsed_years_experience=6.0,
+            parsed_education_level="Bachelor",
+            is_latest=True,
+            uploaded_at=datetime(2026, 1, 1),
+        )
+    )
+    session.commit()
+    assert session.query(ResumeArtifact).count() == 1
+
+
+def test_resume_artifact_two_latest_for_same_candidate_rejected(session):
+    """Structural backstop for 'exactly one is_latest=true per candidate'."""
+    _candidate(session)
+    session.add(
+        ResumeArtifact(
+            resume_artifact_id="RES-000001",
+            candidate_id="CAND-000001",
+            file_name="v1.pdf",
+            file_format="PDF",
+            parsed_years_experience=6.0,
+            parsed_education_level="Bachelor",
+            is_latest=True,
+            uploaded_at=datetime(2026, 1, 1),
+        )
+    )
+    session.commit()
+    session.add(
+        ResumeArtifact(
+            resume_artifact_id="RES-000002",
+            candidate_id="CAND-000001",
+            file_name="v2.pdf",
+            file_format="PDF",
+            parsed_years_experience=6.0,
+            parsed_education_level="Bachelor",
+            is_latest=True,  # second is_latest=true for the same candidate
+            uploaded_at=datetime(2026, 1, 2),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_candidate_skill_valid_insert(session):
+    _candidate(session)
+    _skill(session)
+    session.add(
+        CandidateSkill(
+            candidate_id="CAND-000001",
+            skill_id="SKL-0001",
+            proficiency_level="Advanced",
+            years_of_experience=3.0,
+            source="SelfReported",
+            updated_at=datetime(2026, 1, 1),
+        )
+    )
+    session.commit()
+    assert session.query(CandidateSkill).count() == 1
+
+
+def test_candidate_skill_duplicate_pair_rejected(session):
+    _candidate(session)
+    _skill(session)
+    session.add(
+        CandidateSkill(
+            candidate_id="CAND-000001",
+            skill_id="SKL-0001",
+            proficiency_level="Advanced",
+            years_of_experience=3.0,
+            source="SelfReported",
+            updated_at=datetime(2026, 1, 1),
+        )
+    )
+    session.commit()
+    session.add(
+        CandidateSkill(
+            candidate_id="CAND-000001",
+            skill_id="SKL-0001",  # same composite PK again
+            proficiency_level="Expert",
+            years_of_experience=5.0,
+            source="ResumeParsed",
+            updated_at=datetime(2026, 1, 2),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_candidate_skill_proficiency_enum_rejected(session):
+    _candidate(session)
+    _skill(session)
+    session.add(
+        CandidateSkill(
+            candidate_id="CAND-000001",
+            skill_id="SKL-0001",
+            proficiency_level="NotALevel",
+            years_of_experience=3.0,
+            source="SelfReported",
+            updated_at=datetime(2026, 1, 1),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
