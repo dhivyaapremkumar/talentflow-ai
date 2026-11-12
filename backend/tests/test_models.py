@@ -4,9 +4,17 @@ Unit 1: Department, Skill, SystemActor, Interviewer,
 InterviewerAvailabilitySlot — table creation, PK uniqueness, FK enforcement,
 enum/GLOB-format constraints, and the start<end check constraint.
 
-Unit 2 (this commit): JobRequisition, JobRequisitionSkill, ScreeningRule —
-composite PK, weight/threshold CHECK constraints, the three-weight-sum=100
-constraint, and the uq_screeningrule_current partial unique index.
+Unit 2: JobRequisition, JobRequisitionSkill, ScreeningRule — composite PK,
+weight/threshold CHECK constraints, the three-weight-sum=100 constraint,
+and the uq_screeningrule_current partial unique index.
+
+Unit 3: Candidate, ResumeArtifact, CandidateSkill.
+
+Unit 4 (this commit): Application, ApplicationSubmissionAttempt,
+ScreeningRun — the derived-PK application_id, the canonical/duplicate
+attempt CHECK + uq_attempt_canonical partial unique index, the
+uq_screeningrun_latest partial unique index, and a real insert-level
+round-trip through the Application<->ScreeningRun circular FK.
 
 Each test gets a fresh in-memory SQLite database with foreign_keys=ON, so
 these tests exercise the exact same engine configuration as app.db.session
@@ -21,6 +29,8 @@ from sqlalchemy.orm import Session
 
 from app.db.base import Base
 from app.db.models import (
+    Application,
+    ApplicationSubmissionAttempt,
     Candidate,
     CandidateSkill,
     Department,
@@ -30,6 +40,7 @@ from app.db.models import (
     JobRequisitionSkill,
     ResumeArtifact,
     ScreeningRule,
+    ScreeningRun,
     Skill,
     SystemActor,
 )
@@ -679,4 +690,338 @@ def test_candidate_skill_proficiency_enum_rejected(session):
         )
     )
     with pytest.raises(IntegrityError):
+        session.commit()
+
+
+# --- Unit 4: Application, ApplicationSubmissionAttempt, ScreeningRun --------
+
+
+def _resume_artifact(session, cand_id="CAND-000001", res_id="RES-000001"):
+    r = ResumeArtifact(
+        resume_artifact_id=res_id,
+        candidate_id=cand_id,
+        file_name="resume.pdf",
+        file_format="PDF",
+        parsed_years_experience=6.0,
+        parsed_education_level="Bachelor",
+        is_latest=True,
+        uploaded_at=datetime(2026, 1, 1),
+    )
+    session.add(r)
+    session.commit()
+    return r
+
+
+def _application(
+    session,
+    app_id="APP-REQ-00001-CAND-000001",
+    req_id="REQ-00001",
+    cand_id="CAND-000001",
+    res_id="RES-000001",
+    stage="Applied",
+    rejected_reason=None,
+    withdrawn_at=None,
+):
+    _requisition(session, req_id=req_id)
+    _candidate(session, cand_id=cand_id)
+    _resume_artifact(session, cand_id=cand_id, res_id=res_id)
+    a = Application(
+        application_id=app_id,
+        candidate_id=cand_id,
+        requisition_id=req_id,
+        resume_artifact_id=res_id,
+        applied_at=datetime(2026, 1, 1),
+        source_channel="Website",
+        stage=stage,
+        rejected_reason=rejected_reason,
+        withdrawn_at=withdrawn_at,
+        created_at=datetime(2026, 1, 1),
+        updated_at=datetime(2026, 1, 1),
+    )
+    session.add(a)
+    session.commit()
+    return a
+
+
+def test_application_valid_insert(session):
+    _application(session)
+    assert session.query(Application).count() == 1
+
+
+def test_application_id_format_rejected(session):
+    _requisition(session)
+    _candidate(session)
+    _resume_artifact(session)
+    session.add(
+        Application(
+            application_id="BAD-ID",
+            candidate_id="CAND-000001",
+            requisition_id="REQ-00001",
+            resume_artifact_id="RES-000001",
+            applied_at=datetime(2026, 1, 1),
+            source_channel="Website",
+            stage="Applied",
+            created_at=datetime(2026, 1, 1),
+            updated_at=datetime(2026, 1, 1),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_application_rejected_without_reason_rejected(session):
+    with pytest.raises(IntegrityError):
+        _application(session, stage="Rejected", rejected_reason=None)
+
+
+def test_application_rejected_with_reason_allowed(session):
+    _application(session, stage="Rejected", rejected_reason="Not enough experience")
+    assert session.query(Application).count() == 1
+
+
+def test_application_withdrawn_without_timestamp_rejected(session):
+    with pytest.raises(IntegrityError):
+        _application(session, stage="Withdrawn", withdrawn_at=None)
+
+
+def test_application_screening_score_out_of_bounds_rejected(session):
+    _requisition(session)
+    _candidate(session)
+    _resume_artifact(session)
+    session.add(
+        Application(
+            application_id="APP-REQ-00001-CAND-000001",
+            candidate_id="CAND-000001",
+            requisition_id="REQ-00001",
+            resume_artifact_id="RES-000001",
+            applied_at=datetime(2026, 1, 1),
+            source_channel="Website",
+            stage="Screening",
+            screening_score=150.0,
+            created_at=datetime(2026, 1, 1),
+            updated_at=datetime(2026, 1, 1),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_application_stage_enum_rejected(session):
+    with pytest.raises(IntegrityError):
+        _application(session, stage="NotAStage")
+
+
+def _attempt(
+    session,
+    attempt_id="ATT-0000001",
+    app_id="APP-REQ-00001-CAND-000001",
+    is_canonical=True,
+    duplicate_of_attempt_id=None,
+    issue_type="None",
+    submitted_at=datetime(2026, 1, 1),
+):
+    att = ApplicationSubmissionAttempt(
+        attempt_id=attempt_id,
+        canonical_application_id=app_id,
+        candidate_id="CAND-000001",
+        requisition_id="REQ-00001",
+        submitted_at=submitted_at,
+        is_canonical=is_canonical,
+        duplicate_of_attempt_id=duplicate_of_attempt_id,
+        issue_type=issue_type,
+    )
+    session.add(att)
+    session.commit()
+    return att
+
+
+def test_application_submission_attempt_valid_insert(session):
+    _application(session)
+    _attempt(session)
+    assert session.query(ApplicationSubmissionAttempt).count() == 1
+
+
+def test_application_submission_attempt_id_format_rejected(session):
+    _application(session)
+    with pytest.raises(IntegrityError):
+        _attempt(session, attempt_id="BADID")
+
+
+def test_application_submission_attempt_canonical_duplicate_consistency_rejected(session):
+    """is_canonical=True with a non-null duplicate_of_attempt_id violates the
+    paired CHECK constraint (data_dictionary.md §8a)."""
+    _application(session)
+    with pytest.raises(IntegrityError):
+        _attempt(session, is_canonical=True, duplicate_of_attempt_id="ATT-0000099")
+
+
+def test_application_submission_attempt_two_canonical_for_same_application_rejected(session):
+    _application(session)
+    _attempt(session, attempt_id="ATT-0000001", is_canonical=True)
+    with pytest.raises(IntegrityError):
+        _attempt(
+            session,
+            attempt_id="ATT-0000002",
+            is_canonical=True,  # second canonical row for the same application
+            submitted_at=datetime(2026, 1, 2),
+        )
+
+
+def test_application_submission_attempt_issue_type_enum_rejected(session):
+    _application(session)
+    with pytest.raises(IntegrityError):
+        _attempt(session, issue_type="NotAnIssueType")
+
+
+def _screening_run(
+    session,
+    run_id="SCRUN-0000001",
+    app_id="APP-REQ-00001-CAND-000001",
+    rule_id="SCR-0001",
+    is_latest=True,
+    score=85.0,
+    decision="Pass",
+):
+    _application(session, app_id=app_id)
+    # Insert the ScreeningRule directly rather than via the _screening_rule()
+    # helper: that helper always calls _requisition() internally, which would
+    # try to re-create the same REQ-00001/DEPT-0001/ACT-0001 rows _application()
+    # already created above and collide on department.cost_center_code's
+    # unique constraint.
+    session.add(
+        ScreeningRule(
+            screening_rule_id=rule_id,
+            requisition_id="REQ-00001",
+            is_current=True,
+            version=1,
+            min_years_experience=4.0,
+            min_education_level="Bachelor",
+            skill_weight_pct=50,
+            experience_weight_pct=30,
+            education_weight_pct=20,
+            pass_threshold_score=70.0,
+            created_at=datetime(2026, 1, 1),
+        )
+    )
+    session.commit()
+    run = ScreeningRun(
+        screening_run_id=run_id,
+        application_id=app_id,
+        screening_rule_id=rule_id,
+        is_latest=is_latest,
+        screening_rule_version=1,
+        screening_skill_component=0.9,
+        screening_experience_component=0.8,
+        screening_education_component=1.0,
+        screening_education_gate_passed=True,
+        screening_score=score,
+        screening_decision=decision,
+        screening_explanation="Strong skill match; meets education gate.",
+        computed_at=datetime(2026, 1, 2),
+    )
+    session.add(run)
+    session.commit()
+    return run
+
+
+def test_screening_run_valid_insert(session):
+    _screening_run(session)
+    assert session.query(ScreeningRun).count() == 1
+
+
+def test_screening_run_id_format_rejected(session):
+    _application(session)
+    session.add(
+        ScreeningRule(
+            screening_rule_id="SCR-0001",
+            requisition_id="REQ-00001",
+            is_current=True,
+            version=1,
+            min_years_experience=4.0,
+            min_education_level="Bachelor",
+            skill_weight_pct=50,
+            experience_weight_pct=30,
+            education_weight_pct=20,
+            pass_threshold_score=70.0,
+            created_at=datetime(2026, 1, 1),
+        )
+    )
+    session.commit()
+    session.add(
+        ScreeningRun(
+            screening_run_id="BADID",
+            application_id="APP-REQ-00001-CAND-000001",
+            screening_rule_id="SCR-0001",
+            is_latest=True,
+            screening_rule_version=1,
+            screening_skill_component=0.9,
+            screening_experience_component=0.8,
+            screening_education_component=1.0,
+            screening_education_gate_passed=True,
+            screening_score=85.0,
+            screening_decision="Pass",
+            screening_explanation="x",
+            computed_at=datetime(2026, 1, 2),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_screening_run_score_out_of_bounds_rejected(session):
+    with pytest.raises(IntegrityError):
+        _screening_run(session, score=150.0)
+
+
+def test_screening_run_decision_enum_rejected(session):
+    with pytest.raises(IntegrityError):
+        _screening_run(session, decision="Maybe")
+
+
+def test_screening_run_two_latest_for_same_application_rejected(session):
+    """Structural backstop for 'at most one is_latest=true per application'
+    (data_dictionary.md §8b)."""
+    _screening_run(session, run_id="SCRUN-0000001", is_latest=True)
+    session.add(
+        ScreeningRun(
+            screening_run_id="SCRUN-0000002",
+            application_id="APP-REQ-00001-CAND-000001",
+            screening_rule_id="SCR-0001",
+            is_latest=True,  # second latest row for the same application
+            screening_rule_version=1,
+            screening_skill_component=0.9,
+            screening_experience_component=0.85,
+            screening_education_component=1.0,
+            screening_education_gate_passed=True,
+            screening_score=87.0,
+            screening_decision="Pass",
+            screening_explanation="Re-screened.",
+            computed_at=datetime(2026, 1, 3),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_application_latest_screening_run_id_roundtrip(session):
+    """Real insert-level proof (not just DDL) that the Application<->
+    ScreeningRun circular FK works end-to-end via the documented three-step
+    procedure: insert Application with latest_screening_run_id=NULL, insert
+    the ScreeningRun row, then update Application to point at it
+    (data_dictionary.md §8b)."""
+    _screening_run(session)
+    session.query(Application).filter_by(application_id="APP-REQ-00001-CAND-000001").update(
+        {"latest_screening_run_id": "SCRUN-0000001", "screening_score": 85.0}
+    )
+    session.commit()
+    updated = session.get(Application, "APP-REQ-00001-CAND-000001")
+    assert updated.latest_screening_run_id == "SCRUN-0000001"
+
+
+def test_application_latest_screening_run_id_bad_fk_rejected(session):
+    _application(session)
+    with pytest.raises(IntegrityError):
+        session.query(Application).filter_by(application_id="APP-REQ-00001-CAND-000001").update(
+            {"latest_screening_run_id": "SCRUN-9999999"}
+        )
         session.commit()

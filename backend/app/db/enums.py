@@ -5,3 +5,4 @@
 
 PROFICIENCY_LEVELS = ("Beginner", "Intermediate", "Advanced", "Expert")
 EDUCATION_LEVELS = ("HighSchool", "Associate", "Bachelor", "Master", "Doctorate")
+PASS_FAIL_DECISIONS = ("Pass", "Fail")
