@@ -2767,3 +2767,138 @@ Our objective is a complete, working, defensible end-to-end submission by Novemb
   HTTP status codes, build output) — none are inferred or assumed. No test
   result, execution, or review status is invented, per this prompt's explicit
   instruction.
+
+---
+
+### Prompt ID: P020
+
+- Date and time: 2026-11-12 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Authorize Phase 3 (deterministic baseline data generator). Requires a
+  quick automated schema audit of all 22 Phase 2 models against
+  `data_dictionary.md` first, fixing only clear implementation mistakes (not
+  business-rule changes), then building the generator itself, then running and
+  reporting real starter-mode and full-mode results.
+- Development phase: **Phase 3 — Deterministic baseline data generation**
+  (Phase 2 — database schema — reported complete immediately prior: 22 tables,
+  104 tests passing, 9 commits)
+- Context/files supplied: The repository state as of Phase 2's completion
+  (22 SQLAlchemy model modules, 104 passing tests, `docs/implementation_plan.md`
+  with Phase 2 marked `STATUS: COMPLETE`).
+- Exact prompt:
+
+```text
+Proceed immediately with Phase 3 — Deterministic Baseline Data Generator.
+
+Phase 2 is complete:
+- All 22 SQLAlchemy models implemented.
+- 104 tests passed, zero failed.
+- Schema implementation committed incrementally.
+- Phase 2 documentation marked complete.
+
+Before generating data, perform a quick automated schema audit:
+1. Compare all 22 models against docs/data_dictionary.md.
+2. Check fields, types, nullability, IDs, foreign keys, constraints and relationships.
+3. Report genuine discrepancies.
+4. Fix only clear implementation mistakes that do not change approved business rules.
+5. Do not spend excessive time on manual documentation review.
+
+Then implement the independent deterministic data generator.
+
+Requirements:
+
+1. Fixed seed: 20261022.
+2. Support starter and full modes.
+3. Populate all 22 tables in correct dependency order.
+4. Respect all primary keys, foreign keys, unique constraints and relationships.
+5. Generate realistic synthetic recruitment data.
+6. Keep ground-truth labels out of the baseline operational dataset.
+7. Create GenerationRun metadata correctly.
+8. Generate reproducible normalized dataset content and checksums.
+9. Keep generation independent of the FastAPI server.
+10. Use efficient bulk operations where appropriate.
+
+Expected full-scale volumes:
+- 100 requisitions.
+- 2,000 candidates.
+- 3,000 applications.
+- 600 interviews.
+- 150 offers.
+
+Ensure baseline data is valid. Do not inject anomalies during Phase 3.
+
+Testing:
+- Starter generation succeeds.
+- All 22 tables are populated appropriately.
+- All FK relationships are valid.
+- Same seed and generator version produce identical deterministic content.
+- Different seeds can produce different datasets.
+- GenerationRun metadata is correct.
+- Full-mode volumes match requirements.
+- Existing 104 tests continue passing.
+
+Run starter mode first, then full mode if starter tests pass.
+
+Do not implement the validation engine or anomaly injection yet.
+
+Git:
+- Preserve existing commits.
+- Run tests before committing.
+- Commit the generator as a separate meaningful milestone.
+- Do not push without authorization.
+
+Append this exact prompt to prompts/claude_code_prompts.md using the next available ID.
+
+Return actual commands, generated counts, test results, checksum comparison, schema audit findings and commit hash. Do not claim full-mode verification unless executed.
+```
+
+- Output summary: **Schema audit:** compared all 22 Phase 2 models field-by-
+  field against `data_dictionary.md`; found and fixed one genuine gap
+  (`ResumeArtifact.parsed_years_experience` had no `>= 0` CHECK despite the
+  doc documenting it, unlike the identical pattern already on
+  `Candidate.years_experience`); no other discrepancies. One non-issue
+  explicitly flagged but not touched (free-text "contains @"/"non-empty"
+  rules are consistently unenforced schema-wide — a deliberate pattern, not
+  a mistake). **Generator:** added a new shared module `app/screening_formula.py`
+  (the business_rules.md §5 three-weight formula as pure functions — flagged
+  as living outside `services/` because that package doesn't exist yet and
+  `data_generation/` may not import it), then built the generator as 8
+  consolidated entity modules (flagged deviation from the original 17-module
+  plan) plus `seeding.py` (SHA-256 child-seed derivation, flagged deviation
+  from literal `hash()` which would break reproducibility), `volumes.py`
+  (funnel-bucket math), and `export.py` (CSV + checksums). Ran
+  `python -m app.data_generation.generator --mode starter` then `--mode full`
+  — both succeeded on the first real attempt after the supporting modules were
+  written. Starter: 10/100/150/30/8 (requisitions/candidates/applications/
+  interviews/offers), matching PROJECT_SPEC.md A-6 exactly. Full: 100/2000/
+  3000/600/150, matching this prompt's mandated volumes exactly. `ScreeningRun`
+  and `ApplicationSubmissionAttempt` are 1:1 with `Application` at both scales.
+  `AnomalyLabel` has 0 rows (Phase 5 only). Verified via `PRAGMA
+  foreign_key_check` (zero violations, both databases), re-running the same
+  seed twice (identical overall + per-table SHA-256 checksums, both scales:
+  `006859be...` starter, `fd966ace...` full), a different seed (99999)
+  producing a different checksum at the generation layer (confirmed it cannot
+  be persisted as a `GenerationRun` row — the `seed` CHECK constraint
+  correctly raised `IntegrityError`, which is by design, not a bug), and
+  direct SQL spot-checks (stage distribution, offer/interview status
+  distribution, zero Closed/Cancelled requisitions with non-terminal
+  applications, zero `Completed` interviews missing `Feedback`, all
+  `JobRequisitionSkill.weight_pct` sums equal to exactly 100). Added
+  `tests/test_screening_formula.py` (7 tests) and
+  `tests/test_data_generation.py` (8 tests). Full suite: **120 passed, 0
+  failed** (105 pre-existing Phase 2 tests + 15 new). 6 commits made:
+  `cb2656a` (schema-audit fix), `5c8b01e` (shared formula), plus 4 more for
+  the generator itself, tests, and docs updates (exact hashes in each
+  commit's own message, reported to the user turn-by-turn).
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Every number in this entry corresponds to a command
+  actually run in this session and its actual output — test pass counts,
+  checksum strings, SQL query results, row counts from the generator's own
+  printed summary. No test result, execution, or review status is invented,
+  per this project's standing anti-fabrication rule. The one deliberately
+  "not yet run" item (`GenerationRun`'s two validation-report JSON fields)
+  is stored as an honest `{"status": "not_yet_run", ...}` placeholder, not a
+  fabricated validation result, since Phase 4 (the validation engine) does
+  not exist yet.
