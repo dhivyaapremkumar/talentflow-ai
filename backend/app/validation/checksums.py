@@ -17,25 +17,18 @@ complementary "does the stored manifest match the live DB" half, which
 only makes sense once a `GenerationRun` row exists to compare against.
 """
 
+import hashlib
 import json
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.data_generation.export import TABLE_COLUMNS, TABLE_ORDER, _canonical_csv
-from app.db.base import Base
+from app.data_generation.export import TABLE_ORDER, _canonical_csv, read_tables_from_db
 from app.db.models import GenerationRun
 from app.validation.report import Finding
 
 RULE_ID = "VAL-13"
 RULE_CATEGORY = "checksums"
-
-
-def _table_rows_as_dicts(session: Session, table_name: str) -> list[dict]:
-    table = Base.metadata.tables[table_name]
-    columns = TABLE_COLUMNS[table_name]
-    stmt = select(*[table.c[c] for c in columns])
-    return [dict(zip(columns, row)) for row in session.execute(stmt)]
 
 
 def check(session: Session) -> list[Finding]:
@@ -49,12 +42,10 @@ def check(session: Session) -> list[Finding]:
 
     recorded_checksums = json.loads(run.table_checksums_json)
 
-    import hashlib
-
+    live_tables = read_tables_from_db(session)
     recomputed_checksums = {}
     for table_name in TABLE_ORDER:
-        rows = _table_rows_as_dicts(session, table_name)
-        csv_text = _canonical_csv(table_name, rows)
+        csv_text = _canonical_csv(table_name, live_tables[table_name])
         recomputed_checksums[table_name] = hashlib.sha256(csv_text.encode("utf-8")).hexdigest()
 
     for table_name in TABLE_ORDER:

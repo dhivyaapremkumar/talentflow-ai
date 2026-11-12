@@ -113,6 +113,25 @@ def check(session: Session) -> list[Finding]:
                 )
             )
 
+    # Detection output, distinct from the consistency checks above: one
+    # finding per attempt the algorithm determines is a duplicate — this
+    # is what validation_strategy.md Sec11/Sec21 means by "expected output:
+    # zero at baseline; exactly 15 (full) / 3 (starter) non-canonical
+    # attempts post-injection." A finding here does not mean something is
+    # broken (unlike the consistency-mismatch findings above) — it means a
+    # duplicate submission was correctly detected, which is the intended,
+    # expected outcome once Phase 5 has injected any.
+    for attempt_id, exp in expected.items():
+        if exp["issue_type"] == "DuplicateSubmission":
+            findings.append(
+                Finding(
+                    RULE_ID, RULE_CATEGORY, "application_submission_attempt", attempt_id,
+                    f"detected duplicate submission (duplicate_of_attempt_id="
+                    f"{exp['duplicate_of_attempt_id']!r})",
+                    "violation",
+                )
+            )
+
     # Independent re-derivation of the partial-unique-index invariant: at
     # most one is_canonical=true per canonical_application_id.
     canonical_count_by_app: dict[str, int] = {}

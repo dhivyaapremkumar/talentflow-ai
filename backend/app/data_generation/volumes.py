@@ -24,6 +24,28 @@ FIXED_CATALOG_VOLUMES = {
     "system_actor": 20,
 }
 
+# Anomaly incident counts per mode — business_rules.md Sec9's table,
+# PROJECT_SPEC.md Sec6. "Affected rows" equals "incidents" for every type
+# except closed_requisition (2 affected Application rows per incident,
+# A-12), handled separately by that injector, not reflected in these
+# incident counts.
+ANOMALY_COUNTS = {
+    "full": {
+        "unavailable_interviewer": 15,
+        "duplicate_application": 15,
+        "missing_feedback": 10,
+        "salary_band": 6,
+        "closed_requisition": 5,
+    },
+    "starter": {
+        "unavailable_interviewer": 3,
+        "duplicate_application": 3,
+        "missing_feedback": 2,
+        "salary_band": 1,
+        "closed_requisition": 1,
+    },
+}
+
 MODE_VOLUMES = {
     "full": {
         "job_requisition": 100,
@@ -130,4 +152,5 @@ def volumes_for_mode(mode: str) -> dict:
         n_hired=volumes["hired"],
         n_interviewing_or_beyond=volumes["interviewing_or_beyond"],
     )
+    volumes["anomaly_counts"] = ANOMALY_COUNTS[mode]
     return volumes

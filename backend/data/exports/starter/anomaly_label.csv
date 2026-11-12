@@ -1,1 +1,12 @@
 label_id,entity_type,entity_id,anomaly_type,related_entity_id,injected_at,description
+ANOM-0001,Interview,IVW-000017,UnavailableInterviewer,,2026-04-01T00:00:00,"Interview IVW-000017 rescheduled to 2025-04-05T16:00:00, outside interviewer IVR-0014's availability windows."
+ANOM-0002,Interview,IVW-000018,UnavailableInterviewer,,2026-04-01T00:00:00,"Interview IVW-000018 rescheduled to 2025-04-05T09:00:00, outside interviewer IVR-0011's availability windows."
+ANOM-0003,Interview,IVW-000019,UnavailableInterviewer,,2026-04-01T00:00:00,"Interview IVW-000019 rescheduled to 2025-08-09T16:00:00, outside interviewer IVR-0001's availability windows."
+ANOM-0004,ApplicationSubmissionAttempt,ATT-0000151,DuplicateApplication,ATT-0000010,2026-04-01T00:00:00,"Duplicate submission ATT-0000151 for (candidate CAND-000056, requisition REQ-00003), canonical attempt ATT-0000010."
+ANOM-0005,ApplicationSubmissionAttempt,ATT-0000152,DuplicateApplication,ATT-0000086,2026-04-01T00:00:00,"Duplicate submission ATT-0000152 for (candidate CAND-000002, requisition REQ-00005), canonical attempt ATT-0000086."
+ANOM-0006,ApplicationSubmissionAttempt,ATT-0000153,DuplicateApplication,ATT-0000047,2026-04-01T00:00:00,"Duplicate submission ATT-0000153 for (candidate CAND-000049, requisition REQ-00006), canonical attempt ATT-0000047."
+ANOM-0007,Application,APP-REQ-00007-CAND-000067,MissingFeedbackStageAdvanced,IVW-000007,2026-04-01T00:00:00,Application APP-REQ-00007-CAND-000067 at stage 'Hired' has a Completed interview IVW-000007 with no Feedback row.
+ANOM-0008,Application,APP-REQ-00007-CAND-000090,MissingFeedbackStageAdvanced,IVW-000001,2026-04-01T00:00:00,Application APP-REQ-00007-CAND-000090 at stage 'Hired' has a Completed interview IVW-000001 with no Feedback row.
+ANOM-0009,Offer,OFR-00002,SalaryOutsideBand,,2026-04-01T00:00:00,"Offer OFR-00002 proposed_salary rewritten to 106481, outside requisition REQ-00010's band [114396, 156604]."
+ANOM-0010,Application,APP-REQ-00007-CAND-000025,ClosedReqActiveApplications,REQ-00007,2026-04-01T00:00:00,Requisition REQ-00007 closed while application APP-REQ-00007-CAND-000025 remains at non-terminal stage 'Screening'.
+ANOM-0011,Application,APP-REQ-00007-CAND-000092,ClosedReqActiveApplications,REQ-00007,2026-04-01T00:00:00,Requisition REQ-00007 closed while application APP-REQ-00007-CAND-000092 remains at non-terminal stage 'Offer'.

@@ -1,26 +1,32 @@
-"""Deterministic baseline data generator — Phase 3. Entrypoint:
+"""Deterministic baseline-then-anomaly-injection generator — Phases 3+5.
+Entrypoint:
 
     python -m app.data_generation.generator --mode starter|full [--seed N]
 
 Populates all 22 tables in the dependency order fixed by architecture.md
-§4, deterministically under the fixed seed (PROJECT_SPEC.md §5). Does not
-inject anomalies (`AnomalyLabel` stays empty, Phase 5's job) and does not
-run the FastAPI server. Calls `app.validation` after loading the baseline
-— the hard gate from business_rules.md §13 — which is a permitted
-dependency (architecture.md §6 only forbids `data_generation/` importing
-`api/`/`services/`, not `validation/`).
+§4, deterministically under the fixed seed (PROJECT_SPEC.md §5), then
+injects the five approved `AnomalyLabel`-generating anomaly types
+(business_rules.md §9), but only once the baseline has passed the hard
+validation gate (§13) — this module calls `app.validation` both before
+injection (the gate, zero violations required) and after (a second, real
+run proving structural categories are still zero and the five
+business-rule categories now show their documented non-zero counts). Does
+not run the FastAPI server. `validation/` is a permitted dependency
+(architecture.md §6 only forbids `data_generation/` importing
+`api/`/`services/`).
 """
 
 import argparse
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from sqlalchemy.orm import Session
 
 from app.config import SEED
 from app.data_generation import volumes as volumes_module
+from app.data_generation.anomalies.injector import inject_all_anomalies
 from app.data_generation.entities import candidates as candidates_entity
 from app.data_generation.entities import history as history_entity
 from app.data_generation.entities import interviews as interviews_entity
@@ -28,7 +34,7 @@ from app.data_generation.entities import offers as offers_entity
 from app.data_generation.entities import reference_data
 from app.data_generation.entities import requisitions as requisitions_entity
 from app.data_generation.entities.applications import generate_applications
-from app.data_generation.export import export_tables
+from app.data_generation.export import export_tables, read_tables_from_db
 from app.db.base import Base
 from app.db.models import (
     AnomalyLabel,
@@ -244,31 +250,16 @@ def write_generation_run(
     db_path: Path,
     started_at: datetime,
     baseline_report: dict,
-    export_dir: Path | None = None,
+    post_injection_report: dict,
 ) -> dict:
-    """`baseline_report` must be the real report the baseline gate already
-    produced (`validation.gate.run_baseline_gate`) — never recomputed or
-    fabricated here. `post_injection_validation_report_json` is a second,
-    equally real run of the same validation suite, labeled "post_injection"
-    for forward schema-compatibility — honestly noted as identical to the
-    baseline, since Phase 5 (anomaly injection) does not exist yet in this
-    codebase. Neither field is ever a placeholder claiming a result that
-    wasn't actually computed."""
+    """`baseline_report` and `post_injection_report` must both be real
+    reports the caller already produced by actually running the
+    validation suite (`validation.gate.run_baseline_gate` before
+    injection, `validation.runner.run_all_rules` after) — never
+    recomputed, re-labeled, or fabricated here."""
     engine = make_engine(str(db_path))
     sys_admin_id = dataset["_actor_ids_by_role"]["SYSTEM_ADMINISTRATOR"][0]
     generated_at = datetime.now()
-
-    with Session(engine) as session:
-        post_injection_report = run_all_rules(
-            session, dataset_mode=mode, report_mode="post_injection", export_dir=export_dir
-        )
-    post_injection_report["note"] = (
-        "Phase 5 (anomaly injection) has not run yet in this codebase — this is the "
-        "same validation suite genuinely re-run against the unmodified baseline, "
-        "included for forward-compatibility with the GenerationRun schema. The "
-        "documented non-zero counts for VAL-06/08/10/11/12 (validation_strategy.md "
-        "Sec21) will only appear once Phase 5 exists and has actually injected anomalies."
-    )
 
     run_row = {
         "run_id": "GEN-0001",
@@ -313,24 +304,65 @@ def main():
     load_dataset(dataset, db_path)
     load_elapsed = time.monotonic() - t1
 
-    # business_rules.md Sec13's gate: run before anomaly injection would be
-    # imported (Phase 5, not implemented) and before anything is exported or
-    # finalized. A non-empty violation list raises BaselineValidationFailed,
-    # an uncaught exception that halts the process right here.
+    # business_rules.md Sec13's gate: run before anomaly injection is
+    # imported and before anything is exported or finalized. A non-empty
+    # violation list raises BaselineValidationFailed, an uncaught exception
+    # that halts the process right here — injection is never reached.
     engine = make_engine(str(db_path))
     with Session(engine) as session:
         baseline_report = run_baseline_gate(session, dataset_mode=args.mode)
 
+    # Phase 5: inject the five approved anomaly types + AnomalyLabel rows,
+    # only now that the gate above has actually passed.
+    #
+    # injected_at must be a deterministic timestamp, not wall-clock
+    # datetime.now() — a real bug, caught by comparing two runs' exported
+    # checksums (validation_strategy.md Sec13 requires all 21 operational
+    # tables, including anomaly_label, to be byte-identical across repeated
+    # runs with the same seed; only GenerationRun itself is exempt, via its
+    # own generated_at/run_id). Every other timestamp in this dataset is
+    # already deterministically derived from the seeded generation
+    # process, never real time — injected_at must be too.
+    deterministic_injected_at = reference_data.EPOCH + timedelta(days=450)
+
+    t2 = time.monotonic()
+    with Session(engine) as session:
+        label_rows = inject_all_anomalies(
+            session, args.seed, args.mode, injected_at=deterministic_injected_at
+        )
+        session.commit()
+    inject_elapsed = time.monotonic() - t2
+
+    # Exports reflect the *final*, post-injection state — always read fresh
+    # from the live database from this point on, never the stale in-memory
+    # dataset the run started with (validation_strategy.md Sec20).
     export_dir = Path(args.export_dir) if args.export_dir else Path(f"data/exports/{args.mode}")
-    export_tables_input = {k: v for k, v in dataset.items() if not k.startswith("_")}
-    export_summary = export_tables(export_tables_input, export_dir)
+    with Session(engine) as session:
+        live_tables = read_tables_from_db(session)
+    export_summary = export_tables(live_tables, export_dir)
+
+    # Step 4 of business_rules.md Sec13's pipeline: re-run the same
+    # validation suite against the post-injection data. VAL-06/08/10/11/12
+    # are expected to now report their documented non-zero counts; every
+    # other category must still be zero (injectors are not permitted to
+    # break structural integrity). This is a real, genuinely computed
+    # result — never a placeholder, and never described as "anomaly-free."
+    with Session(engine) as session:
+        post_injection_report = run_all_rules(
+            session, dataset_mode=args.mode, report_mode="post_injection", export_dir=export_dir
+        )
 
     run_row = write_generation_run(
-        dataset, args.mode, args.seed, export_summary, db_path, started_at, baseline_report, export_dir
+        dataset, args.mode, args.seed, export_summary, db_path, started_at,
+        baseline_report, post_injection_report,
     )
 
     print(f"Mode: {args.mode}  Seed: {args.seed}  Generator version: {GENERATOR_VERSION}")
-    print(f"Generation time: {gen_elapsed:.2f}s  DB load time: {load_elapsed:.2f}s")
+    print(
+        f"Generation time: {gen_elapsed:.2f}s  DB load time: {load_elapsed:.2f}s  "
+        f"Injection time: {inject_elapsed:.2f}s"
+    )
+    print(f"Anomalies injected: {len(label_rows)} AnomalyLabel rows")
     print(f"Database: {db_path}")
     print(f"Export dir: {export_dir}")
     print("Entity counts:")
@@ -340,6 +372,11 @@ def main():
     print(
         f"Baseline validation: {baseline_report['total_violations']} violations, "
         f"{baseline_report['total_warnings']} warnings across {len(baseline_report['rule_ids_run'])} rules"
+    )
+    print(
+        f"Post-injection validation: {post_injection_report['total_violations']} violations, "
+        f"{post_injection_report['total_warnings']} warnings "
+        f"(counts_by_rule: {post_injection_report['counts_by_rule']})"
     )
     print(f"GenerationRun: {run_row['run_id']}")
 

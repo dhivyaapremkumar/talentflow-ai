@@ -299,8 +299,12 @@ def test_val13_checksums_detects_live_data_drift(tmp_path):
 
     from app.data_generation.generator import write_generation_run
 
+    with Session(engine) as session:
+        post_injection_report = run_all_rules(session, dataset_mode="starter", report_mode="post_injection")
+
     write_generation_run(
-        dataset, "starter", 20261022, export_summary, db_path, datetime.now(), baseline_report
+        dataset, "starter", 20261022, export_summary, db_path, datetime.now(),
+        baseline_report, post_injection_report,
     )
 
     with Session(engine) as session:

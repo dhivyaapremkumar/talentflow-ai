@@ -101,14 +101,21 @@ def check(session: Session, mode: str) -> list[Finding]:
                 )
             )
 
-    # Baseline AnomalyLabel expectation: zero rows (Phase 5 has not run).
+    # AnomalyLabel expectation: exactly 0 (baseline, before Phase 5 has run)
+    # or exactly the documented total for this mode (post-injection,
+    # business_rules.md Sec9a) — never any other count. This single check
+    # covers both validation modes without needing a separate "has
+    # injection run yet" flag threaded through from the caller.
     anomaly_label_count = _count(session, AnomalyLabel)
-    if anomaly_label_count != 0:
+    expected_total = sum(volumes["anomaly_counts"].values()) + volumes["anomaly_counts"][
+        "closed_requisition"
+    ]  # closed_requisition produces 2 AnomalyLabel rows per incident (A-12)
+    if anomaly_label_count not in (0, expected_total):
         findings.append(
             Finding(
                 RULE_ID, RULE_CATEGORY, "anomaly_label", "*",
-                f"{anomaly_label_count} AnomalyLabel rows exist, expected 0 in a dataset with no "
-                "anomaly injection run",
+                f"{anomaly_label_count} AnomalyLabel rows exist — expected either 0 (no injection "
+                f"has run) or exactly {expected_total} (business_rules.md Sec9a, this {mode} mode)",
                 "violation",
             )
         )

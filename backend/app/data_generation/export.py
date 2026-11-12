@@ -307,3 +307,25 @@ def export_tables(tables: dict[str, list[dict]], export_dir: Path) -> dict:
         "table_checksums": table_checksums,
         "overall_checksum": overall_checksum,
     }
+
+
+def read_tables_from_db(session) -> dict[str, list[dict]]:
+    """Reads all 21 operational tables fresh from the live database, in
+    `TABLE_ORDER`. Exports must reflect the *final* state of a generation
+    run (validation_strategy.md §20: "after both baseline generation and
+    anomaly injection have completed") — the in-memory dataset a
+    generator run started with goes stale the moment anomaly injection
+    mutates the database, so export must always read from here, never
+    from that original dict, once injection exists (Phase 5).
+    """
+    from sqlalchemy import select
+
+    from app.db.base import Base
+
+    tables: dict[str, list[dict]] = {}
+    for table_name in TABLE_ORDER:
+        table = Base.metadata.tables[table_name]
+        columns = TABLE_COLUMNS[table_name]
+        stmt = select(*[table.c[c] for c in columns])
+        tables[table_name] = [dict(zip(columns, row)) for row in session.execute(stmt)]
+    return tables

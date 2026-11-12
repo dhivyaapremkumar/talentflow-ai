@@ -1,11 +1,9 @@
 feedback_id,interview_id,interviewer_id,recommendation,overall_score,strengths_text,concerns_text,submitted_at
-FBK-000001,IVW-000001,IVR-0007,StrongYes,5,Strong technical fundamentals and clear communication.,,2025-04-02T12:51:00
 FBK-000002,IVW-000002,IVR-0019,Yes,5,Strong technical fundamentals and clear communication.,,2025-04-09T19:37:00
 FBK-000003,IVW-000003,IVR-0021,Yes,4,Strong technical fundamentals and clear communication.,,2025-04-14T13:10:00
 FBK-000004,IVW-000004,IVR-0011,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-04-21T19:16:00
 FBK-000005,IVW-000005,IVR-0011,Yes,5,Strong technical fundamentals and clear communication.,,2025-10-27T14:19:00
 FBK-000006,IVW-000006,IVR-0023,Yes,5,Strong technical fundamentals and clear communication.,,2025-10-30T12:51:00
-FBK-000007,IVW-000007,IVR-0019,StrongYes,5,Strong technical fundamentals and clear communication.,,2025-08-01T11:33:00
 FBK-000008,IVW-000008,IVR-0010,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-08-04T11:06:00
 FBK-000009,IVW-000009,IVR-0009,Yes,5,Strong technical fundamentals and clear communication.,,2025-05-15T12:32:00
 FBK-000010,IVW-000010,IVR-0025,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-05-23T13:37:00

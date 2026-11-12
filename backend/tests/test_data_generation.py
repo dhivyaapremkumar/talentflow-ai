@@ -141,13 +141,19 @@ def test_generation_run_metadata_correct(tmp_path):
     from app.db.session import make_engine
     from app.validation.gate import run_baseline_gate
 
+    from app.validation.runner import run_all_rules
+
     engine = make_engine(str(db_path))
     with Session(engine) as session:
         baseline_report = run_baseline_gate(session, dataset_mode="starter")
     assert baseline_report["total_violations"] == 0
 
+    with Session(engine) as session:
+        post_injection_report = run_all_rules(session, dataset_mode="starter", report_mode="post_injection")
+
     run_row = write_generation_run(
-        dataset, "starter", 20261022, export_summary, db_path, datetime.now(), baseline_report
+        dataset, "starter", 20261022, export_summary, db_path, datetime.now(),
+        baseline_report, post_injection_report,
     )
 
     assert run_row["run_id"] == "GEN-0001"
@@ -182,12 +188,16 @@ def test_generation_run_rejects_non_mandated_seed(tmp_path):
 
     from app.db.session import make_engine
     from app.validation.gate import run_baseline_gate
+    from app.validation.runner import run_all_rules
 
     engine = make_engine(str(db_path))
     with Session(engine) as session:
         baseline_report = run_baseline_gate(session, dataset_mode="starter")
+    with Session(engine) as session:
+        post_injection_report = run_all_rules(session, dataset_mode="starter", report_mode="post_injection")
 
     with pytest.raises(IntegrityError):
         write_generation_run(
-            dataset, "starter", 99999, export_summary, db_path, datetime.now(), baseline_report
+            dataset, "starter", 99999, export_summary, db_path, datetime.now(),
+            baseline_report, post_injection_report,
         )
