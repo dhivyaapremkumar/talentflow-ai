@@ -7,7 +7,8 @@ InterviewerAvailabilitySlot.
 Phase 2, Unit 2: JobRequisition, JobRequisitionSkill, ScreeningRule.
 Phase 2, Unit 3: Candidate, ResumeArtifact, CandidateSkill.
 Phase 2, Unit 4: Application, ApplicationSubmissionAttempt, ScreeningRun.
-Phase 2, Unit 5 (this commit): Interview, Feedback.
+Phase 2, Unit 5: Interview, Feedback.
+Phase 2, Unit 6 (this commit): Offer.
 Remaining tables are added unit by unit.
 """
 
@@ -16,6 +17,7 @@ from app.db.models.application import Application, ApplicationSubmissionAttempt
 from app.db.models.candidate import Candidate, ResumeArtifact
 from app.db.models.department import Department
 from app.db.models.interview import Feedback, Interview, Interviewer, InterviewerAvailabilitySlot
+from app.db.models.offer import Offer
 from app.db.models.requisition import JobRequisition, JobRequisitionSkill
 from app.db.models.screening import ScreeningRule, ScreeningRun
 from app.db.models.skill import CandidateSkill, Skill
@@ -37,4 +39,5 @@ __all__ = [
     "ScreeningRun",
     "Interview",
     "Feedback",
+    "Offer",
 ]

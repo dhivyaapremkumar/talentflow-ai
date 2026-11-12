@@ -16,8 +16,12 @@ uq_attempt_canonical partial unique index, the uq_screeningrun_latest
 partial unique index, and a real insert-level round-trip through the
 Application<->ScreeningRun circular FK.
 
-Unit 5 (this commit): Interview, Feedback — round_number/start-before-end
-CHECKs, and the 1:1 Feedback<->Interview unique FK.
+Unit 5: Interview, Feedback — round_number/start-before-end CHECKs, and
+the 1:1 Feedback<->Interview unique FK.
+
+Unit 6 (this commit): Offer — the 1:1 Offer<->Application unique FK, and
+the required-iff-status / chronological-ordering CHECK constraints
+(approval/extension/decision/expiry).
 
 Each test gets a fresh in-memory SQLite database with foreign_keys=ON, so
 these tests exercise the exact same engine configuration as app.db.session
@@ -43,6 +47,7 @@ from app.db.models import (
     InterviewerAvailabilitySlot,
     JobRequisition,
     JobRequisitionSkill,
+    Offer,
     ResumeArtifact,
     ScreeningRule,
     ScreeningRun,
@@ -1279,6 +1284,183 @@ def test_feedback_requires_existing_interview(session):
             recommendation="Yes",
             overall_score=4,
             submitted_at=datetime(2026, 2, 1, 12, 0),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+# --- Unit 6: Offer ----------------------------------------------------------
+
+
+def _offer(
+    session,
+    offer_id="OFR-00001",
+    app_id="APP-REQ-00001-CAND-000001",
+    status="Drafted",
+    proposed_salary=140000,
+    approved_by_actor_id=None,
+    approved_at=None,
+    extended_at=None,
+    decision_at=None,
+    expiry_date=None,
+):
+    _application(session, app_id=app_id)
+    if approved_by_actor_id is not None:
+        # ACT-0001 already exists (created by _requisition() inside
+        # _application() above) — use a distinct id for the approver so
+        # this doesn't collide with it.
+        _actor(session, actor_id=approved_by_actor_id, role="APPROVER")
+    offer = Offer(
+        offer_id=offer_id,
+        application_id=app_id,
+        proposed_salary=proposed_salary,
+        currency="USD",
+        equity_amount=None,
+        status=status,
+        approved_by_actor_id=approved_by_actor_id,
+        approved_at=approved_at,
+        extended_at=extended_at,
+        decision_at=decision_at,
+        expiry_date=expiry_date,
+        created_at=datetime(2026, 1, 1),
+    )
+    session.add(offer)
+    session.commit()
+    return offer
+
+
+def test_offer_valid_insert(session):
+    _offer(session)
+    assert session.query(Offer).count() == 1
+
+
+def test_offer_id_format_rejected(session):
+    _application(session)
+    session.add(
+        Offer(
+            offer_id="BADID",
+            application_id="APP-REQ-00001-CAND-000001",
+            proposed_salary=140000,
+            currency="USD",
+            status="Drafted",
+            created_at=datetime(2026, 1, 1),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_offer_negative_proposed_salary_rejected(session):
+    with pytest.raises(IntegrityError):
+        _offer(session, proposed_salary=-1)
+
+
+def test_offer_status_enum_rejected(session):
+    with pytest.raises(IntegrityError):
+        _offer(session, status="NotAStatus")
+
+
+def test_offer_two_rows_for_same_application_rejected(session):
+    """Structural 1:1 enforcement — unique=True on Offer.application_id
+    (data_dictionary.md §14)."""
+    _offer(session, offer_id="OFR-00001")
+    session.add(
+        Offer(
+            offer_id="OFR-00002",
+            application_id="APP-REQ-00001-CAND-000001",  # same application again
+            proposed_salary=145000,
+            currency="USD",
+            status="Drafted",
+            created_at=datetime(2026, 1, 2),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_offer_approved_without_actor_and_timestamp_rejected(session):
+    with pytest.raises(IntegrityError):
+        _offer(session, status="Approved", approved_by_actor_id=None, approved_at=None)
+
+
+def test_offer_approved_with_actor_and_timestamp_allowed(session):
+    _offer(
+        session,
+        status="Approved",
+        approved_by_actor_id="ACT-0002",
+        approved_at=datetime(2026, 1, 5),
+    )
+    assert session.query(Offer).count() == 1
+
+
+def test_offer_extended_without_extended_at_rejected(session):
+    with pytest.raises(IntegrityError):
+        _offer(
+            session,
+            status="Extended",
+            approved_by_actor_id="ACT-0002",
+            approved_at=datetime(2026, 1, 5),
+            extended_at=None,
+        )
+
+
+def test_offer_extended_before_approved_rejected(session):
+    with pytest.raises(IntegrityError):
+        _offer(
+            session,
+            status="Extended",
+            approved_by_actor_id="ACT-0002",
+            approved_at=datetime(2026, 1, 10),
+            extended_at=datetime(2026, 1, 5),  # before approved_at — invalid
+        )
+
+
+def test_offer_accepted_without_decision_at_rejected(session):
+    with pytest.raises(IntegrityError):
+        _offer(
+            session,
+            status="Accepted",
+            approved_by_actor_id="ACT-0002",
+            approved_at=datetime(2026, 1, 5),
+            extended_at=datetime(2026, 1, 6),
+            decision_at=None,
+        )
+
+
+def test_offer_decision_before_extended_rejected(session):
+    with pytest.raises(IntegrityError):
+        _offer(
+            session,
+            status="Accepted",
+            approved_by_actor_id="ACT-0002",
+            approved_at=datetime(2026, 1, 5),
+            extended_at=datetime(2026, 1, 10),
+            decision_at=datetime(2026, 1, 6),  # before extended_at — invalid
+        )
+
+
+def test_offer_expiry_before_extended_rejected(session):
+    with pytest.raises(IntegrityError):
+        _offer(
+            session,
+            status="Extended",
+            approved_by_actor_id="ACT-0002",
+            approved_at=datetime(2026, 1, 5),
+            extended_at=datetime(2026, 1, 10),
+            expiry_date=date(2026, 1, 1),  # before extended_at's date — invalid
+        )
+
+
+def test_offer_requires_existing_application(session):
+    session.add(
+        Offer(
+            offer_id="OFR-00001",
+            application_id="APP-REQ-99999-CAND-999999",  # does not exist
+            proposed_salary=140000,
+            currency="USD",
+            status="Drafted",
+            created_at=datetime(2026, 1, 1),
         )
     )
     with pytest.raises(IntegrityError):
