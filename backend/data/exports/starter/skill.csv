@@ -1,0 +1,41 @@
+skill_id,name,category,is_active
+SKL-0001,Python,Technical,true
+SKL-0002,Java,Technical,true
+SKL-0003,JavaScript,Technical,true
+SKL-0004,TypeScript,Technical,true
+SKL-0005,Go,Technical,true
+SKL-0006,C++,Technical,true
+SKL-0007,SQL,Technical,true
+SKL-0008,React,Technical,true
+SKL-0009,Node.js,Technical,true
+SKL-0010,Django,Technical,true
+SKL-0011,Spring Boot,Technical,true
+SKL-0012,Machine Learning,Technical,true
+SKL-0013,Data Engineering,Technical,true
+SKL-0014,REST API Design,Technical,true
+SKL-0015,Microservices,Technical,true
+SKL-0016,System Design,Technical,true
+SKL-0017,Unit Testing,Technical,true
+SKL-0018,CI/CD,Technical,true
+SKL-0019,Mobile Development,Technical,true
+SKL-0020,Cloud Architecture,Technical,true
+SKL-0021,AWS,Tool,true
+SKL-0022,Azure,Tool,true
+SKL-0023,Docker,Tool,true
+SKL-0024,Kubernetes,Tool,true
+SKL-0025,Git,Tool,true
+SKL-0026,Jira,Tool,true
+SKL-0027,Tableau,Tool,true
+SKL-0028,Salesforce,Tool,true
+SKL-0029,Figma,Tool,true
+SKL-0030,Excel,Tool,true
+SKL-0031,Fintech Domain Knowledge,Domain,true
+SKL-0032,Healthcare Domain Knowledge,Domain,true
+SKL-0033,E-commerce Domain Knowledge,Domain,true
+SKL-0034,Recruiting Domain Knowledge,Domain,true
+SKL-0035,Supply Chain Domain Knowledge,Domain,true
+SKL-0036,Communication,Soft,true
+SKL-0037,Leadership,Soft,true
+SKL-0038,Problem Solving,Soft,true
+SKL-0039,Teamwork,Soft,true
+SKL-0040,Negotiation,Soft,true

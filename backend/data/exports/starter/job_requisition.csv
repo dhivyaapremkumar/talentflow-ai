@@ -1,0 +1,11 @@
+requisition_id,department_id,title,level,employment_type,status,salary_min,salary_max,headcount,requested_by_actor_id,opened_at,target_close_date,closed_at,created_at
+REQ-00001,DEPT-0009,Financial Analyst,Mid,FullTime,Open,84665,114141,1,ACT-0001,2025-04-08,2025-07-01,,2025-04-02T00:00:00
+REQ-00002,DEPT-0002,Lead Product Manager,Lead,FullTime,Closed,144155,187134,1,ACT-0004,2025-04-21,2025-07-14,2025-09-04,2025-04-15T00:00:00
+REQ-00003,DEPT-0001,Junior Software Engineer,Junior,Contract,Open,62443,86637,1,ACT-0003,2025-03-04,2025-05-27,,2025-02-26T00:00:00
+REQ-00004,DEPT-0009,Junior Financial Analyst,Junior,FullTime,Open,61561,82655,1,ACT-0002,2025-02-16,2025-05-11,,2025-02-10T00:00:00
+REQ-00005,DEPT-0010,Junior Operations Manager,Junior,FullTime,Open,58208,86195,1,ACT-0001,2025-01-18,2025-04-12,,2025-01-12T00:00:00
+REQ-00006,DEPT-0005,Lead Account Executive,Lead,Contract,Open,147934,187325,3,ACT-0005,2025-04-09,2025-07-02,,2025-04-03T00:00:00
+REQ-00007,DEPT-0008,HR Business Partner,Mid,FullTime,Open,83168,112611,3,ACT-0004,2025-03-12,2025-06-04,,2025-03-06T00:00:00
+REQ-00008,DEPT-0002,Lead Product Manager,Lead,FullTime,Closed,146529,188601,2,ACT-0002,2025-05-09,2025-08-01,2025-06-24,2025-05-03T00:00:00
+REQ-00009,DEPT-0008,HR Business Partner,Mid,FullTime,OnHold,86242,113330,1,ACT-0005,2025-02-28,2025-05-23,,2025-02-22T00:00:00
+REQ-00010,DEPT-0005,Senior Account Executive,Senior,Contract,Open,114396,156604,3,ACT-0002,2025-03-20,2025-06-12,,2025-03-14T00:00:00

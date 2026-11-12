@@ -1,0 +1,101 @@
+candidate_id,full_name,email,phone,location_city,location_country,years_experience,highest_education_level,source_channel,created_at
+CAND-000001,Kimberly Harris,candidate000001@example.com,371.483.6632,Evansview,Armenia,2.4,Bachelor,Website,2025-03-06T17:00:00
+CAND-000002,Michael Cannon,candidate000002@example.com,(523)574-8021,Brandonshire,Papua New Guinea,2.1,Associate,Website,2025-03-16T08:00:00
+CAND-000003,Anthony Hill,candidate000003@example.com,,Port Matthewberg,United States Virgin Islands,2.7,Master,Referral,2025-02-01T05:00:00
+CAND-000004,Nathan Montes,candidate000004@example.com,358.758.7934x36642,East Isaacmouth,Ethiopia,5.4,Bachelor,Referral,2025-06-29T01:00:00
+CAND-000005,Kimberly Schwartz,candidate000005@example.com,657.662.6901x4251,Stevensshire,Ecuador,9.8,Doctorate,JobBoard,2025-06-14T08:00:00
+CAND-000006,Hannah Smith,candidate000006@example.com,,Matthewside,Uruguay,3.7,Master,JobBoard,2025-07-15T16:00:00
+CAND-000007,Joseph Grant,candidate000007@example.com,234-884-4544,Matthewmouth,Benin,2.6,Associate,Referral,2025-07-26T12:00:00
+CAND-000008,Stacey Miller,candidate000008@example.com,001-845-814-0809x48495,Lake Jonathan,Greenland,7.0,Master,JobBoard,2025-04-09T11:00:00
+CAND-000009,Barbara Lambert,candidate000009@example.com,922.288.7228,Vanessamouth,Guatemala,0.5,Bachelor,Agency,2025-07-10T14:00:00
+CAND-000010,Erika Robinson,candidate000010@example.com,001-955-414-5123,Jasonfurt,Malta,6.1,Bachelor,JobBoard,2025-04-09T11:00:00
+CAND-000011,Dr. Alexis Ward,candidate000011@example.com,700-771-0542x7801,Meyerland,Antarctica (the territory South of 60 deg S),4.6,Bachelor,Agency,2025-05-10T22:00:00
+CAND-000012,Jeffrey Preston,candidate000012@example.com,(465)963-2004x466,Harriston,Ghana,3.3,Master,Referral,2025-10-08T09:00:00
+CAND-000013,Stephen Stewart,candidate000013@example.com,+1-279-468-0319,Andersonstad,Turkey,2.8,Bachelor,LinkedIn,2025-05-28T21:00:00
+CAND-000014,Wesley Cox,candidate000014@example.com,,East Christophershire,Ghana,3.1,Bachelor,LinkedIn,2025-08-07T16:00:00
+CAND-000015,Jason Henderson,candidate000015@example.com,562.291.9306x957,Lake Kayla,Mexico,1.4,Master,LinkedIn,2025-06-25T02:00:00
+CAND-000016,Matthew Olson,candidate000016@example.com,(906)680-0056x0016,New Cynthiachester,Maldives,9.0,Doctorate,LinkedIn,2025-10-12T20:00:00
+CAND-000017,Jeffrey Collins,candidate000017@example.com,4803714411,Gordonland,Holy See (Vatican City State),4.0,Associate,Referral,2025-05-16T10:00:00
+CAND-000018,Richard Bradley MD,candidate000018@example.com,+1-928-405-1236,Mccormickfurt,Jersey,2.4,Doctorate,Website,2025-09-21T20:00:00
+CAND-000019,Stephanie Oliver,candidate000019@example.com,286.950.1866,Lake Nicholasmouth,Oman,7.2,Bachelor,LinkedIn,2025-09-16T16:00:00
+CAND-000020,Theresa Vang,candidate000020@example.com,784.909.7818,South Loganview,Rwanda,3.6,Bachelor,LinkedIn,2025-04-27T01:00:00
+CAND-000021,Christine Mccann,candidate000021@example.com,286-259-7185x5179,Mckenzieside,Central African Republic,3.3,Master,Website,2025-02-12T22:00:00
+CAND-000022,Matthew Brewer,candidate000022@example.com,,West Reneeton,Georgia,2.1,Doctorate,Referral,2025-07-24T16:00:00
+CAND-000023,Charles Wang,candidate000023@example.com,226.455.3912x3576,Port Kimberly,Marshall Islands,8.1,HighSchool,LinkedIn,2025-01-10T01:00:00
+CAND-000024,Terry Taylor,candidate000024@example.com,407.259.1672x8749,South Reginald,Indonesia,7.8,Master,LinkedIn,2025-09-12T17:00:00
+CAND-000025,Nicholas Ramirez,candidate000025@example.com,271-680-4198x97149,Lake Amy,Zambia,9.8,Bachelor,Referral,2025-02-20T00:00:00
+CAND-000026,Courtney Perez,candidate000026@example.com,001-583-945-5881x737,Bishopport,Colombia,3.7,Master,Referral,2025-06-30T12:00:00
+CAND-000027,Teresa Hoffman,candidate000027@example.com,454-991-5965x1952,South Jillstad,Lebanon,9.9,Bachelor,Website,2025-08-12T19:00:00
+CAND-000028,Sabrina Welch,candidate000028@example.com,412.830.7570,Port Jasonville,Eritrea,9.3,Master,LinkedIn,2025-01-26T10:00:00
+CAND-000029,Anna Kent,candidate000029@example.com,4338484598,Andrewchester,Belize,1.4,Master,Agency,2025-09-05T23:00:00
+CAND-000030,Anna Hill,candidate000030@example.com,(716)727-6646,Nelsonshire,Austria,2.4,Associate,LinkedIn,2025-01-19T19:00:00
+CAND-000031,Kenneth Mccormick,candidate000031@example.com,837.896.8840,Nicolechester,Timor-Leste,3.5,Bachelor,Referral,2025-02-03T07:00:00
+CAND-000032,Gabriel Williams,candidate000032@example.com,300.484.8503,East Vanessa,Cambodia,6.6,Associate,Referral,2025-08-21T13:00:00
+CAND-000033,Deborah Lee,candidate000033@example.com,768-210-7676x765,Barneschester,Timor-Leste,8.6,Bachelor,Agency,2025-01-17T23:00:00
+CAND-000034,Nicole Woods,candidate000034@example.com,+1-923-701-7877,Angelaville,Germany,2.7,Associate,Agency,2025-10-13T04:00:00
+CAND-000035,Sean Manning,candidate000035@example.com,+1-405-941-7263x7601,West Christopherburgh,Latvia,15.8,HighSchool,LinkedIn,2025-07-26T17:00:00
+CAND-000036,Samantha Charles,candidate000036@example.com,331.535.5577x602,Jamesfort,United Arab Emirates,1.6,Master,Agency,2025-05-27T00:00:00
+CAND-000037,Melissa Williams,candidate000037@example.com,530-412-2381x4844,Waltonport,Chad,5.3,HighSchool,Agency,2025-06-13T14:00:00
+CAND-000038,Kara Owens,candidate000038@example.com,+1-951-796-7183,Rasmussenhaven,Lao People's Democratic Republic,9.6,HighSchool,JobBoard,2025-03-09T03:00:00
+CAND-000039,Julie Owens,candidate000039@example.com,3207328567,North Amy,Chile,4.4,Bachelor,Website,2025-06-12T18:00:00
+CAND-000040,Matthew Lee,candidate000040@example.com,604.809.5459x251,South Kristinburgh,Greece,5.7,Associate,Referral,2025-03-25T07:00:00
+CAND-000041,William Hays,candidate000041@example.com,(967)416-0895x50177,East Donnaburgh,Argentina,4.0,Master,Agency,2025-03-07T19:00:00
+CAND-000042,Donald Durham,candidate000042@example.com,654.522.3957x9861,East Angelaside,Central African Republic,3.6,HighSchool,Referral,2025-07-17T22:00:00
+CAND-000043,Terry Rodriguez,candidate000043@example.com,,Katelynview,Cambodia,16.5,Master,LinkedIn,2025-07-18T09:00:00
+CAND-000044,Alicia Walker,candidate000044@example.com,001-574-946-4449x25482,Baileytown,Antarctica (the territory South of 60 deg S),24.0,Doctorate,Referral,2025-05-01T16:00:00
+CAND-000045,James Lopez,candidate000045@example.com,815.357.8740x8200,East Davidberg,South Africa,4.5,Bachelor,Agency,2025-09-24T10:00:00
+CAND-000046,Sarah Rivera,candidate000046@example.com,,Colemantown,Luxembourg,3.3,Bachelor,JobBoard,2025-04-23T20:00:00
+CAND-000047,Jessica Williams,candidate000047@example.com,,Dyershire,Greece,4.1,Master,LinkedIn,2025-08-28T02:00:00
+CAND-000048,Yesenia Graham,candidate000048@example.com,001-985-844-5869,Taylorview,Spain,3.4,Master,JobBoard,2025-01-21T21:00:00
+CAND-000049,Erika Perry,candidate000049@example.com,+1-589-606-7799x172,East Jameshaven,Panama,2.1,Bachelor,JobBoard,2025-05-17T20:00:00
+CAND-000050,Matthew Strickland,candidate000050@example.com,+1-959-293-9366x68989,New Martin,Gibraltar,1.1,Associate,LinkedIn,2025-03-17T19:00:00
+CAND-000051,Jay Harper,candidate000051@example.com,+1-431-531-4586x2406,Johnburgh,San Marino,3.5,Master,Referral,2025-04-06T07:00:00
+CAND-000052,Ronald Cook,candidate000052@example.com,533.269.9801,Lake Brenda,Belgium,2.1,Master,Website,2025-08-04T16:00:00
+CAND-000053,Angela Phillips,candidate000053@example.com,001-647-651-4104x8263,Lake Ryanchester,Uganda,9.4,Bachelor,Agency,2025-07-14T19:00:00
+CAND-000054,Craig Krause,candidate000054@example.com,001-529-235-7520,New Samanthashire,Central African Republic,2.0,Associate,Website,2025-09-18T08:00:00
+CAND-000055,Patrick Walters,candidate000055@example.com,368.498.6942,Robertburgh,Burundi,4.5,Bachelor,LinkedIn,2025-07-06T01:00:00
+CAND-000056,Cynthia Payne,candidate000056@example.com,,South Alicia,Angola,4.8,Bachelor,JobBoard,2025-01-21T08:00:00
+CAND-000057,Angela Turner,candidate000057@example.com,,Jordanville,Liberia,7.8,Associate,JobBoard,2025-01-25T20:00:00
+CAND-000058,Nathaniel Carroll,candidate000058@example.com,(819)947-2509x618,Lake Mallory,Christmas Island,2.1,Master,JobBoard,2025-04-29T19:00:00
+CAND-000059,Wendy Keith,candidate000059@example.com,439.232.1480x90525,Sandraview,Korea,2.6,Bachelor,JobBoard,2025-05-28T10:00:00
+CAND-000060,Kristina Hall,candidate000060@example.com,001-609-271-2372x1050,Robertshire,Bulgaria,7.7,Associate,Agency,2025-04-19T14:00:00
+CAND-000061,Craig Short,candidate000061@example.com,,Mikaylaborough,Czech Republic,4.1,Master,JobBoard,2025-06-07T05:00:00
+CAND-000062,Matthew Chavez,candidate000062@example.com,+1-872-329-9317,North Jose,Kyrgyz Republic,5.3,HighSchool,JobBoard,2025-05-14T18:00:00
+CAND-000063,Angel Blackburn,candidate000063@example.com,001-505-620-9605,West Mariaview,Sri Lanka,12.9,Doctorate,LinkedIn,2025-08-15T10:00:00
+CAND-000064,Maria Klein,candidate000064@example.com,360.945.0317x5446,New Tiffany,Sierra Leone,4.7,Master,Website,2025-07-02T15:00:00
+CAND-000065,Stephanie Li,candidate000065@example.com,+1-648-316-4656x2701,Jennybury,Cape Verde,1.7,HighSchool,Website,2025-01-18T15:00:00
+CAND-000066,Sheryl Nichols,candidate000066@example.com,,South Heather,France,2.9,Associate,LinkedIn,2025-03-28T15:00:00
+CAND-000067,William Medina,candidate000067@example.com,295.570.9558x2553,Lake Barbara,India,5.4,Bachelor,JobBoard,2025-07-01T23:00:00
+CAND-000068,Christopher Tucker,candidate000068@example.com,,South Christy,Tokelau,1.9,Bachelor,Referral,2025-03-20T13:00:00
+CAND-000069,Anna Wallace,candidate000069@example.com,(373)947-4221x42122,Haysstad,French Polynesia,9.8,Bachelor,Agency,2025-09-10T13:00:00
+CAND-000070,Robin Howe,candidate000070@example.com,,Josephfort,Guadeloupe,3.4,Bachelor,Website,2025-02-01T06:00:00
+CAND-000071,Jennifer Walton,candidate000071@example.com,640.240.4681x740,Thomasborough,Anguilla,2.5,Bachelor,Agency,2025-08-12T17:00:00
+CAND-000072,Timothy Waters,candidate000072@example.com,,East Davidtown,Djibouti,5.6,Associate,Agency,2025-06-28T13:00:00
+CAND-000073,Jason Hansen,candidate000073@example.com,452.973.7346x157,East Robertside,Iraq,1.0,Bachelor,JobBoard,2025-02-03T00:00:00
+CAND-000074,Daniel Johnson,candidate000074@example.com,907-365-2110,Karenstad,San Marino,3.8,Bachelor,Website,2025-05-04T02:00:00
+CAND-000075,Paula Hernandez,candidate000075@example.com,001-909-942-8498x88321,North Ericberg,Montserrat,2.5,Bachelor,JobBoard,2025-05-21T18:00:00
+CAND-000076,Philip Green,candidate000076@example.com,,Lake Karenberg,Yemen,4.3,Bachelor,LinkedIn,2025-09-11T12:00:00
+CAND-000077,Joshua Sanchez,candidate000077@example.com,(588)980-7314,Melissaport,Philippines,11.0,HighSchool,Referral,2025-09-07T17:00:00
+CAND-000078,Christopher Anderson,candidate000078@example.com,769.463.4885x423,Mcneiltown,Anguilla,7.7,Master,LinkedIn,2025-08-26T16:00:00
+CAND-000079,Seth Morrison,candidate000079@example.com,(509)978-8502,Josephfort,Northern Mariana Islands,5.7,Master,Website,2025-03-02T10:00:00
+CAND-000080,Gary Reyes,candidate000080@example.com,001-948-299-9726x540,Blakefurt,Ukraine,7.1,Bachelor,Agency,2025-02-07T15:00:00
+CAND-000081,Morgan Watkins,candidate000081@example.com,+1-407-614-5492x918,Matthewville,Zambia,4.0,Bachelor,LinkedIn,2025-10-12T17:00:00
+CAND-000082,Maria Collins,candidate000082@example.com,349.503.7855x982,Wareside,Bermuda,1.4,Master,Referral,2025-06-14T02:00:00
+CAND-000083,Alexander Torres,candidate000083@example.com,825.894.2150x1120,Saraborough,Kazakhstan,9.8,Bachelor,Agency,2025-06-22T20:00:00
+CAND-000084,Heather Kelly,candidate000084@example.com,,North Carolyn,Angola,7.3,Master,Website,2025-06-07T06:00:00
+CAND-000085,Shannon Wilson,candidate000085@example.com,+1-940-976-7378x60960,Saraville,Saint Kitts and Nevis,3.2,Doctorate,JobBoard,2025-02-02T03:00:00
+CAND-000086,Tina Cobb,candidate000086@example.com,001-309-991-8599x427,Jimenezside,Benin,1.8,Bachelor,Website,2025-09-28T08:00:00
+CAND-000087,Brian Johnson,candidate000087@example.com,202-706-3251x362,Petersonborough,Tonga,5.1,HighSchool,LinkedIn,2025-03-31T15:00:00
+CAND-000088,Katrina Vargas,candidate000088@example.com,+1-781-633-9819x30986,New Jacobshire,Wallis and Futuna,7.3,Bachelor,Agency,2025-08-10T15:00:00
+CAND-000089,Eric Martinez,candidate000089@example.com,694-529-7293x551,Turnermouth,Norfolk Island,3.4,Bachelor,Agency,2025-09-28T14:00:00
+CAND-000090,Robert Fuentes,candidate000090@example.com,819-258-8110,North Charlestown,Tunisia,5.0,Master,Website,2025-02-06T20:00:00
+CAND-000091,Nicolas Lang,candidate000091@example.com,(679)691-6958x824,Smithport,Cape Verde,5.5,Bachelor,Referral,2025-08-18T20:00:00
+CAND-000092,Kelly Lee,candidate000092@example.com,697.482.3614x305,Lake Nancy,Bermuda,5.6,Bachelor,LinkedIn,2025-05-08T06:00:00
+CAND-000093,Isabel Campbell,candidate000093@example.com,(588)267-0099x841,Michaelside,Angola,8.7,Master,JobBoard,2025-05-19T11:00:00
+CAND-000094,Anthony Hudson,candidate000094@example.com,001-750-814-2211,East Anthonybury,Svalbard & Jan Mayen Islands,1.8,Bachelor,Agency,2025-06-14T23:00:00
+CAND-000095,Patrick Chen,candidate000095@example.com,001-657-362-5344,Salinastown,Chile,4.1,Bachelor,Agency,2025-06-16T13:00:00
+CAND-000096,Candace Evans,candidate000096@example.com,710-284-2629x035,South Chelsea,Montenegro,8.9,Bachelor,Referral,2025-01-30T16:00:00
+CAND-000097,Anthony Rowe,candidate000097@example.com,+1-876-714-4237x062,Dixontown,Saint Helena,1.5,Associate,Website,2025-08-18T14:00:00
+CAND-000098,Dylan Novak,candidate000098@example.com,4602477403,Brownhaven,Sweden,6.4,Master,Agency,2025-05-14T16:00:00
+CAND-000099,Allison Snyder,candidate000099@example.com,001-206-669-0800x7701,Sarahchester,Morocco,3.7,Doctorate,JobBoard,2025-05-11T21:00:00
+CAND-000100,Amanda Scott,candidate000100@example.com,850-525-9216,Port Meganview,Vanuatu,8.9,Associate,Referral,2025-07-21T02:00:00

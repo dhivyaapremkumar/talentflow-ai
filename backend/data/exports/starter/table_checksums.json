@@ -1,0 +1,23 @@
+{
+  "department": "94bde5c2de964093b031ac8778b45b7b0cba22eaea1d7d6cff0653427890d8cd",
+  "skill": "a41f0ef68cb54198f60c15aa50edf759f57dfa0ef71417a18b69271b017aa165",
+  "system_actor": "1d6584fba56012dcfa1c9e0a03701a78e28a6c26e0792cdc033849e9786d6f9c",
+  "interviewer": "0f109bc5b0944dc954d4f9fe51ae86b72029b3009d5a543474b45c5670a6e418",
+  "interviewer_availability_slot": "ed6451e223885c372079a5e1be02e12308fbe912070bc9bb04ebaf0cbb27bfd6",
+  "job_requisition": "b5a458e10978ebd80ca62e430b5b51f3ce4dda078995cf1e7e767f31776484f0",
+  "job_requisition_skill": "e26b69d8fdcf40bb8568b9d21900f4c75a27c5b3998463f356b0d7c2f9e3a5d3",
+  "screening_rule": "28174b4f6ee5605fd87400ae866926035d26adfab72b1cbc016d69a14765a3ba",
+  "candidate": "780f57a1ede9872672245b391fc494a993f85bb41716ef2a103be3a77e4096a2",
+  "resume_artifact": "2aed6b20d618abb0c842fcd77378496b545632846ffa13f3a50117f901f99909",
+  "candidate_skill": "95d21b94012501df299e345ee675ef8d9da112a0c44e9c42d00e347cc62879a6",
+  "application": "56d3cc525c42bbafa4b670179017093a9a47e3e3d504609bff2578c5577b8238",
+  "application_submission_attempt": "0bd35d38a12a9bd47431663031b8fb4a7d5895d98551b2431c9a2a2af84214ec",
+  "screening_run": "6e0b89723c86c1d3f6c6dc08736df4d8887605dfecd70d2d538451b9b137f652",
+  "interview": "f24b71a9df1c72115b05532546f01accf388c8bab8d5c8b1d60b50e62d7e636c",
+  "feedback": "8508121bcc100b1a1e0234a557ff345b0f5011a19e43c21f1c81aae1be37817b",
+  "offer": "705039d458363679b0a00ba06e6d3f0eda6b7588278f0dc11bbc1a8bae4b6bdc",
+  "requisition_status_history": "a0ee4f4e08f8a6d39414fee306c769d7098be2b131de7ec9a7b8c825c2aa490f",
+  "application_stage_history": "cdce0be19dcec1d54dd6f083478a7a31b8da75bbbe1d141f016d7752546c3579",
+  "offer_status_history": "73b9e9be17285fccac1e9d4e20f0295a4aea71c8706de5a2383c827bf3b11466",
+  "anomaly_label": "e17ccd19f406101cf72fede89f26b457ffa927581f837f20bf9ea3ed06da183a"
+}

@@ -1,0 +1,23 @@
+{
+  "department": 10,
+  "skill": 40,
+  "system_actor": 20,
+  "interviewer": 25,
+  "interviewer_availability_slot": 8950,
+  "job_requisition": 10,
+  "job_requisition_skill": 37,
+  "screening_rule": 10,
+  "candidate": 100,
+  "resume_artifact": 100,
+  "candidate_skill": 1205,
+  "application": 150,
+  "application_submission_attempt": 150,
+  "screening_run": 150,
+  "interview": 30,
+  "feedback": 27,
+  "offer": 8,
+  "requisition_status_history": 43,
+  "application_stage_history": 450,
+  "offer_status_history": 39,
+  "anomaly_label": 0
+}

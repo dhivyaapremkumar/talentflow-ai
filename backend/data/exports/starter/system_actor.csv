@@ -1,0 +1,21 @@
+actor_id,full_name,role,department_id,email,is_active,created_at
+ACT-0001,Colleen Clark,BUSINESS_REQUESTER,DEPT-0005,actor0001@talentflow.example,true,2025-01-13T00:00:00
+ACT-0002,Angela Johnson,BUSINESS_REQUESTER,DEPT-0004,actor0002@talentflow.example,true,2025-01-15T00:00:00
+ACT-0003,Richard Ortega,BUSINESS_REQUESTER,DEPT-0007,actor0003@talentflow.example,true,2025-01-08T00:00:00
+ACT-0004,Angela Perez,BUSINESS_REQUESTER,DEPT-0001,actor0004@talentflow.example,true,2025-02-03T00:00:00
+ACT-0005,April Stevens,BUSINESS_REQUESTER,DEPT-0006,actor0005@talentflow.example,true,2025-02-05T00:00:00
+ACT-0006,Tracy Dixon,BUSINESS_REQUESTER,DEPT-0008,actor0006@talentflow.example,true,2025-01-27T00:00:00
+ACT-0007,Julia Davis,APPROVER,,actor0007@talentflow.example,true,2025-01-25T00:00:00
+ACT-0008,Cynthia Gonzalez,APPROVER,,actor0008@talentflow.example,true,2025-01-27T00:00:00
+ACT-0009,Michelle Mata,APPROVER,,actor0009@talentflow.example,true,2025-01-08T00:00:00
+ACT-0010,Andrew Baker,APPROVER,,actor0010@talentflow.example,true,2025-01-15T00:00:00
+ACT-0011,Kathy Walters,PROCESS_OWNER,DEPT-0004,actor0011@talentflow.example,true,2025-01-10T00:00:00
+ACT-0012,Barbara Fisher,PROCESS_OWNER,DEPT-0008,actor0012@talentflow.example,true,2025-01-06T00:00:00
+ACT-0013,Hector Taylor,PROCESS_OWNER,DEPT-0007,actor0013@talentflow.example,true,2025-01-20T00:00:00
+ACT-0014,Stephanie Flores,PROCESS_OWNER,DEPT-0010,actor0014@talentflow.example,true,2025-02-01T00:00:00
+ACT-0015,Holly Peterson,PROCESS_OWNER,DEPT-0009,actor0015@talentflow.example,true,2025-01-06T00:00:00
+ACT-0016,Gail Mendez,PROCESS_OWNER,DEPT-0002,actor0016@talentflow.example,true,2025-01-20T00:00:00
+ACT-0017,Kyle Wright,OPERATIONS_ANALYST,,actor0017@talentflow.example,true,2025-01-06T00:00:00
+ACT-0018,Melissa Adams,OPERATIONS_ANALYST,,actor0018@talentflow.example,true,2025-01-08T00:00:00
+ACT-0019,Pamela Newton,SYSTEM_ADMINISTRATOR,,actor0019@talentflow.example,true,2025-01-30T00:00:00
+ACT-0020,Alexandra Miller,SYSTEM_ADMINISTRATOR,,actor0020@talentflow.example,true,2025-01-25T00:00:00

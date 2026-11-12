@@ -1,0 +1,11 @@
+screening_rule_id,requisition_id,is_current,version,min_years_experience,min_education_level,skill_weight_pct,experience_weight_pct,education_weight_pct,pass_threshold_score,created_at
+SCR-0001,REQ-00001,true,1,2.0,Bachelor,50,30,20,70.0,2025-04-03T00:00:00
+SCR-0002,REQ-00002,true,1,8.0,Master,50,30,20,70.0,2025-04-16T00:00:00
+SCR-0003,REQ-00003,true,1,0.0,Bachelor,50,30,20,70.0,2025-02-27T00:00:00
+SCR-0004,REQ-00004,true,1,0.0,Bachelor,50,30,20,70.0,2025-02-11T00:00:00
+SCR-0005,REQ-00005,true,1,0.0,Bachelor,50,30,20,70.0,2025-01-13T00:00:00
+SCR-0006,REQ-00006,true,1,8.0,Master,50,30,20,70.0,2025-04-04T00:00:00
+SCR-0007,REQ-00007,true,1,2.0,Bachelor,50,30,20,70.0,2025-03-07T00:00:00
+SCR-0008,REQ-00008,true,1,8.0,Master,50,30,20,70.0,2025-05-04T00:00:00
+SCR-0009,REQ-00009,true,1,2.0,Bachelor,50,30,20,70.0,2025-02-23T00:00:00
+SCR-0010,REQ-00010,true,1,5.0,Bachelor,50,30,20,70.0,2025-03-15T00:00:00
