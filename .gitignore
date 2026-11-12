@@ -1,0 +1,25 @@
+# Python
+backend/.venv/
+backend/**/__pycache__/
+backend/.pytest_cache/
+backend/*.egg-info/
+*.pyc
+
+# Local env files (never commit real secrets — this project has none, but keep the habit)
+backend/.env
+
+# SQLite working databases (the committed starter dataset lives under backend/data/exports/,
+# not as a raw .db file — see implementation_plan.md Phase 11)
+backend/data/*.db
+
+# Full-mode generated exports are regeneratable and not committed (repo-size hygiene);
+# the starter-mode exports under backend/data/exports/starter/ ARE committed.
+backend/data/exports/full/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+
+# Editor/OS noise
+.DS_Store
+Thumbs.db

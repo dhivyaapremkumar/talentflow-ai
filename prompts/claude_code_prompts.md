@@ -1,0 +1,2769 @@
+# Claude Code Prompt Log
+
+Every prompt in this file was actually submitted to Claude Code in this project. Text
+is copied verbatim from the conversation transcript, never reconstructed from memory.
+System-generated context that the harness attaches to a turn (environment info,
+model/tool metadata, prior slash-command output, etc.) is excluded from "Exact prompt"
+— that field holds only the user-authored instruction text, so a reviewer sees exactly
+what was asked, not Claude Code's internal plumbing. See `README.md` for numbering and
+update rules.
+
+## Template (copy this for a new entry)
+
+```
+### Prompt ID: P00n
+
+- Date and time:
+- Tool: Claude Code
+- Purpose:
+- Development phase:
+- Context/files supplied:
+- Exact prompt:
+
+​```text
+[Insert complete original prompt here]
+​```
+
+- Output summary (optional):
+- Human review:
+- Changes made after review:
+- Verification performed:
+```
+
+---
+
+### Prompt ID: P001
+
+- Date and time: 2026-11-12 (session date per system-reported current date; exact
+  submission time was not independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Kick off the TalentFlow AI project — define mandatory requirements and
+  request an architecture-only phase (no code) producing a full documentation set.
+- Development phase: Phase 0 — Architecture, initial pass
+- Context/files supplied: None. Working directory `C:\GenAI\TalentFlowAI` was empty
+  and not a git repository at the time this prompt was submitted.
+- Exact prompt:
+
+```text
+# PROJECT: TalentFlow AI – Recruitment Operations & Decision Intelligence System
+
+You are my senior software architect and technical development partner.
+
+We are building this project for the YottaFlex AI Associate Forward Deployed Engineer recruitment challenge.
+
+## 1. Your responsibility
+
+Help me build a complete, executable recruitment workflow system based strictly on the requirements below.
+
+This is an individual candidate project. AI assistance is permitted, but I must understand and be able to explain all implementation decisions.
+
+Do not introduce unnecessary features, dependencies or architectural complexity.
+
+## 2. Mandatory business requirements
+
+The application must manage:
+
+1. Job requisitions and approvals.
+2. Departments and required skills.
+3. Synthetic candidates and resume metadata.
+4. Candidate applications.
+5. Structured, job-related screening.
+6. Interviewer availability and scheduling.
+7. Interview rounds and structured feedback.
+8. Candidate stage progression.
+9. Offer creation and approvals.
+10. Exception detection and audit history.
+
+## 3. Mandatory entities
+
+Implement these 12 core entities:
+
+- JobRequisition
+- Department
+- Candidate
+- Application
+- ResumeArtifact
+- Skill
+- CandidateSkill
+- ScreeningRule
+- Interview
+- Interviewer
+- Feedback
+- Offer
+
+Every entity must have a primary key, appropriate foreign keys, documented cardinality, validation rules and lifecycle states where applicable.
+
+Use bridge tables for many-to-many relationships.
+
+Add supporting event-history tables where necessary. Do not overwrite historical state changes.
+
+## 4. Mandatory synthetic data volumes
+
+- 100 requisitions
+- 2,000 candidates
+- 3,000 applications
+- 600 interviews
+- 150 offers
+
+Use deterministic IDs and a fixed seed of 20261022.
+
+Support both starter and full dataset generation using the same generator.
+
+## 5. Mandatory anomalies
+
+Generate valid baseline data first. Then introduce labelled examples of:
+
+- Interview scheduled for unavailable interviewer.
+- Duplicate candidate application.
+- Missing feedback but application stage advanced.
+- Offer salary outside approved band.
+- Closed requisition with active applications.
+
+Store ground-truth labels separately from input data. Never use ground truth as a feature in anomaly detection.
+
+## 6. Mandatory validation
+
+Implement checks for:
+
+- Primary-key uniqueness.
+- Foreign-key integrity.
+- Allowed values and required fields.
+- Date ordering.
+- Screening score calculations.
+- Scheduling conflicts.
+- Lifecycle transitions.
+- Feedback requirements.
+- Offer approval rules.
+- Salary-band compliance.
+- Duplicate applications.
+- Reconciliation of generated records.
+- Deterministic reproducibility using checksums.
+
+## 7. Technology stack
+
+Use:
+
+Backend: Python 3.12 + FastAPI
+Frontend: React + TypeScript + Vite
+Database: SQLite + SQLAlchemy
+Validation: Pydantic
+Data generation: Faker + seeded Python random generators
+Analytics: SQL + Pandas
+Charts: Recharts
+Testing: Pytest
+
+Use free, locally runnable dependencies only.
+
+Avoid external APIs, paid services and unnecessary LLM dependencies.
+
+## 8. Architecture principles
+
+- Separate data generation, database models, business rules, APIs and frontend.
+- Use clear modular code.
+- Use deterministic business rules.
+- Preserve immutable identifiers.
+- Maintain explicit state-change events.
+- Keep ground-truth labels isolated.
+- Make decisions explainable.
+- Exclude demographic proxies from candidate screening.
+- Provide reproducible data exports in CSV, JSON and SQL formats.
+
+## 9. YottaFlex submission requirements
+
+The final repository must:
+
+- Be publicly accessible on GitHub.
+- Contain executable code and clear setup instructions.
+- Include all prompts submitted to AI coding tools.
+- Explain AI usage and human review.
+- Document architecture, assumptions, trade-offs and limitations.
+- Include validation evidence and reproducibility results.
+- Never expose API keys, credentials or sensitive personal data.
+
+## 10. YOUR FIRST TASK – DO NOT START CODING
+
+For this first phase, I want you to act only as a solution architect.
+
+Analyse the requirements and prepare these documents:
+
+1. docs/PROJECT_SPEC.md
+2. docs/architecture.md
+3. docs/data_dictionary.md
+4. docs/entity_relationships.md
+5. docs/business_rules.md
+6. docs/workflow.md
+7. docs/validation_strategy.md
+8. docs/implementation_plan.md
+
+Also propose the final project directory structure.
+
+For the data dictionary, specify each field's:
+- Name
+- Data type
+- Required or optional
+- Allowed values
+- Units, where applicable
+- Uniqueness
+- Validation rule
+- Relationship and effective dates, where relevant
+
+Identify ambiguities and propose reasonable, explicitly documented assumptions. Do not silently change requirements.
+
+Check that the data relationships, volumes, IDs, lifecycle transitions and anomaly scenarios are mutually consistent.
+
+Do not create backend or frontend code yet.
+
+After completing the architecture documents, present:
+1. The final architecture.
+2. Entity relationship summary.
+3. Important assumptions requiring my review.
+4. Proposed implementation sequence.
+5. Any conflicts or ambiguities in the requirements.
+
+Wait for my approval before starting implementation.
+
+We will develop and validate the application one module at a time.
+```
+
+- Output summary (optional): Created `docs/PROJECT_SPEC.md`, `architecture.md`,
+  `data_dictionary.md`, `entity_relationships.md`, `business_rules.md`, `workflow.md`,
+  `validation_strategy.md`, `implementation_plan.md`, with 10 explicit assumptions
+  (A-1…A-10) and a proposed directory structure. No application code was written, per
+  the prompt's explicit instruction. Ended by presenting a summary and waiting for
+  approval, also per instruction.
+- Human review: The user's next prompt (P002) opens with "We have completed the first
+  architecture review" and lists confirmed decisions on several of the A-1…A-10
+  assumptions — this is the evidence that review occurred. No separate, itemized
+  review notes beyond P002's content were recorded.
+- Changes made after review: Superseded by the Revision 2 rewrite produced in response
+  to P002 (see that entry).
+- Verification performed: Internal document self-consistency check only (cross-
+  referencing entity counts, ID-format conventions, lifecycle-state spelling, and
+  anomaly-type names across all eight documents, as described in the resulting
+  `PROJECT_SPEC.md` §10). No automated or code-level verification exists at this phase,
+  since no application code had been written yet.
+
+---
+
+### Prompt ID: P002
+
+- Date and time: 2026-11-12 (same session as P001; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Direct revision of the eight architecture documents based on confirmed
+  decisions from the first review — add a `SystemActor` entity, resolve a duplicate-
+  application primary-key conflict, correct the mandated-entity count, and update
+  every affected document consistently.
+- Development phase: Phase 0 — Architecture, Revision 2
+- Context/files supplied: The eight `docs/*.md` files created in P001 were already
+  present in the working directory and in the active conversation context; no new
+  files were uploaded with this prompt.
+- Exact prompt:
+
+```text
+We have completed the first architecture review. Before starting Phase 1, revise the eight architecture documents according to the following decisions.
+
+IMPORTANT: Do not generate application code yet.
+
+## 1. Confirmed decisions
+
+A-1: Job skills belong to JobRequisition through JobRequisitionSkill.
+
+A-2: Screening results will be stored as derived fields on Application. Include screening score components, decision, rule version, timestamp and explanation. Preserve previous screening decisions when screening is repeated.
+
+A-4: Add a supporting SystemActor entity.
+
+It must support the following roles:
+- BUSINESS_REQUESTER
+- PROCESS_OWNER
+- APPROVER
+- OPERATIONS_ANALYST
+- SYSTEM_ADMINISTRATOR
+
+No authentication or password management is required. Use synthetic actor IDs and foreign keys in approval and audit records.
+
+A-5: All required dataset volumes are final totals, including deliberately injected anomalies.
+
+A-7: Use the proposed anomaly counts:
+- 15 interviewer scheduling conflicts.
+- 15 duplicate application pairs.
+- 10 missing-feedback progression anomalies.
+- 6 out-of-band salary offers.
+- 5 closed requisitions with active applications.
+
+Clearly distinguish anomaly incidents from affected row counts.
+
+A-10: Preserve structural database integrity. Detect deliberate business-rule anomalies through separate validation logic.
+
+## 2. Resolve duplicate application ID conflict
+
+The required application ID convention is:
+
+APP-<requisition-id>-<candidate-id>
+
+The same candidate applying twice to the same requisition would generate the same canonical ID.
+
+Do not create duplicate primary keys or silently discard the second submission.
+
+Introduce a supporting ApplicationSubmissionAttempt entity/table.
+
+It must preserve:
+- Unique attempt_id.
+- candidate_id.
+- requisition_id.
+- submitted_at.
+- canonical_application_id.
+- duplicate_of_attempt_id, where applicable.
+- issue_type.
+- ground-truth association.
+
+The duplicate detection engine must identify repeated submissions independently of ground truth.
+
+Document how this supporting table works alongside the mandated Application entity.
+
+## 3. Correct entity and table count
+
+The original 12 mandated entities already include CandidateSkill.
+
+Therefore, do not count CandidateSkill twice.
+
+Correct the entity relationship documentation.
+
+Include:
+- 12 mandated core entities.
+- JobRequisitionSkill bridge.
+- Three history tables.
+- AnomalyLabel.
+- GenerationRun.
+- SystemActor.
+- ApplicationSubmissionAttempt.
+
+Document the resulting table count consistently across all files.
+
+## 4. Update every affected architecture document
+
+Review and update:
+- docs/PROJECT_SPEC.md
+- docs/architecture.md
+- docs/data_dictionary.md
+- docs/entity_relationships.md
+- docs/business_rules.md
+- docs/workflow.md
+- docs/validation_strategy.md
+- docs/implementation_plan.md
+
+Ensure that the changes are consistent across all documents.
+
+## 5. Additional checks
+
+Verify:
+- All 12 required entities are represented.
+- All IDs follow the required conventions.
+- Foreign-key relationships are consistent.
+- Required volumes reconcile.
+- ApplicationSubmissionAttempt solves the duplicate ID conflict.
+- Approval and audit records reference SystemActor.
+- Ground truth remains isolated.
+- Screening results are explainable.
+- History tables preserve state transitions.
+- No demographic proxies enter screening.
+- No requirements from the original problem statement are lost.
+
+## 6. Final response
+
+After updating the documents:
+
+1. List all changes made.
+2. Provide the final entity/table count.
+3. Explain the duplicate application design.
+4. Show the revised relationship summary.
+5. Identify any remaining ambiguities.
+6. Confirm whether all original YottaFlex requirements are covered.
+
+Do not start Phase 1 implementation until I review and approve these revisions.
+```
+
+- Output summary (optional): Rewrote all eight documents to "Revision 2" — added
+  `SystemActor` (5 roles) and `ApplicationSubmissionAttempt`, changed
+  `Application.application_id` to a derived ID, added screening-explainability fields
+  and history on `Application`, corrected the total table count to 21, corrected the
+  `AnomalyLabel` row-count math to 56 (full) / 11 (starter), and added assumptions
+  A-11 through A-15. No application code was written, per the prompt's explicit
+  instruction.
+- Human review: Pending at the time this entry was logged — the user had not yet
+  responded to the Revision 2 output when this log entry was written.
+- Changes made after review: Not yet applicable (pending user response).
+- Verification performed: Internal document self-consistency check (recomputed the
+  anomaly/`AnomalyLabel` totals, re-verified the funnel math, verified that the
+  derived-ID format and new FK references were updated in every affected document),
+  documented inline in the resulting `PROJECT_SPEC.md` §10 "Consistency check
+  performed (Rev 2)". No automated/code-level verification exists at this phase.
+
+---
+
+### Prompt ID: P003
+
+- Date and time: 2026-11-12 (same session as P001/P002; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Create a `prompts/` directory for YottaFlex submission compliance — an
+  auditable prompt log for Claude Code and ChatGPT usage, plus an AI-usage disclosure
+  document — and establish an ongoing protocol for logging future prompts.
+- Development phase: Cross-cutting documentation/compliance task, not tied to a
+  numbered implementation phase (Phase 0 is still open pending approval of Revision 2
+  from P002).
+- Context/files supplied: The eight Revision 2 `docs/*.md` files from P002 were
+  present in the working directory and in the active conversation context; no new
+  files were uploaded with this prompt.
+- Exact prompt:
+
+```text
+Create a dedicated prompts/ directory for YottaFlex AI submission compliance.
+
+Create the following files:
+
+1. prompts/README.md
+2. prompts/claude_code_prompts.md
+3. prompts/chatgpt_prompts.md
+4. prompts/ai_usage_disclosure.md
+
+IMPORTANT: These files must serve as an auditable record of actual AI usage. Never invent or fabricate prompts.
+
+## claude_code_prompts.md
+
+Use the following format for every Claude Code prompt:
+
+### Prompt ID: P001
+
+- Date and time:
+- Tool: Claude Code
+- Purpose:
+- Development phase:
+- Context/files supplied:
+- Exact prompt:
+
+​```text
+[Insert complete original prompt here]
+​```
+
+- Output summary (optional):
+- Human review:
+- Changes made after review:
+- Verification performed:
+
+## chatgpt_prompts.md
+
+Use the same structure, identifying ChatGPT as the tool.
+
+Include prompts used for:
+- Requirements analysis
+- Architecture design
+- Technical decisions
+- Code review
+- Debugging
+- Validation
+- Documentation
+
+Only include actual prompts. Do not reconstruct missing prompts as if they were exact originals.
+
+## ai_usage_disclosure.md
+
+Create sections covering:
+
+1. AI tools used.
+2. What each tool was used for.
+3. How AI accelerated development.
+4. Which technical decisions I personally reviewed.
+5. What code and business logic I personally tested.
+6. Limitations of AI-generated suggestions.
+7. How I verified correctness.
+
+## README.md
+
+Explain:
+- Why prompt history is maintained.
+- How prompts are numbered.
+- How to add new prompts.
+- How AI usage is disclosed.
+
+## Ongoing recording protocol
+
+From now on, whenever a new prompt is prepared for Claude Code, provide a prompt-log entry alongside it so it can be saved without losing the original text.
+
+Do not claim a prompt was executed unless I confirm that it was submitted.
+
+Do not fabricate dates, model versions, tool outputs or validation results.
+
+Do not modify application code as part of this task.
+```
+
+- Output summary (optional): Created `prompts/README.md`, `prompts/claude_code_prompts.md`
+  (this file, backfilled with P001–P003 using verbatim conversation text),
+  `prompts/chatgpt_prompts.md` (left as a template with no entries — Claude Code has
+  no access to any ChatGPT conversation and will not invent entries for it), and
+  `prompts/ai_usage_disclosure.md`. No application code was modified.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable (pending user response).
+- Verification performed: Manual check that the "Exact prompt" text in each of
+  P001–P003 matches the corresponding submitted message verbatim (direct copy from the
+  conversation transcript, not retyped from memory). No automated tests apply — this
+  task produced documentation only, no application code to test.
+
+---
+
+### Prompt ID: P004
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Request the complete duplicate-application design as a written
+  clarification (five specific confirmations) and an explanation of how
+  `screening_history` preserves every screening run, without changing the
+  architecture or writing code.
+- Development phase: Phase 0 — Architecture, Revision 2 (pre-Phase-1 clarification)
+- Context/files supplied: The eight Revision 2 `docs/*.md` files (from P002) and the
+  four `prompts/*.md` files (from P003) were present in the working directory and in
+  conversation context; no new files were uploaded with this prompt.
+- Exact prompt:
+
+```text
+Before Phase 1 approval, please provide the complete duplicate application design.
+
+Confirm:
+
+1. The exact Application ID format remains APP-<requisition-id>-<candidate-id>.
+2. ApplicationSubmissionAttempt has its own unique primary key.
+3. A duplicate submission is recorded without inserting a second Application with the same primary key.
+4. The duplicate detection engine identifies duplicates without accessing ground truth.
+5. Both the original and duplicate attempts can be traced.
+
+Also explain how screening_history preserves every screening run, including screening run ID, timestamp, rule version, component scores and decision.
+
+Do not change the architecture or write application code. Return only the clarification and the final table inventory.
+```
+
+- Output summary (optional): Confirmed all five points against the then-current
+  design. Explaining the `screening_history` mechanism surfaced a real, previously
+  undocumented gap — no dedicated "screening run ID" field existed yet (a run was
+  addressable only by array position + timestamp) — which was disclosed explicitly
+  rather than glossed over, since the prompt said not to change the architecture.
+  Also flagged, separately, a suspicious external edit to `ai_usage_disclosure.md`
+  (a "ChatGPT — confirmed usage" claim with no supporting log entries at the time) for
+  the user's attention. Returned the unchanged 21-table inventory, as requested.
+- Human review: Not separately confirmed in a dedicated follow-up — the user's next
+  prompt (P005) moved directly into a full architecture audit rather than commenting
+  on this response specifically.
+- Changes made after review: None directly from this prompt; the screening-run-ID gap
+  identified here was resolved two rounds later (P006).
+- Verification performed: Cross-referenced each of the five confirmations against the
+  live `data_dictionary.md`/`business_rules.md`/`entity_relationships.md` content at
+  the time. No automated/code-level verification exists at this phase.
+
+---
+
+### Prompt ID: P005
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Full cross-document consistency audit of all eight architecture documents
+  against each other and against the original challenge brief; requested a table
+  inventory, a requirements traceability matrix, an inconsistency list, and a list of
+  undocumented assumptions.
+- Development phase: Phase 0 — Architecture, verification/audit round
+- Context/files supplied: The eight Revision 2 docs, as they stood after P004's
+  response (no architecture changes had been made in P004).
+- Exact prompt:
+
+```text
+Review all eight architecture documents in the `docs/` folder and verify that they are consistent with one another and with the YottaFlex recruitment workflow challenge.
+
+Documents:
+- PROJECT_SPEC.md
+- architecture.md
+- data_dictionary.md
+- entity_relationships.md
+- business_rules.md
+- workflow.md
+- validation_strategy.md
+- implementation_plan.md
+
+Do not write application code.
+
+Check and report:
+
+1. Every mandatory entity from the challenge is represented.
+2. All primary keys, foreign keys, cardinalities, optional relationships and bridge tables are documented.
+3. Effective dates, lifecycle states and event histories are covered.
+4. The exact required ID conventions are preserved.
+5. The duplicate application conflict is handled using a separate ApplicationSubmissionAttempt entity. The canonical Application ID must remain APP-<requisition-id>-<candidate-id>. Duplicate submissions must not create duplicate canonical Application primary keys.
+6. Screening history records every screening run, including run ID, timestamp, rule version, component scores, decision and explanation. Previous runs must not be overwritten.
+7. SystemActor relationships and actor-role responsibilities are consistent.
+8. All five anomaly categories are represented, with incident counts clearly distinguished from affected-row counts.
+9. Structural database integrity is always enforced, while intentional business-rule anomalies are detected by validation logic.
+10. ground_truth is kept separate from input features and is never used by screening or anomaly detection.
+11. Seeded generation is deterministic and reproducible.
+12. Export and validation requirements match the challenge.
+
+Return:
+- A complete table inventory with accurate table count.
+- A requirements traceability matrix mapping each challenge requirement to its document and implementation component.
+- A list of inconsistencies, missing requirements and proposed corrections.
+- A list of assumptions that still need explicit documentation.
+
+Make only documentation corrections. Do not generate application code. Do not silently change approved design decisions. Record any proposed changes and explain why they are necessary.
+```
+
+- Output summary (optional): Re-read all eight documents fresh from disk (not from
+  memory) and found and corrected five real inconsistencies: a "12 vs 13" mandated
+  validation-category count mislabeled in five separate files; two stale `prompts/`
+  directory-structure references in `architecture.md`/`implementation_plan.md`
+  describing a `docs/ai_usage.md` + `docs/prompts/prompt_log.md` layout that didn't
+  match what P003 had actually created; a generation-order ambiguity around when
+  `AnomalyLabel` rows are written relative to `ApplicationSubmissionAttempt`'s FK to
+  them; and missing ID-format regexes plus an inconsistent table-column schema across
+  the three history tables, `AnomalyLabel`, and `GenerationRun`. Delivered the
+  21-table inventory, the full requirements traceability matrix, the corrected-issue
+  list, and recorded a new, explicitly open assumption (A-16) for the
+  previously-identified-but-undocumented screening-run-ID gap from P004.
+- Human review: The user's next prompt (P006) opens with "The final architecture
+  verification is mostly complete," which reads as acceptance of this audit's output
+  before moving to the remaining open items.
+- Changes made after review: None additional in this entry — the corrections listed
+  above were applied as part of this same response, per its "make corrections and
+  record them" instruction.
+- Verification performed: `grep` sweeps across the `docs/` directory, before and
+  after editing, confirming each stale reference was found and that no new instance
+  of the same mislabel was introduced.
+
+---
+
+### Prompt ID: P006
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Resolve four outstanding architecture items before Phase 1 approval:
+  the screening-history storage design (evaluate two options and recommend one),
+  ground-truth isolation scope/test, confirmation of the anomaly generation-and-
+  verification sequence, and a hard-vs-soft split for SystemActor role checks.
+- Development phase: Phase 0 — Architecture, design-decision round
+- Context/files supplied: The eight docs as corrected in P005 (21 tables at the start
+  of this turn).
+- Exact prompt:
+
+```text
+The final architecture verification is mostly complete. Before we approve the architecture for Phase 1, resolve the following outstanding items.
+
+Do not write application code.
+
+1. SCREENING HISTORY
+
+The current design uses an append-only JSON array in Application, with screening runs addressable only by application_id and array index.
+
+I recommend a dedicated screening_run_id for every screening execution.
+
+Evaluate two options:
+A. Keep JSON history but give every run a unique screening_run_id.
+B. Introduce a dedicated ScreeningRun table.
+
+Compare both options for traceability, querying, validation, exports, reproducibility and implementation complexity.
+
+Recommend one option and explain the trade-offs. Ensure previous screening runs can never be silently overwritten.
+
+2. GROUND-TRUTH ISOLATION
+
+ApplicationSubmissionAttempt contains ground_truth_label_id.
+
+Confirm that this field is strictly for evaluation and is never accessible to screening, operational workflow decisions or anomaly detection.
+
+Document the separation clearly and propose a validation or import-graph test to prevent leakage.
+
+3. ANOMALY GENERATION ORDER
+
+Confirm the exact sequence:
+- Generate valid baseline data.
+- Validate baseline structural integrity.
+- Inject labelled anomalies.
+- Run business-rule anomaly detection independently of ground_truth.
+- Compare detected anomalies with ground-truth labels.
+
+Explain how AnomalyLabel records are created before any foreign keys reference them.
+
+4. SYSTEMACTOR ROLE VALIDATION
+
+The current design describes actor-role checks as soft checks.
+
+Specify which role can:
+- Request a requisition.
+- Approve a requisition.
+- Progress an application.
+- Submit interview feedback.
+- Approve an offer.
+- Perform administrative operations.
+
+Clarify which checks must be enforced by service-layer validation and which are only documented conventions.
+
+5. FINAL APPROVAL
+
+Return:
+- Your recommended screening-history design.
+- Any required documentation changes.
+- A list of unresolved decisions, if any.
+- Confirmation that all 21 tables and their relationships remain consistent.
+
+Update documentation only. Do not modify application code or start Phase 1.
+```
+
+- Output summary (optional): Recommended Option B (a dedicated, insert-only
+  `ScreeningRun` table) over Option A (JSON + an ID inside each element), compared on
+  traceability/querying/validation/exports/reproducibility/complexity, and
+  implemented it — raising the table count from 21 to 22 and updating all eight
+  documents. Confirmed and generalized ground-truth non-leakage to all of `services/`
+  and `validation/rules/` (not just the duplicate detector), specifying a concrete
+  whole-package import/AST-scan test. Confirmed and documented the five-step
+  generate→validate→inject→detect→compare pipeline, adding an explicit
+  baseline-integrity gate that hadn't existed as a named step before. Split
+  role-appropriateness into two hard-enforced transitions (requisition and offer
+  approval) and everything else remaining soft, with an explicit per-action role table
+  and a note that feedback submission is gated by interviewer-identity equality, not a
+  SystemActor role at all.
+- Human review: The user's next prompt (P007) explicitly says "Use the revised
+  architecture with 22 tables, including the newly introduced ScreeningRun table,"
+  confirming this response's central recommendation was accepted.
+- Changes made after review: None additional — carried forward as the new baseline
+  for P007.
+- Verification performed: Internal consistency checks across all eight documents
+  (table counts, FK lists, cardinality tables) re-verified after editing; no
+  automated/code-level verification exists at this phase.
+
+---
+
+### Prompt ID: P007
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Produce one definitive, cross-checked inventory of all 22 tables (name,
+  purpose, PK/ID format, FKs, unique constraints, check constraints, relationships
+  and cardinality, category), verified against every architecture document.
+- Development phase: Phase 0 — Architecture, table-inventory verification
+- Context/files supplied: The eight docs as updated in P006 (22 tables, `ScreeningRun`
+  newly added).
+- Exact prompt:
+
+```text
+Now perform Prompt 2: Final Database Table Inventory Verification.
+
+Use the revised architecture with 22 tables, including the newly introduced ScreeningRun table.
+
+Inspect:
+- PROJECT_SPEC.md
+- architecture.md
+- data_dictionary.md
+- entity_relationships.md
+- business_rules.md
+- validation_strategy.md
+- workflow.md
+- implementation_plan.md
+
+Produce one definitive inventory of all 22 tables.
+
+For each table include:
+1. Table name.
+2. Purpose.
+3. Primary key and ID format.
+4. Foreign keys.
+5. Unique constraints.
+6. Important check constraints.
+7. Relationships and cardinalities.
+8. Category: core, bridge, history or supporting.
+
+Specifically verify that:
+- ScreeningRun has its own unique primary key.
+- Application.latest_screening_run_id references ScreeningRun correctly.
+- ScreeningRun references Application and ScreeningRule.
+- ApplicationSubmissionAttempt preserves duplicate submissions without duplicate canonical Application IDs.
+- SystemActor foreign keys are consistent.
+- All three lifecycle history tables are represented.
+- AnomalyLabel and GenerationRun relationships are correct.
+- No entity is accidentally counted twice.
+- All 12 challenge-mandated entities remain present.
+
+Cross-check the inventory against every architecture document.
+
+Return:
+- Definitive 22-table inventory.
+- Relationship summary.
+- Table count by category.
+- Missing constraints or relationships.
+- Any inconsistencies found.
+
+Update documentation only if needed. Do not write application code. Do not start Phase 1.
+```
+
+- Output summary (optional): Re-read all eight documents fresh from disk and found
+  four more stale references left over from the screening-run migration: a
+  parenthetical in `entity_relationships.md` still describing screening-history as a
+  JSON field, a "the other 20 tables" arithmetic leftover in `architecture.md`, an
+  undated "21-table" note in `PROJECT_SPEC.md`, and — the one substantive gap — no
+  documented relationship at all between `ScreeningRun` and `ScreeningRule` (only a
+  denormalized version-number copy, no FK, not even mentioned). Fixed all four, then
+  delivered the full 22-table inventory grouped by category (12 core / 1 bridge / 3
+  history / 6 supporting), a relationship summary, category counts, and explicit
+  confirmation against each of the nine specifically-requested checks.
+- Human review: The user's next prompt (P008) opens with "The 22-table inventory is
+  approved" — explicit, unambiguous confirmation.
+- Changes made after review: None additional — approved as delivered.
+- Verification performed: Same `grep`-based sweep methodology as P005, run again
+  before finalizing the inventory to confirm no stale references remained.
+
+---
+
+### Prompt ID: P008
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Clarify three implementation-level details left open by the approved
+  22-table inventory: `ScreeningRun`→`ScreeningRule` historical reproducibility,
+  `ApplicationSubmissionAttempt` canonical-attempt tie-breaking/constraints, and the
+  `ScreeningRun` zero-before/one-after latest-row invariant and its consistency
+  mechanism.
+- Development phase: Phase 0 — Architecture, implementation-detail clarification
+- Context/files supplied: The eight docs as approved in P007 (22-table inventory).
+- Exact prompt:
+
+```text
+The 22-table inventory is approved. Before moving to the next verification task, clarify three implementation details in the documentation.
+
+1. ScreeningRun historical rule traceability:
+Each ScreeningRun must preserve the exact ScreeningRule and rule version used at execution time. Evaluate adding screening_rule_id as a direct FK to ScreeningRule, alongside screening_rule_version. Explain how historical runs remain reproducible if the current ScreeningRule changes.
+
+2. ApplicationSubmissionAttempt canonical uniqueness:
+Specify how exactly one canonical attempt is enforced per Application. Define how ties in submitted_at are resolved deterministically. Include the database constraint/index and service validation strategy.
+
+3. ScreeningRun latest-row invariant:
+Clarify that an Application may have zero ScreeningRun rows before its first screening, and exactly one latest run after screening has occurred. Specify how the unique latest-run constraint and Application.latest_screening_run_id mirror are kept consistent.
+
+Update documentation only. Do not change the approved table inventory unless absolutely necessary. Do not write application code. Report the exact documentation changes.
+```
+
+- Output summary (optional): Determined that a direct FK alone doesn't guarantee
+  reproducibility unless its target is immutable, so redesigned `ScreeningRule` as
+  versioned/insert-only with an `is_current` flag (same pattern already used for
+  `ResumeArtifact.is_latest`/`ScreeningRun.is_latest`), added
+  `ScreeningRun.screening_rule_id` as a direct, permanent FK, and explained the
+  4-point reproducibility proof. Pinned `ApplicationSubmissionAttempt`'s canonical
+  tie-break to `(submitted_at, attempt_id)` ascending, with a partial unique index and
+  a check constraint. Made the `ScreeningRun` zero-before/exactly-one-after invariant
+  explicit, backed by a partial unique index and a documented atomic three-step
+  consistency procedure with `Application`'s mirrored columns. Table count confirmed
+  unchanged at 22 — all three changes were field/constraint-level refinements to
+  already-approved tables, added a new assumption (A-17) for the `ScreeningRule`
+  change, and reported the exact file-by-file documentation changes made.
+- Human review: Not yet explicitly confirmed — the user's next prompt (this log
+  update, P009) moved to a different task (updating the prompt logs) without
+  commenting on this response's content.
+- Changes made after review: None yet.
+- Verification performed: `grep` sweep across `docs/` confirming no remaining
+  "1:1 ScreeningRule" or stale constraint references after the edits; no
+  automated/code-level verification exists at this phase.
+
+---
+
+### Prompt ID: P009
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Bring `prompts/claude_code_prompts.md` and `prompts/chatgpt_prompts.md` up
+  to date.
+- Development phase: Cross-cutting documentation/compliance task (Phase 0 still open,
+  pending approval of the P008 clarifications)
+- Context/files supplied: `prompts/claude_code_prompts.md` (containing only P001–P003
+  at the start of this turn — P004–P008 had been submitted and acted on across four
+  intervening turns but never logged, an oversight this entry corrects) and
+  `prompts/chatgpt_prompts.md` (containing the user's own P001–P005 entries, edited
+  directly on disk in an earlier turn) were both read fresh before editing.
+- Exact prompt:
+
+```text
+update the chatgpt and claude prompts.md files
+```
+
+- Output summary (optional): Backfilled `claude_code_prompts.md` with P004–P008 (this
+  entry makes it P009), using verbatim text copied from the conversation transcript
+  for each, following the established template. For `chatgpt_prompts.md`: made no
+  content changes — Claude Code has no visibility into any ChatGPT conversation beyond
+  what the user already entered there themselves, and inventing additional entries
+  would violate this project's anti-fabrication rule; see the chat response for what
+  was and wasn't done there and why.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Manual check that each backfilled entry's "Exact prompt"
+  matches the corresponding submitted message verbatim (direct copy from the
+  conversation transcript, not retyped from memory), and that the P004–P008 sequence
+  matches the actual chronological order of turns (re-verified against this session's
+  own prior responses, since an earlier draft of this backfill had two entries
+  transposed before being corrected).
+
+---
+
+### Prompt ID: P010
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Full, from-the-live-documents (not from memory) verification of the
+  complete duplicate-submission design — canonical Application identity, submission
+  attempts, the detection algorithm, ground-truth isolation, anomaly injection, export/
+  validation coverage, and six specific edge cases — plus a prompt-log update at the
+  end.
+- Development phase: Phase 0 — Architecture, duplicate-handling verification
+- Context/files supplied: The eight docs as they stood after P008's clarifications
+  (22-table inventory, `ScreeningRule`/`ScreeningRun` versioning resolved). This
+  prompt explicitly required re-reading them live rather than relying on prior
+  summaries.
+- Exact prompt:
+
+```text
+Perform Prompt 3: Duplicate Application Handling Verification for TalentFlow AI.
+
+Review the current live documentation and verify the complete duplicate-submission design. Do not rely on previous summaries.
+
+Relevant documents:
+- PROJECT_SPEC.md
+- architecture.md
+- data_dictionary.md
+- entity_relationships.md
+- business_rules.md
+- workflow.md
+- validation_strategy.md
+- implementation_plan.md
+
+The mandatory canonical Application ID convention is:
+
+APP-<requisition-id>-<candidate-id>
+
+The design must preserve every submission attempt without creating duplicate canonical Application records.
+
+Verify the following:
+
+1. CANONICAL APPLICATION
+- One canonical Application exists per candidate-requisition pair.
+- Its ID follows the exact required convention.
+- Duplicate submissions never create a second Application primary key.
+
+2. APPLICATION SUBMISSION ATTEMPTS
+- Every submission has a unique attempt_id.
+- Each attempt references the candidate, requisition and canonical application.
+- Every attempt records submitted_at.
+- Duplicate attempts reference the original attempt through duplicate_of_attempt_id.
+- Define how simultaneous submissions and identical timestamps are handled.
+- Confirm exactly one canonical attempt exists per canonical Application.
+- Confirm the canonical attempt is the earliest valid submission.
+
+3. DUPLICATE DETECTION
+- Explain the exact operational duplicate-detection algorithm.
+- Detection must not read ground_truth_label_id, AnomalyLabel or any other evaluation-only label.
+- Detection must work independently using candidate_id, requisition_id and submission history.
+- Explain how the system distinguishes a legitimate first submission from a duplicate attempt.
+
+4. GROUND-TRUTH ISOLATION
+- ground_truth_label_id is used exclusively for evaluation.
+- It must not influence application creation, screening, workflow transitions or duplicate detection.
+- Confirm the whole-package leakage test covers the duplicate detector.
+
+5. ANOMALY GENERATION
+- Explain how the proposed 15 duplicate incidents are injected after valid baseline generation.
+- Distinguish incident count from affected submission-attempt row count.
+- Ensure structural integrity remains valid.
+- Explain how ground-truth labels are attached without influencing the detector.
+
+6. EXPORT AND VALIDATION
+- Confirm CSV, JSON and SQL exports preserve canonical applications and all submission attempts.
+- Include tests for primary-key uniqueness, foreign-key integrity, canonical uniqueness, duplicate detection and reproducibility.
+- Include at least one concrete example showing one canonical application and multiple submission attempts.
+
+7. EDGE CASES
+Evaluate:
+- Same candidate submits twice for the same requisition.
+- Same candidate applies to two different requisitions.
+- Two submissions arrive simultaneously.
+- Duplicate attempt arrives before the original attempt is processed.
+- A candidate withdraws and later submits again.
+- A submission is rejected as invalid before becoming a valid application.
+
+For each case, specify expected behaviour and whether it is an anomaly.
+
+Return:
+- A requirement-by-requirement verification table.
+- The exact duplicate-detection algorithm in pseudocode.
+- A concrete sample record set with IDs.
+- Any design gaps or contradictions.
+- Required documentation changes, if any.
+
+Do not write application code.
+Do not add or remove tables unless absolutely necessary.
+Do not start Phase 1.
+After completing the audit, update the prompt history using the exact prompt submitted.
+```
+
+- Output summary (optional): Re-read the eight live documents directly (not from
+  memory) and found one genuine design gap: the documented write-path logic ("decide
+  canonical once at insert time, never revisit") could not correctly handle an
+  attempt that arrives later in *processing* order but carries an earlier
+  `submitted_at` than the attempt currently flagged canonical. Fixed it by making the
+  write path call the exact same deterministic `(submitted_at, attempt_id)` recompute
+  the detector already used, re-run over every attempt for the pair inside one
+  transaction — unifying the write and detection logic into one function, per
+  `architecture.md` §6. Updated `data_dictionary.md` §8a, `business_rules.md` §10,
+  and `workflow.md` §2a accordingly. Delivered the full requirement-verification
+  table, unified pseudocode, a concrete sample record set, the edge-case table (all
+  six requested cases plus the concurrency mechanics), and this log entry.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Re-read `data_dictionary.md` §8/§8a, `business_rules.md`
+  §9/§10, `workflow.md` §2/§2a, `validation_strategy.md` §11/§16/§17 directly from
+  disk during this turn (not from prior-turn memory, per the prompt's explicit
+  instruction) before drafting the verification table and before applying the fix.
+
+---
+
+### Prompt ID: P011
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Document the user's approved withdrawal/resubmission policy ("Option A" —
+  withdrawal does not release the candidate–requisition pair) across six named
+  documents, with four specified test cases, without changing the table inventory,
+  IDs, or the canonical-reconciliation algorithm.
+- Development phase: Phase 0 — Architecture, policy-documentation pass
+- Context/files supplied: The eight docs as they stood after P010's duplicate-
+  handling verification and fix (22-table inventory; canonical reconciliation shared
+  between write path and detector).
+- Exact prompt:
+
+```text
+Update the TalentFlow AI architecture documentation to incorporate the user's approved withdrawal and resubmission policy.
+
+DECISION — OPTION A APPROVED
+
+Withdrawal does not release the candidate–requisition pair.
+
+If a candidate withdraws an application and later submits another application for the same requisition:
+
+1. The original canonical Application remains in the WITHDRAWN state.
+2. The original Application record and its ID must never be deleted or replaced.
+3. The new submission must be recorded as a separate ApplicationSubmissionAttempt with a unique attempt_id.
+4. The new attempt must reference the existing canonical Application.
+5. The new attempt must be classified as DuplicateSubmission.
+6. duplicate_of_attempt_id must reference the canonical submission attempt according to the existing canonical reconciliation rules.
+7. The original Application must remain WITHDRAWN.
+8. The new submission must not automatically reopen, reactivate or change the lifecycle state of the original Application.
+9. The duplicate detector must identify the new attempt using candidate_id, requisition_id and submission history only.
+10. ground_truth_label_id must never influence this decision.
+
+IMPORTANT TECHNICAL REQUIREMENTS
+
+- Preserve the existing derived Application ID convention.
+- Preserve the 22-table inventory. Do not add or remove tables.
+- Preserve the existing canonical selection algorithm based on (submitted_at, attempt_id).
+- Ensure withdrawal and subsequent duplicate submission do not corrupt canonical-attempt uniqueness.
+- Preserve the existing application-stage and submission-attempt histories.
+- Distinguish ordinary duplicate attempts from the business event of withdrawal.
+- Do not create a new lifecycle state unless an existing rule genuinely requires it.
+
+DOCUMENTATION TO REVIEW AND UPDATE
+
+1. business_rules.md — document the approved withdrawal/resubmission policy.
+2. workflow.md — update the withdrawal and subsequent submission flow.
+3. data_dictionary.md — clarify relevant Application and ApplicationSubmissionAttempt field behaviour.
+4. entity_relationships.md — update only if the relationship explanation needs clarification.
+5. PROJECT_SPEC.md — record the approved assumption and its rationale.
+6. validation_strategy.md — add tests for withdrawal followed by resubmission.
+
+TEST CASES TO DOCUMENT
+
+Test 1:
+- Candidate applies.
+- Application is created.
+- Candidate withdraws.
+- Candidate submits again for the same requisition.
+Expected: original Application remains WITHDRAWN; new attempt is DuplicateSubmission.
+
+Test 2:
+- Candidate applies.
+- Candidate withdraws.
+- Candidate submits again with an earlier submitted_at timestamp arriving out of order.
+Expected: canonical selection still follows (submitted_at, attempt_id), while the Application lifecycle remains WITHDRAWN. The reconciliation process must not automatically reactivate the Application.
+
+Test 3:
+- Candidate withdraws from one requisition and applies to another.
+Expected: a separate canonical Application is created; no duplicate classification.
+
+Test 4:
+- Candidate submits again after withdrawal.
+Expected: ground_truth_label_id is not consulted by operational duplicate detection.
+
+DELIVERABLES
+
+- List the exact files and sections updated.
+- Show the final business rule in clear language.
+- Show the updated workflow.
+- Show the validation cases and expected results.
+- Confirm that the 22-table inventory and all existing IDs remain unchanged.
+- Confirm that no application code was written and Phase 1 has not started.
+
+PROMPT HISTORY
+
+Append this exact prompt to prompts/claude_code_prompts.md using the next available P00n ID. Do not overwrite existing entries or fabricate timestamps.
+
+Do not implement application code. Documentation only.
+```
+
+- Output summary (optional): Confirmed that the policy required no change to the
+  canonical-reconciliation algorithm or lifecycle graph — `Application.stage` and
+  `ApplicationSubmissionAttempt`'s reconciliation logic were already disjoint code
+  paths. Added `business_rules.md` §3a (the policy statement and the orthogonality
+  argument), `workflow.md` §2b (the withdrawal→resubmission flow diagram),
+  clarifying notes in `data_dictionary.md` §8/§8a, a relationship note in
+  `entity_relationships.md` §5, a new confirmed assumption `PROJECT_SPEC.md` A-18,
+  and four test cases plus one structural guarantee test in `validation_strategy.md`
+  §18. No table, field, lifecycle state, or algorithm changed.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Grepped `business_rules.md` for any existing cross-
+  reference between `reconcile_canonical`/§10 and `Application.stage`/§3 before
+  writing the policy section, to confirm the orthogonality claim was actually true
+  of the live documents rather than assumed.
+
+---
+
+### Prompt ID: P012
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Full, from-the-live-documents verification of screening/decision logic —
+  rule configuration, skills/experience/education scoring, final-score formula,
+  `ScreeningRun` traceability, fairness/ground-truth isolation, and a full test
+  matrix — against a proposed three-weight model (Skills 50% / Experience 30% /
+  Education 20%).
+- Development phase: Phase 0 — Architecture, screening-logic verification
+- Context/files supplied: The eight docs as they stood after P011's withdrawal-
+  policy documentation pass (22-table inventory; `Application.stage` and attempt
+  reconciliation confirmed orthogonal).
+- Exact prompt:
+
+```text
+Perform Prompt 4: Screening and Decision Logic Verification for TalentFlow AI.
+
+Re-read all eight architecture documents from the live project files. Do not rely on previous conversation summaries.
+
+Documents:
+- PROJECT_SPEC.md
+- architecture.md
+- data_dictionary.md
+- entity_relationships.md
+- business_rules.md
+- workflow.md
+- validation_strategy.md
+- implementation_plan.md
+
+The approved architecture contains 22 tables, including ScreeningRule and ScreeningRun. Do not add or remove tables unless an unavoidable design issue is identified.
+
+The proposed screening weights are:
+- Skills: 50%
+- Experience: 30%
+- Education: 20%
+
+These are proposed design weights, not mandatory YottaFlex requirements.
+
+### 1. SCREENING RULE CONFIGURATION
+
+Verify:
+- Each requisition has its own ScreeningRule.
+- The scoring weights are configurable.
+- Weight validation is correct and totals 100%.
+- Screening thresholds and education eligibility gates are explicitly defined.
+- Required skills are taken from JobRequisitionSkill.
+- ScreeningRule versioning is documented.
+- Changes to screening rules create a new version rather than silently altering historical rules.
+
+Identify whether any existing rules are ambiguous or contradictory.
+
+### 2. SKILLS SCORING
+
+Verify:
+- Candidate skills are matched against requisition-required skills.
+- Required skill weights are applied correctly.
+- Missing skills reduce the score according to documented rules.
+- Skill scores are normalized consistently.
+- Candidates with no matching skills are handled correctly.
+- Skill matching is explainable.
+
+Provide numerical examples.
+
+### 3. EXPERIENCE SCORING
+
+Verify:
+- Candidate experience is evaluated against the requisition's required experience.
+- The scoring formula is deterministic.
+- Underqualified, qualified and overqualified candidates are handled consistently.
+- Missing or invalid experience data is handled explicitly.
+- No unsupported experience assumptions are made.
+
+Provide numerical examples.
+
+### 4. EDUCATION ELIGIBILITY AND SCORING
+
+Verify:
+- Education requirements are job-related.
+- Eligibility gates are explicitly defined.
+- Education scoring follows documented rules.
+- Missing education information is handled consistently.
+- Education eligibility cannot be silently overridden by other component scores.
+
+Provide pass and fail examples.
+
+### 5. FINAL SCORE AND DECISION
+
+Verify the proposed formula:
+
+Final score =
+(Skills score × Skills weight)
++ (Experience score × Experience weight)
++ (Education score × Education weight)
+
+Confirm:
+- Scores are normalized to a consistent scale.
+- Rounding rules are documented.
+- Screening thresholds are explicit.
+- Decision categories are unambiguous.
+- Education eligibility gates are applied before final screening decisions.
+- Identical inputs and rule versions always produce identical results.
+
+Provide at least five numerical candidate examples covering different outcomes.
+
+### 6. SCREENINGRUN TRACEABILITY
+
+Verify that every screening execution creates an immutable ScreeningRun record containing:
+- screening_run_id
+- application_id
+- screening_rule_id
+- screening_rule_version
+- computed_at
+- skills component score
+- experience component score
+- education component score
+- final score
+- eligibility result
+- screening decision
+- explanation
+- sufficient rule snapshot information to reproduce the result
+
+Confirm:
+- ScreeningRun history is never overwritten.
+- Application.latest_screening_run_id points to the latest execution.
+- Zero runs are allowed before the first screening.
+- Exactly one latest run exists after screening has occurred.
+- Historical screening decisions remain reproducible even after rules change.
+
+### 7. FAIRNESS AND GROUND-TRUTH ISOLATION
+
+Verify:
+- Screening uses only job-related criteria.
+- Protected characteristics and demographic proxies are excluded from scoring.
+- Candidate names, gender, age, religion, caste, photograph, address and similar demographic indicators are not scoring inputs.
+- ground_truth_label_id and AnomalyLabel are never read by screening.
+- The whole-package leakage test covers screening modules.
+- Screening explanations do not expose sensitive information.
+
+Do not claim the system is legally certified or bias-free. Identify what the design can and cannot establish.
+
+### 8. TESTING AND VALIDATION
+
+Document test cases for:
+- Correct score calculation.
+- Weight totals.
+- Missing skills.
+- Missing experience.
+- Education gate failure.
+- Boundary scores at thresholds.
+- Identical inputs producing identical outputs.
+- Rule version changes.
+- Historical ScreeningRun preservation.
+- Latest-run pointer consistency.
+- Ground-truth leakage.
+- Exclusion of demographic proxies.
+
+Include sample test data and expected results.
+
+### 9. IMPLEMENTATION READINESS
+
+Return:
+1. Requirement-by-requirement verification matrix.
+2. Exact scoring formulas.
+3. At least five worked candidate examples.
+4. ScreeningRun field and relationship verification.
+5. Identified gaps and proposed corrections.
+6. Exact documentation sections changed.
+7. Any remaining assumptions requiring user approval.
+
+Do not write application code.
+Do not start Phase 1.
+Do not add or remove tables without explaining why and obtaining approval.
+
+### 10. PROMPT HISTORY
+
+After completing the audit, append this exact prompt to prompts/claude_code_prompts.md using the next available P00n ID.
+
+Do not fabricate timestamps, test results or review status.
+
+Return a concise completion summary.
+```
+
+- Output summary (optional): Found and resolved a real contradiction: the live
+  formula weighted only skills and experience, treating education as a pass/fail
+  gate with no graded score, while the proposed weights require a graded education
+  term. Resolved by giving education a graded `education_component` using the exact
+  capping philosophy already used for `experience_component`, while leaving the
+  independent hard gate's authority over `screening_decision` unchanged — proven with
+  a worked example where a 93.33 score still fails because the gate failed. Added
+  `ScreeningRule.education_weight_pct`, `ScreeningRun`/`Application`'s
+  `screening_education_component`, five worked candidate examples plus a boundary
+  pair (`business_rules.md` §5a), an explicit fairness-scope statement (§8: what the
+  design can/cannot establish — no legal or bias-free claim made), and a full test
+  matrix (`validation_strategy.md` §19). No table added or removed. New assumption
+  `PROJECT_SPEC.md` A-19.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Re-read `business_rules.md` §5 and `data_dictionary.md`
+  §9/§8b directly from disk (not from prior-turn memory) before concluding the
+  two-weight/three-weight contradiction was real, not assumed; hand-computed all
+  five worked examples' arithmetic before recording them.
+
+---
+
+### Prompt ID: P013
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Final approval of A-19 (the three-weight screening model and the
+  50/30/20 weights) with an explicit five-point education policy, plus seven
+  specific follow-up requirements (default threshold documentation, zero-division
+  safety, re-verification of all worked examples, etc.) to be reflected
+  consistently across five named documents.
+- Development phase: Phase 0 — Architecture, final approval
+- Context/files supplied: The eight docs as they stood after P012's screening-logic
+  verification pass (three-weight model proposed, not yet marked approved).
+- Exact prompt:
+
+```text
+FINAL APPROVAL — PROMPT 4: SCREENING AND DECISION LOGIC
+
+The user has explicitly approved assumption A-19.
+
+Approved screening weights:
+- Skills: 50%
+- Experience: 30%
+- Education: 20%
+
+Approved education policy:
+1. Education is both a scored component and a mandatory eligibility gate.
+2. Candidates meeting or exceeding the minimum education requirement receive full education component credit (1.0).
+3. Candidates failing the minimum education requirement fail the eligibility gate, regardless of their numerical screening score.
+4. Education scoring must not provide additional rewards for qualifications above the minimum requirement.
+5. The education gate cannot be overridden by skills or experience scores.
+
+FINAL SCREENING FORMULA:
+
+screening_score = round(
+    100 * (
+        0.50 * skill_component
+        + 0.30 * experience_component
+        + 0.20 * education_component
+    ), 2
+)
+
+screening_decision = PASS only when:
+- education_gate_passed = true
+- screening_score >= configured screening threshold
+
+Otherwise screening_decision = FAIL.
+
+Additional requirements:
+
+1. Update PROJECT_SPEC.md A-19 to mark the assumption as explicitly user-approved, including the rationale.
+2. Ensure business_rules.md, data_dictionary.md, validation_strategy.md, workflow.md and architecture.md consistently reflect the approved formula.
+3. Ensure ScreeningRule supports the three weights and validates that they total 100%.
+4. Ensure ScreeningRun preserves all three component scores, the final score, eligibility result, decision, rule ID, rule version and sufficient snapshot data for historical reproducibility.
+5. Ensure the screening threshold is configurable and its default value is explicitly documented.
+6. Ensure min_years_experience cannot cause division-by-zero. Define the behaviour for roles requiring zero years of experience.
+7. Preserve all existing screening examples and correct them if any numerical result conflicts with the approved formula.
+8. Keep the 22-table inventory unchanged.
+
+DELIVERABLES:
+- Exact files and sections updated.
+- Confirmation that A-19 is marked APPROVED.
+- Final scoring formula and decision rule.
+- Confirmation that all worked examples are mathematically correct.
+- Confirmation that historical ScreeningRun records remain reproducible.
+- Any remaining assumptions or unresolved issues.
+
+Do not write application code.
+Do not add or remove tables.
+Do not start Phase 1.
+
+PROMPT HISTORY:
+Append this exact prompt to prompts/claude_code_prompts.md using the next available P00n ID. Preserve all previous entries and do not invent timestamps or test results.
+
+Return a concise completion report.
+```
+
+- Output summary (optional): Hand-recomputed all five primary worked examples
+  against the exact approved formula — all were already correct, no numerical
+  corrections needed. Found the boundary-pair example was an unverified placeholder
+  ("69.00, e.g. one fewer skill matched") and replaced it with a fully concrete,
+  hand-computed pair (`70.00` at `years_experience=4.0` vs `69.25` at `3.9`). Marked
+  A-19 and the formula sections APPROVED (not merely confirmed) in `PROJECT_SPEC.md`,
+  `business_rules.md`, `data_dictionary.md`, `validation_strategy.md`,
+  `workflow.md`, `architecture.md`. Documented the default `pass_threshold_score`
+  explicitly as `70.0`. Stated both zero-division safety guarantees
+  (`min_years_experience=0` and education's ordinal rank always `≥1`) explicitly in
+  prose rather than leaving them as an implicit formula branch. No table added or
+  removed; 22-table inventory confirmed unchanged.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Hand-recomputed all five CAND-0001{01-05} examples and the
+  new boundary pair digit-by-digit against the literal approved formula before
+  reporting them correct; grepped the full `docs/` tree for stale "69.00" and
+  "proposed design choice" wording after editing, to confirm no unresolved
+  "proposed, not approved" language remained.
+
+---
+
+### Prompt ID: P014
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Initiate "Prompt 5: Anomaly Generation and Validation Verification."
+  **This submission was incomplete** — section 6 ("VALIDATION ENGINE") cut off
+  mid-sentence at "For each rule specify:" with no items list, and the message had
+  no deliverables/closing-constraints/prompt-history section, unlike every prior
+  "Prompt N" in this series.
+- Development phase: Phase 0 — Architecture, anomaly/validation verification
+  (not executed from this submission — see below)
+- Context/files supplied: The eight docs as they stood after P013's final-approval
+  pass.
+- Exact prompt (as submitted — verbatim, including the point it cuts off at):
+
+```text
+Perform Prompt 5: Anomaly Generation and Validation Verification for TalentFlow AI.
+
+Re-read all eight architecture documents from the live project files. Do not rely on previous conversation summaries.
+
+Documents:
+- PROJECT_SPEC.md
+- architecture.md
+- data_dictionary.md
+- entity_relationships.md
+- business_rules.md
+- workflow.md
+- validation_strategy.md
+- implementation_plan.md
+
+The approved architecture contains 22 tables. Do not add or remove tables without explaining why and obtaining approval.
+
+No application code should be written during this task.
+
+## 1. DATA VOLUMES AND BASELINE GENERATION
+
+Verify the required dataset volumes:
+
+- 100 JobRequisition records.
+- 2,000 Candidate records.
+- 3,000 Application records.
+- 600 Interview records.
+- 150 Offer records.
+
+Verify:
+1. The baseline dataset is generated before anomaly injection.
+2. Baseline records satisfy all structural and business validation rules.
+3. Primary keys and foreign keys are valid.
+4. Relationship cardinalities are consistent.
+5. Application and interview lifecycle states are valid.
+6. All IDs follow their required conventions.
+7. The generation seed is fixed at 20261022.
+8. Starter and full dataset modes are supported.
+9. Repeated runs with the same seed produce identical outputs and checksums.
+10. GenerationRun records capture the relevant generation metadata.
+
+Clarify whether the specified volumes include intentional anomaly records. Distinguish baseline volume from final exported volume wherever necessary.
+
+## 2. BASELINE VALIDATION GATE
+
+Verify the exact sequence:
+
+1. Generate valid baseline records.
+2. Run structural validation.
+3. Run baseline business-rule validation.
+4. Require zero baseline violations.
+5. Only after the baseline passes, inject intentional anomalies.
+6. Run anomaly detection independently.
+7. Compare detected anomalies with ground-truth labels offline.
+
+Explain how a failed baseline validation prevents anomaly injection.
+
+Structural integrity must remain valid even after anomaly injection.
+
+## 3. FIVE REQUIRED ANOMALY CATEGORIES
+
+Verify all five categories in detail.
+
+A. INTERVIEWER UNAVAILABLE
+
+- Interview is scheduled outside the assigned interviewer's availability.
+- Interviewer and interview relationships remain structurally valid.
+- Detection uses actual availability slots and interview timestamps.
+- Ground truth is not consulted by the detector.
+
+B. DUPLICATE APPLICATION
+
+- Same candidate submits multiple attempts for the same requisition.
+- One canonical Application remains.
+- Additional attempts are preserved in ApplicationSubmissionAttempt.
+- Canonical reconciliation follows (submitted_at, attempt_id).
+- Withdrawn applications follow the approved Option A policy.
+- Duplicate detection does not read ground truth.
+
+C. MISSING FEEDBACK
+
+- Interview takes place.
+- Application progresses to a stage requiring completed feedback.
+- Feedback record is absent.
+- The anomaly is detected using workflow rules and actual records.
+- No malformed foreign keys or artificial structural violations are introduced.
+
+D. OFFER SALARY OUTSIDE APPROVED BAND
+
+- Offer salary falls below the approved minimum or above the approved maximum.
+- Offer and requisition relationships remain valid.
+- Salary validation uses the approved requisition salary band.
+- Ground truth is not consulted.
+
+E. CLOSED REQUISITION WITH ACTIVE APPLICATIONS
+
+- Requisition status is Closed.
+- One or more applications remain in active lifecycle stages.
+- The detector identifies the inconsistency from operational records.
+- The anomaly is not created through invalid database structure.
+
+For each category document:
+- Exact injection method.
+- Number of incidents.
+- Number of affected rows.
+- Tables and fields involved.
+- Detection rule.
+- Expected detection result.
+- Ground-truth label relationship.
+- Validation test.
+
+## 4. ANOMALY COUNTS AND DATA VOLUMES
+
+Verify the approved anomaly counts:
+
+- 15 interviewer-unavailable incidents.
+- 15 duplicate-application incidents.
+- 10 missing-feedback progression incidents.
+- 6 salary-out-of-band incidents.
+- 5 closed-requisition incidents.
+
+Confirm whether incident count equals affected-row count for each category or whether one incident can affect multiple rows.
+
+Ensure there is no accidental overlap between anomaly categories unless explicitly intended and documented.
+
+Show the final baseline and post-injection counts.
+
+## 5. GROUND-TRUTH ISOLATION
+
+Verify that:
+- AnomalyLabel contains evaluation labels only.
+- Operational business rules never query AnomalyLabel.
+- Operational screening never queries ground_truth_label_id.
+- Duplicate detection never reads ground truth.
+- The anomaly detector never reads ground truth.
+- Ground-truth comparison happens only after independent detection.
+
+Review the whole-package leakage test.
+
+Identify any possible indirect data leakage paths.
+
+## 6. VALIDATION ENGINE
+
+Verify the complete validation coverage.
+
+At minimum include:
+
+- Primary-key uniqueness.
+- Foreign-key integrity.
+- Required fields and nullability.
+- Enum validation.
+- Date and timestamp consistency.
+- Requisition lifecycle.
+- Application lifecycle.
+- Interview scheduling and availability.
+- Feedback completeness.
+- Salary-band validation.
+- Duplicate application detection.
+- Screening reproducibility.
+- Ground-truth isolation.
+- Deterministic generation.
+- Export consistency.
+- Checksums.
+
+For each rule
+```
+
+- Output summary (optional): Did not execute the task. Identified that section 6
+  ended mid-sentence with no items list, and that the message lacked a
+  deliverables/closing-constraints/prompt-history section present in every other
+  "Prompt N" in this series — asked the user to resend the complete prompt rather
+  than guess at the missing content, since this task also requires logging the
+  "exact prompt," which cannot be done honestly for text that was never received.
+- Human review: The user resent the complete prompt (logged next, P015) rather than
+  confirming this one was already complete — implicit confirmation that the
+  clarification request was correct.
+- Changes made after review: None — no documentation was touched in response to
+  this incomplete submission.
+- Verification performed: Re-read the submitted text itself (not prior-turn memory)
+  to confirm it genuinely ended mid-word/mid-list before asking for clarification,
+  rather than assuming incompleteness.
+
+---
+
+### Prompt ID: P015
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Complete, resent version of "Prompt 5: Anomaly Generation and Validation
+  Verification" — full baseline/volume verification, the five-step pipeline, all
+  five anomaly categories in detail, ground-truth isolation, a full validation
+  rule-ID catalog, precision/recall/F1 evaluation, and export/reproducibility
+  checks.
+- Development phase: Phase 0 — Architecture, anomaly/validation verification
+- Context/files supplied: The eight docs as they stood after P013 (P014's
+  incomplete submission made no changes).
+- Exact prompt:
+
+```text
+Perform Prompt 5: Anomaly Generation and Validation Verification for TalentFlow AI.
+
+Re-read all eight architecture documents from the live project files. Do not rely on previous conversation summaries.
+
+Documents:
+- PROJECT_SPEC.md
+- architecture.md
+- data_dictionary.md
+- entity_relationships.md
+- business_rules.md
+- workflow.md
+- validation_strategy.md
+- implementation_plan.md
+
+The approved architecture contains 22 tables. Do not add or remove tables without explaining why and obtaining approval.
+
+No application code should be written during this task.
+
+## 1. DATA VOLUMES AND BASELINE GENERATION
+
+Verify the required dataset volumes:
+
+- 100 JobRequisition records.
+- 2,000 Candidate records.
+- 3,000 Application records.
+- 600 Interview records.
+- 150 Offer records.
+
+Verify:
+1. The baseline dataset is generated before anomaly injection.
+2. Baseline records satisfy all structural and business validation rules.
+3. Primary keys and foreign keys are valid.
+4. Relationship cardinalities are consistent.
+5. Application and interview lifecycle states are valid.
+6. All IDs follow their required conventions.
+7. The generation seed is fixed at 20261022.
+8. Starter and full dataset modes are supported.
+9. Repeated runs with the same seed produce identical outputs and checksums.
+10. GenerationRun records capture the relevant generation metadata.
+
+Clarify whether the specified volumes include intentional anomaly records. Distinguish baseline volume from final exported volume wherever necessary.
+
+## 2. BASELINE VALIDATION GATE
+
+Verify the exact sequence:
+
+1. Generate valid baseline records.
+2. Run structural validation.
+3. Run baseline business-rule validation.
+4. Require zero baseline violations.
+5. Only after the baseline passes, inject intentional anomalies.
+6. Run anomaly detection independently.
+7. Compare detected anomalies with ground-truth labels offline.
+
+Explain how a failed baseline validation prevents anomaly injection.
+
+Structural integrity must remain valid even after anomaly injection.
+
+## 3. FIVE REQUIRED ANOMALY CATEGORIES
+
+Verify all five categories in detail.
+
+A. INTERVIEWER UNAVAILABLE
+
+- Interview is scheduled outside the assigned interviewer's availability.
+- Interviewer and interview relationships remain structurally valid.
+- Detection uses actual availability slots and interview timestamps.
+- Ground truth is not consulted by the detector.
+
+B. DUPLICATE APPLICATION
+
+- Same candidate submits multiple attempts for the same requisition.
+- One canonical Application remains.
+- Additional attempts are preserved in ApplicationSubmissionAttempt.
+- Canonical reconciliation follows (submitted_at, attempt_id).
+- Withdrawn applications follow the approved Option A policy.
+- Duplicate detection does not read ground truth.
+
+C. MISSING FEEDBACK
+
+- Interview takes place.
+- Application progresses to a stage requiring completed feedback.
+- Feedback record is absent.
+- The anomaly is detected using workflow rules and actual records.
+- No malformed foreign keys or artificial structural violations are introduced.
+
+D. OFFER SALARY OUTSIDE APPROVED BAND
+
+- Offer salary falls below the approved minimum or above the approved maximum.
+- Offer and requisition relationships remain valid.
+- Salary validation uses the approved requisition salary band.
+- Ground truth is not consulted.
+
+E. CLOSED REQUISITION WITH ACTIVE APPLICATIONS
+
+- Requisition status is Closed.
+- One or more applications remain in active lifecycle stages.
+- The detector identifies the inconsistency from operational records.
+- The anomaly is not created through invalid database structure.
+
+For each category document:
+- Exact injection method.
+- Number of incidents.
+- Number of affected rows.
+- Tables and fields involved.
+- Detection rule.
+- Expected detection result.
+- Ground-truth label relationship.
+- Validation test.
+
+## 4. ANOMALY COUNTS AND DATA VOLUMES
+
+Verify the approved anomaly counts:
+
+- 15 interviewer-unavailable incidents.
+- 15 duplicate-application incidents.
+- 10 missing-feedback progression incidents.
+- 6 salary-out-of-band incidents.
+- 5 closed-requisition incidents.
+
+Confirm whether incident count equals affected-row count for each category or whether one incident can affect multiple rows.
+
+Ensure there is no accidental overlap between anomaly categories unless explicitly intended and documented.
+
+Show the final baseline and post-injection counts.
+
+## 5. GROUND-TRUTH ISOLATION
+
+Verify that:
+- AnomalyLabel contains evaluation labels only.
+- Operational business rules never query AnomalyLabel.
+- Operational screening never queries ground_truth_label_id.
+- Duplicate detection never reads ground truth.
+- The anomaly detector never reads ground truth.
+- Ground-truth comparison happens only after independent detection.
+
+Review the whole-package leakage test.
+
+Identify any possible indirect data leakage paths.
+
+## 6. VALIDATION ENGINE
+
+Verify the complete validation coverage.
+
+At minimum include:
+
+- Primary-key uniqueness.
+- Foreign-key integrity.
+- Required fields and nullability.
+- Enum validation.
+- Date and timestamp consistency.
+- Requisition lifecycle.
+- Application lifecycle.
+- Interview scheduling and availability.
+- Feedback completeness.
+- Salary-band validation.
+- Duplicate application detection.
+- Screening reproducibility.
+- Ground-truth isolation.
+- Deterministic generation.
+- Export consistency.
+- Checksums.
+
+For each rule specify:
+- Rule ID.
+- Description.
+- Severity.
+- Input tables.
+- Detection logic.
+- Expected output.
+- Whether it applies to baseline validation, post-injection detection or both.
+
+## 7. DETECTION QUALITY AND EVALUATION
+
+Verify that the design supports comparison of detected anomalies with ground truth.
+
+Define:
+- True positives.
+- False positives.
+- False negatives.
+- Precision.
+- Recall.
+- F1 score.
+
+Explain how evaluation is performed without allowing ground truth to influence detection.
+
+Include at least one worked example of comparing detected anomalies against ground truth.
+
+## 8. EXPORTS AND REPRODUCIBILITY
+
+Verify:
+- CSV exports include every relevant table.
+- JSON exports preserve relationships and IDs.
+- SQL seed/export is executable.
+- Baseline and anomaly records can be identified.
+- Ground-truth labels are included only in the evaluation dataset/export.
+- The source manifest records seed, generator version, run ID and checksums.
+- Repeated runs produce identical results.
+- No external API or paid dependency is required for core generation and validation.
+
+## 9. IMPLEMENTATION READINESS
+
+Return:
+
+1. Requirement-by-requirement verification matrix.
+2. Final baseline and post-injection volume table.
+3. Five-category anomaly matrix.
+4. Exact generation and detection sequence.
+5. Validation coverage matrix.
+6. Ground-truth isolation assessment.
+7. Worked precision/recall/F1 example.
+8. Missing requirements, inconsistencies and proposed corrections.
+9. Exact documentation sections changed.
+10. Remaining assumptions requiring user approval.
+
+Do not write application code.
+Do not add or remove tables without approval.
+Do not start Phase 1.
+
+## 10. PROMPT HISTORY
+
+Append this exact prompt to prompts/claude_code_prompts.md using the next available P00n ID.
+
+Preserve all existing entries. Do not invent timestamps, test results or review status.
+
+Return a concise completion report with all important findings.
+```
+
+- Output summary (optional): Re-read `business_rules.md` §1/§9/§10/§10a/§13 and
+  `validation_strategy.md` directly from disk. Found and closed one real gap:
+  "export consistency" had been described but never formalized as its own
+  validation category — added as VAL-16 (`validation_strategy.md` §20). Compiled a
+  16-row `VAL-nn` rule-ID catalog (§21) with explicit baseline-vs-post-injection
+  expected outputs for the five categories that are supposed to change. Added a
+  formal precision/recall/F1 definition with a real (1.00/1.00/1.00) and an
+  illustrative hypothetical worked example (§22). Explicitly assessed three
+  candidate indirect ground-truth-leakage channels (§23) — none currently
+  exploited; one (generic audit-timestamp correlation) named as a documented
+  boundary of the leakage guarantee, not a defect. Clarified the "no
+  anomaly-category overlap" guarantee's precise scope (row-level only) and made
+  the baseline-validation abort mechanism concrete (an exception, not a bypassable
+  flag) in `business_rules.md` §9/§13. Clarified baseline-vs-final/exported volume
+  semantics explicitly in §1. No table added or removed.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Re-read the live `business_rules.md` and
+  `validation_strategy.md` sections cited above directly from disk before writing
+  the new sections, per the prompt's explicit "do not rely on previous conversation
+  summaries" instruction; hand-computed both worked precision/recall/F1 examples
+  before recording them; grepped `docs/` to confirm the new `VAL-16` export-
+  consistency category wasn't already present under a different name before adding
+  it as new.
+
+---
+
+### Prompt ID: P016
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Focused corrective pass on three issues in the P015 output: the
+  51-vs-56 `AnomalyLabel` arithmetic needed explicit explanation (not a count
+  change), baseline-vs-post-injection table state needed a complete before/after
+  accounting plus retained validation evidence, and the detection-evaluation
+  section had overclaimed a "TP=15/FP=0/FN=0" result as if tested when no code
+  exists yet.
+- Development phase: Phase 0 — Architecture, corrective verification
+- Context/files supplied: The eight docs as they stood after P015.
+- Exact prompt:
+
+```text
+Perform a focused Prompt 5 correction. Do not write application code or start Phase 1.
+
+Re-read the updated documentation, especially:
+- validation_strategy.md §20–23
+- business_rules.md §1, §9, §10a, §13
+- PROJECT_SPEC.md §16
+- data_dictionary.md
+- entity_relationships.md
+
+Resolve the following three issues.
+
+### 1. AnomalyLabel arithmetic
+
+The documented incident counts are:
+
+- 15 interviewer-unavailable incidents.
+- 15 duplicate-application incidents.
+- 10 missing-feedback incidents.
+- 6 salary-out-of-band incidents.
+- 5 closed-requisition incidents.
+
+Total = 51 full-dataset incidents.
+
+Starter counts are 3 + 3 + 2 + 1 + 1 = 10 incidents.
+
+However, the reported AnomalyLabel counts are 56 full and 11 starter.
+
+Explain exactly how the additional five full and one starter label records arise.
+
+Provide a table with:
+- Anomaly category.
+- Incident count.
+- Affected entity count.
+- Ground-truth label count.
+- Labelled entity types.
+- Label ID references.
+
+Determine whether one incident can legitimately create multiple labels.
+
+Do not change counts merely to make the arithmetic match. Establish the intended label granularity from the actual injection and evaluation design.
+
+### 2. Baseline versus final dataset state
+
+The report says final exported volumes equal the stated dataset volumes, but there is no separate pre-injection snapshot.
+
+Clarify:
+- Exact table counts immediately after baseline generation.
+- Exact table counts after anomaly injection.
+- Which records are modified during injection.
+- Which records are added during injection.
+- How baseline validation results are preserved.
+- How the post-injection structural validation is performed.
+- How a reviewer can distinguish baseline validation from post-injection anomaly detection.
+
+A full database snapshot is not mandatory. However, baseline validation evidence must be retained and reproducible.
+
+Provide a complete before-and-after table for all six reported tables, including ApplicationSubmissionAttempt and AnomalyLabel.
+
+### 3. Detection evaluation consistency
+
+Clarify whether TP, FP and FN are measured at incident level or affected-entity level.
+
+Define the matching key used to compare detections with ground truth.
+
+Explain how one closed-requisition incident affecting two applications is evaluated.
+
+Confirm that the detector cannot access AnomalyLabel, ground_truth_label_id, generation labels or evaluation outputs.
+
+Do not use the perfect duplicate-detection result as proof of detector quality unless the actual independent detector implementation has been tested. Since code has not been written, clearly label these results as expected or illustrative.
+
+### Final response
+
+Return:
+1. Corrected arithmetic.
+2. Before-and-after volume table.
+3. Incident-versus-entity evaluation model.
+4. Exact documentation changes.
+5. Any remaining assumptions.
+
+Do not change the 22-table inventory.
+Do not write code.
+Do not start Phase 1.
+
+Append this exact corrective prompt to prompts/claude_code_prompts.md using the next available ID. Preserve all existing entries and do not fabricate execution or test results.
+```
+
+- Output summary (optional): Confirmed the 56/11 `AnomalyLabel` counts were already
+  arithmetically correct — the gap versus the naive 51/10 incident sum is fully
+  explained by type 5's documented "2 labels per incident" rule; added a
+  granularity table making this explicit without changing any count
+  (`business_rules.md` §9a). Added a complete before/after table distinguishing
+  modified/added/removed rows for every affected table, and two new
+  `GenerationRun` fields (`baseline_validation_report_json`,
+  `post_injection_validation_report_json`) so baseline evidence is retained and
+  reproducible rather than inferred (`business_rules.md` §13a,
+  `data_dictionary.md` §17). Corrected a real overclaiming issue in §22: relabeled
+  the "TP=15/FP=0/FN=0" result as an EXPECTED design projection, not a tested
+  outcome; added the affected-entity-level evaluation model and a per-category
+  matching-key table; fixed the closed-req detector's reporting granularity in
+  `validation_strategy.md` §12 to emit one violation per `(requisition_id,
+  application_id)` pair, matching `AnomalyLabel`'s granularity. No table added or
+  removed.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Re-read the exact live text of `business_rules.md` §9/§13
+  and `data_dictionary.md` §17 and `validation_strategy.md` §12/§22 directly from
+  disk before editing, to anchor exact-match `Edit` calls rather than guessing at
+  current wording; hand-recomputed the 51-vs-56 gap (5 incidents × 2 labels − 5 =
+  5; 1 × 2 − 1 = 1) before presenting it as the explanation.
+
+---
+
+### Prompt ID: P017
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Final Prompt 5 documentation clarification on two points: making
+  `Application.application_id` the uniform matching key for the closed-requisition
+  anomaly (with `JobRequisition` as incident context only), and clarifying which
+  `GenerationRun` fields are volatile execution metadata vs. deterministic content
+  for reproducibility purposes.
+- Development phase: Phase 0 — Architecture, final documentation clarification
+- Context/files supplied: The eight docs as they stood after P016.
+- Exact prompt:
+
+```text
+Perform the final Prompt 5 documentation clarification. No application code.
+
+Re-read the relevant updated sections of:
+- business_rules.md
+- data_dictionary.md
+- validation_strategy.md
+- PROJECT_SPEC.md
+
+Resolve these two points:
+
+1. Closed-requisition anomaly granularity:
+
+Explicitly distinguish:
+- Incident count: 5 full / 1 starter.
+- Affected JobRequisition records: 5 full / 1 starter.
+- Affected Application records: 10 full / 2 starter.
+- Evaluation units and AnomalyLabel records: 10 full / 2 starter, targeting the affected Application records.
+
+Clarify that the JobRequisition is the incident context and is not separately labelled for evaluation. Ensure the matching key and evaluation methodology consistently use Application.application_id.
+
+2. Reproducibility and timestamps:
+
+GenerationRun now stores baseline_validation_report_json and post_injection_validation_report_json.
+
+Clarify that:
+- Actual execution timestamps may be retained in GenerationRun.
+- Volatile timestamps and other execution-specific metadata are excluded from deterministic content checksums.
+- Checksums cover normalized deterministic dataset content.
+- Repeated runs with the same seed and generator version produce identical deterministic content and checksums.
+- The manifest can retain execution metadata without breaking reproducibility comparisons.
+
+Do not change the 22-table inventory.
+Do not alter the approved anomaly counts.
+Do not write application code.
+Do not start Phase 1.
+
+Update the relevant documentation and append this exact prompt to prompts/claude_code_prompts.md using the next available ID. Preserve existing history and do not claim tests were executed.
+
+Return the exact sections changed and a concise completion report.
+```
+
+- Output summary (optional): Found that point 1 required an actual field-level
+  flip, not just a clarifying note: `AnomalyLabel.entity_type` for
+  `ClosedReqActiveApplications` was `JobRequisition` (with `Application` only in
+  `related_entity_id`) — flipped to `entity_type=Application`,
+  `entity_id`=the affected application, `related_entity_id`=the requisition
+  (context), mirroring how type 3 already works and removing a now-dead
+  `JobRequisition` value from the `entity_type` enum (`data_dictionary.md` §16).
+  Added a four-number side-by-side table (`business_rules.md` §9b). Simplified the
+  closed-req detector and the matching-key table to key purely on
+  `application_id`, removing the prior type-5 exception
+  (`validation_strategy.md` §12/§22). For point 2, added
+  `GenerationRun.generator_version` and explicitly classified every field as
+  volatile-execution-metadata vs. deterministic-content; corrected
+  `table_checksums_json`'s documented scope from "all 22 tables" to the 21
+  operational content tables, excluding `GenerationRun` itself
+  (`data_dictionary.md` §17, `validation_strategy.md` §13, `business_rules.md`
+  §13b). No table added or removed; no anomaly count changed.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Re-read the exact live text of `data_dictionary.md` §16/
+  §17 and `business_rules.md` §9/§9a before editing, to confirm the entity-type
+  flip was necessary (not merely a wording clarification) and to anchor exact-match
+  `Edit` calls against current wording rather than assumed prior text.
+
+---
+
+### Prompt ID: P018
+
+- Date and time: 2026-11-12 (same session; exact submission time not independently
+  captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Full implementation-plan verification and implementation-readiness
+  review — completeness, dependency-aware phase sequencing, a full 22-table
+  implementation mapping, critical-business-rule-to-task/test mapping, test/gate
+  matrix, API/frontend contract, P0/P1/P2 prioritization, repository structure,
+  72-hour feasibility, documentation gaps, and a final readiness verdict.
+- Development phase: Phase 0 — Architecture, implementation-plan verification
+  (Phase 1 of the implementation itself has not started)
+- Context/files supplied: The eight docs as they stood after P017, plus the four
+  `prompts/*.md` files, explicitly inspected (not edited) per this prompt's
+  instructions.
+- Exact prompt:
+
+```text
+Perform Prompt 6: Implementation Plan Verification and Implementation Readiness Review for TalentFlow AI.
+
+This is a documentation-only architecture and implementation planning review. Do not write application code, create source files, install dependencies, or start Phase 1.
+
+Re-read all eight architecture documents from the live project files:
+
+1. docs/PROJECT_SPEC.md
+2. docs/architecture.md
+3. docs/data_dictionary.md
+4. docs/entity_relationships.md
+5. docs/business_rules.md
+6. docs/workflow.md
+7. docs/validation_strategy.md
+8. docs/implementation_plan.md
+
+Also inspect the existing prompt-history files:
+- prompts/README.md
+- prompts/claude_code_prompts.md
+- prompts/chatgpt_prompts.md
+- prompts/ai_usage_disclosure.md
+
+The approved architecture has 22 tables. Do not add or remove tables or change approved business policies without identifying the reason and requesting approval.
+
+## 1. IMPLEMENTATION PLAN COMPLETENESS
+
+Review implementation_plan.md against all approved architecture decisions.
+
+Verify that it includes:
+
+- Project setup and dependency management.
+- Database schema and SQLAlchemy models.
+- Database constraints, indexes and relationships.
+- Deterministic synthetic data generation.
+- Baseline validation gate.
+- Anomaly injection.
+- Independent anomaly detection.
+- Ground-truth evaluation.
+- Screening engine.
+- Duplicate application reconciliation.
+- Recruitment workflow and lifecycle history.
+- FastAPI endpoints and service layer.
+- CSV, JSON and SQL exports.
+- Analytics and reporting.
+- React frontend.
+- Integration and end-to-end verification.
+- Documentation and submission preparation.
+
+Identify any missing work or tasks that are too vaguely defined.
+
+## 2. DEPENDENCY-AWARE IMPLEMENTATION ORDER
+
+Verify that the implementation sequence respects dependencies.
+
+At minimum, evaluate this order:
+
+Phase 0 — Project setup and environment
+Phase 1 — Database schema and models
+Phase 2 — Seeded synthetic baseline data generation
+Phase 3 — Structural and business-rule validation
+Phase 4 — Anomaly injection and ground-truth generation
+Phase 5 — Independent anomaly detection and evaluation
+Phase 6 — Screening and duplicate-submission engines
+Phase 7 — Recruitment workflow and API services
+Phase 8 — Analytics and exports
+Phase 9 — React frontend and dashboard
+Phase 10 — Integration testing, documentation and submission
+
+Do not blindly accept this proposed sequence. Identify dependencies and recommend changes if technically necessary.
+
+For every phase, document:
+- Objective.
+- Tasks.
+- Dependencies.
+- Expected files/modules.
+- Deliverables.
+- Acceptance criteria.
+- Tests required.
+- Definition of done.
+
+## 3. MAP ALL 22 DATABASE TABLES TO IMPLEMENTATION
+
+Create a table-to-module mapping for all 22 approved tables.
+
+For each table specify:
+- SQLAlchemy model/module.
+- Primary key.
+- Foreign-key dependencies.
+- Constraints and indexes.
+- Service or workflow that owns its writes.
+- Validation rules.
+- Tests.
+
+Ensure that the mapping includes:
+
+- The 12 mandated core tables.
+- JobRequisitionSkill.
+- InterviewerAvailabilitySlot.
+- RequisitionStatusHistory.
+- ApplicationStageHistory.
+- OfferStatusHistory.
+- AnomalyLabel.
+- GenerationRun.
+- SystemActor.
+- ApplicationSubmissionAttempt.
+- ScreeningRun.
+
+CandidateSkill must be counted only once.
+
+## 4. IMPLEMENTATION OF CRITICAL BUSINESS RULES
+
+Translate every approved critical rule into a specific implementation task and test.
+
+Pay particular attention to:
+
+A. Duplicate application handling:
+- One canonical Application per candidate-requisition pair.
+- ApplicationSubmissionAttempt preserves all submissions.
+- Canonical reconciliation sorts by (submitted_at, attempt_id).
+- Reconciliation is transactional.
+- Out-of-order submissions are handled correctly.
+- Withdrawal does not release the pair.
+- A later submission after withdrawal is recorded as a duplicate attempt.
+- Application remains withdrawn.
+- Operational detection never reads ground_truth_label_id.
+
+B. Screening:
+- Skill weight 50%.
+- Experience weight 30%.
+- Education weight 20%.
+- Education is also a mandatory eligibility gate.
+- Default pass threshold 70.0, inclusive.
+- Zero minimum experience must not cause division by zero.
+- ScreeningRun records immutable decision history.
+- ScreeningRun references ScreeningRule directly and preserves rule version/snapshot.
+- Application.latest_screening_run_id stays consistent with is_latest.
+- Screening decisions are reproducible.
+
+C. Anomaly generation:
+- Five approved anomaly categories and counts.
+- Baseline must pass before anomaly injection.
+- Structural integrity remains valid after injection.
+- Ground truth is never accessed by operational detectors.
+- Ground truth evaluation occurs only after detection.
+- Incident-level and affected-entity-level counts remain distinct.
+- All five anomaly categories have independent detection tests.
+
+D. Reproducibility:
+- Seed 20261022.
+- Starter and full modes.
+- Generator version recorded.
+- Deterministic normalized dataset content and checksums.
+- Volatile timestamps and run metadata excluded from deterministic checksums.
+- GenerationRun excluded from its own table checksum.
+- Ground-truth reproducibility is verified separately from operational dataset checksums.
+
+E. SystemActor and permissions:
+- Role conventions are implemented as documented.
+- Distinguish hard constraints from soft role conventions.
+- Do not imply authentication or authorization security where none exists.
+
+## 5. TEST STRATEGY AND ACCEPTANCE GATES
+
+Review whether the implementation plan has adequate tests.
+
+Include:
+- Model and schema tests.
+- PK/FK and constraint tests.
+- Generator determinism tests.
+- Baseline validation tests.
+- Anomaly injection tests.
+- Ground-truth leakage tests.
+- Duplicate reconciliation tests.
+- Withdrawal/resubmission tests.
+- Screening formula and boundary tests.
+- Screening history immutability tests.
+- Workflow transition tests.
+- API tests.
+- Export round-trip tests.
+- Checksum tests.
+- Frontend integration tests.
+- Full starter-mode smoke test.
+- Full-mode generation and validation test.
+
+For each major phase define a gate that must pass before moving to the next phase.
+
+Do not claim tests have been run. This is a plan review only.
+
+## 6. API AND FRONTEND CONTRACT
+
+Verify that the implementation plan defines API contracts before frontend integration.
+
+Check that:
+- API request/response schemas are documented.
+- Error formats are consistent.
+- Pagination and filtering are considered.
+- Dashboard metrics have defined calculations.
+- Frontend does not duplicate business logic.
+- Screening and anomaly decisions are computed by backend services.
+- Database writes occur through service-layer operations.
+- Analytics and exports are read-only consumers where appropriate.
+
+Identify any missing API contracts or integration dependencies.
+
+## 7. CHALLENGE TIME AND SCOPE MANAGEMENT
+
+Evaluate whether the plan is realistic for the 72-hour challenge.
+
+Classify each feature:
+
+- P0 — Essential for a valid submission.
+- P1 — Important for a strong submission.
+- P2 — Optional polish.
+
+Prioritize:
+1. Correct data model.
+2. Deterministic generator.
+3. Validation and anomaly detection.
+4. Screening and duplicate handling.
+5. API and demonstrable workflow.
+6. Basic dashboard.
+7. Visual polish.
+
+Identify tasks that can be simplified without compromising mandatory requirements.
+
+Do not allow frontend polish to delay core data correctness.
+
+## 8. REPOSITORY AND MODULE STRUCTURE
+
+Propose a concrete final directory structure covering:
+
+- backend/
+- frontend/
+- tests/
+- docs/
+- prompts/
+- generated_data/ or an equivalent output location.
+
+Map planned source files to implementation phases.
+
+Avoid unnecessary abstraction, excessive dependencies and oversized modules.
+
+Keep data generation independently executable from the API server.
+
+## 9. SUBMISSION READINESS
+
+Verify the implementation plan accounts for:
+
+- Public GitHub repository.
+- Meaningful incremental commits.
+- README setup and run instructions.
+- Environment configuration without secrets.
+- Dataset generation command.
+- Validation and test commands.
+- Demo workflow.
+- Sample outputs.
+- Data dictionary and architecture documentation.
+- AI prompt history and disclosure.
+- Known limitations and next steps.
+- Human review and understanding of generated code.
+
+Ensure that all claims in the eventual submission are supported by actual implementation and executed tests.
+
+## 10. FINAL OUTPUT
+
+Return:
+
+1. Implementation-plan requirement matrix.
+2. Recommended phase sequence and dependency graph.
+3. Complete 22-table implementation mapping.
+4. Critical business-rule implementation checklist.
+5. Test and acceptance-gate matrix.
+6. API/frontend contract gaps.
+7. P0/P1/P2 priority classification.
+8. Recommended repository structure.
+9. 72-hour feasibility assessment.
+10. Documentation gaps and exact proposed corrections.
+11. Any decisions that require my approval.
+12. Final implementation-readiness verdict.
+
+For every proposed correction:
+- Identify the exact document and section.
+- Explain why it is needed.
+- Make documentation changes only when they are unambiguous and consistent with approved decisions.
+- Do not silently change approved business policies.
+
+## 11. PROMPT HISTORY
+
+Append this exact prompt to prompts/claude_code_prompts.md using the next available ID.
+
+Preserve all existing entries. Do not invent timestamps, execution results or review status.
+
+Return a concise completion report.
+
+STRICT RESTRICTIONS:
+- No application code.
+- No database creation.
+- No dependency installation.
+- No Phase 1 implementation.
+- No changes to the 22-table inventory.
+- No unapproved business-rule changes.
+```
+
+- Output summary (optional): Found two real issues in the prior `implementation_plan.md`, not just gaps — a genuine dependency bug (validation-engine construction was sequenced after anomaly injection, while the injection gate already required that engine to exist and run first) and a missing explicit project-setup phase. Substantially rewrote `implementation_plan.md`: 11 phases (was 7), each with the 8 requested attributes; the previously-open "merge or stub" sequencing question resolved (Option A adopted); a full 22-table-to-module mapping; an API/frontend contract specification (schemas, error format, pagination, dashboard-metric formulas); a P0/P1/P2 classification; a 72-hour feasibility estimate explicitly labeled as unmeasured; a critical-business-rule checklist (A–E); a cross-cutting test/gate matrix. Added `PROJECT_SPEC.md` §19. Flagged (not fixed, out of this prompt's document scope) that `prompts/ai_usage_disclosure.md` and `chatgpt_prompts.md` are stale relative to the 17 actual log entries. No table added or removed; no approved business policy changed; no application code written.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Re-read the complete live `implementation_plan.md` from
+  disk before rewriting it, to identify the actual dependency bug rather than
+  assume one; cross-checked the new 22-table mapping against
+  `entity_relationships.md` §1's inventory to confirm no table was added, removed,
+  or double-counted (`CandidateSkill` counted once).
+
+---
+
+### Prompt ID: P019
+
+- Date and time: 2026-11-12 (same session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Begin actual implementation. Execute Phase 1 (project setup and
+  environment) for real — not another planning pass — and report real,
+  executed verification results.
+- Development phase: **Phase 1 — Project setup and environment (first
+  implementation phase; Phase 0/architecture is complete)**
+- Context/files supplied: The eight approved docs + `implementation_plan.md`'s
+  Phase 1 specification, used as the actual task list for this prompt.
+- Exact prompt: (submitted twice in immediate succession, identical text, with an
+  intervening `/resume` command that was cancelled — logged once, as submitted;
+  work was not restarted, it continued from where the first submission's
+  execution had reached)
+
+```text
+# TALENTFLOW AI — ACCELERATED END-TO-END IMPLEMENTATION
+
+You are now the lead implementation engineer for TalentFlow AI, a recruitment operations and decision intelligence system being developed for the YottaFlex AI Associate Forward Deployed Engineer challenge.
+
+## 1. HARD DEADLINE
+
+Submission deadline: Saturday, November 14, 2026, 3:00 PM IST.
+
+We have approximately 45 hours remaining.
+
+The architecture and business-rule planning is complete and approved through Prompt 6. We must now prioritize implementation, working functionality, testing and submission readiness.
+
+Do not spend more time unnecessarily reviewing or rewriting the approved architecture.
+
+Read the current implementation plan and approved documentation before starting. Use the actual repository state as the source of truth.
+
+## 2. NON-NEGOTIABLE ARCHITECTURE
+
+Preserve all approved decisions:
+
+- 22 database tables.
+- Python 3.12 backend.
+- FastAPI.
+- SQLAlchemy.
+- SQLite.
+- Pydantic.
+- React + TypeScript + Vite.
+- Seeded synthetic data generation.
+- Deterministic validation and anomaly detection.
+- No paid external services required for core functionality.
+
+Do not change approved business rules or table inventory without explaining a genuine technical blocker and obtaining approval.
+
+Critical approved rules:
+
+**Screening**
+- Skill: 50%.
+- Experience: 30%.
+- Education: 20%.
+- Education is also a mandatory eligibility gate.
+- Default threshold: 70.0, inclusive.
+
+**Duplicate applications**
+- One canonical Application per candidate-requisition pair.
+- Preserve every submission in ApplicationSubmissionAttempt.
+- Reconcile using (submitted_at, attempt_id).
+- Reconciliation must be transactional.
+- Withdrawal does not release the candidate-requisition pair.
+- A subsequent submission is recorded as a duplicate attempt.
+- The withdrawn Application must not reopen.
+
+**Anomaly categories**
+- Interviewer unavailable: 15 incidents.
+- Duplicate application: 15 incidents.
+- Missing feedback: 10 incidents.
+- Salary outside approved band: 6 incidents.
+- Closed requisition with active applications: 5 incidents.
+
+**Reproducibility**
+- Seed: 20261022.
+- Starter and full generation modes.
+- Deterministic normalized content and checksums.
+- Ground truth isolated from operational detection.
+- Baseline validation must pass before anomaly injection.
+
+## 3. IMPLEMENTATION PRIORITY
+
+Work in this order:
+
+### P0 — Essential working product
+
+1. Project setup and environment.
+2. All 22 SQLAlchemy models and database constraints.
+3. Deterministic synthetic data generator.
+4. Baseline structural and business validation.
+5. Five-category anomaly injection.
+6. Independent anomaly detection.
+7. Ground-truth evaluation.
+8. Screening engine.
+9. Duplicate application reconciliation.
+10. Essential backend services and APIs.
+11. Critical automated tests.
+
+### P1 — Demonstration layer
+
+12. CSV and JSON exports.
+13. Basic React dashboard.
+14. Requisition and candidate listings.
+15. Screening results.
+16. Anomaly summary and validation status.
+
+### P2 — Only if time remains
+
+- Advanced charts.
+- Additional dashboard pages.
+- Animations.
+- Visual polish.
+- Nonessential filtering.
+- Deployment infrastructure.
+
+Never sacrifice P0 correctness for P1 or P2 presentation features.
+
+## 4. IMPLEMENTATION WORKING METHOD
+
+Do not attempt to generate the entire application in one large operation.
+
+Work incrementally:
+
+1. Inspect existing repository.
+2. Implement one logical module.
+3. Run its tests.
+4. Fix failures.
+5. Verify integration with completed modules.
+6. Commit working changes.
+7. Move to the next module.
+
+Use the existing implementation_plan.md as the main task tracker.
+
+Update implementation_plan.md with actual completion status as work progresses.
+
+Maintain a concise progress report containing:
+- Completed tasks.
+- Pending tasks.
+- Tests actually executed.
+- Test results.
+- Known defects.
+- Remaining estimated work.
+- Deadline risk.
+
+Do not mark work complete based only on generated code.
+
+## 5. DATA GENERATOR AND VALIDATION PRIORITY
+
+The data generator and validation engine are central to this challenge.
+
+Implement them as independently executable modules, not dependent on starting FastAPI.
+
+The required sequence is:
+
+1. Generate baseline dataset.
+2. Validate structural integrity.
+3. Validate baseline business rules.
+4. Abort anomaly injection if baseline validation fails.
+5. Preserve baseline validation evidence.
+6. Inject five anomaly categories.
+7. Run post-injection structural validation.
+8. Run independent anomaly detection.
+9. Compare detections with ground truth.
+10. Calculate precision, recall and F1.
+
+Support starter mode first, then full mode.
+
+Do not claim full-volume support until it has actually been executed and verified.
+
+## 6. TESTING REQUIREMENTS
+
+Prioritize automated tests for:
+
+- Database constraints and relationships.
+- Seed reproducibility.
+- Baseline validation.
+- Anomaly injection counts.
+- Independent anomaly detection.
+- Ground-truth isolation.
+- Duplicate reconciliation.
+- Withdrawal and resubmission.
+- Screening formula.
+- Screening threshold boundaries.
+- Screening history consistency.
+- API smoke tests.
+- Export integrity.
+- Full end-to-end starter-mode workflow.
+
+Run full-mode generation and validation before submission if time permits.
+
+Fix critical defects before adding visual enhancements.
+
+## 7. FRONTEND
+
+Build a simple, professional, functional dashboard only after the core backend works.
+
+The dashboard should demonstrate:
+
+- Total requisitions.
+- Total candidates.
+- Total applications.
+- Screening outcomes.
+- Anomaly counts by category.
+- Validation status.
+- Recent recruitment activity.
+
+Use real backend data. Do not hardcode dashboard metrics.
+
+Keep the design clean and professional. Avoid spending excessive time on animations or decorative components.
+
+## 8. PHASE 1 — START NOW
+
+Immediately begin the project setup phase.
+
+Tasks:
+- Inspect repository.
+- Establish backend/frontend structure.
+- Set up Python 3.12 environment.
+- Set up FastAPI skeleton.
+- Set up React + TypeScript + Vite.
+- Add dependency manifests.
+- Add .gitignore.
+- Add safe .env.example.
+- Add README setup instructions.
+- Verify backend starts.
+- Verify frontend starts.
+
+Do not start database implementation until Phase 1 setup is verified.
+
+Preserve existing files and all architecture documents.
+
+## 9. AI USAGE AND SUBMISSION TRANSPARENCY
+
+- Append this exact prompt to prompts/claude_code_prompts.md using the next available ID.
+- Preserve all previous prompt entries.
+- Record actual implementation decisions and prompts.
+- Never invent test results.
+- Keep AI usage disclosure accurate.
+- Clearly distinguish generated code from human review.
+- Ensure the candidate can explain the implementation and design decisions.
+
+## 10. FINAL SUBMISSION REQUIREMENTS
+
+Before the deadline, ensure:
+
+- Public GitHub repository.
+- Working setup instructions.
+- Working dataset generation command.
+- Working validation command.
+- Demonstrable core recruitment workflow.
+- Automated test results.
+- Sample generated outputs.
+- Architecture and data dictionary.
+- Prompt history and AI disclosure.
+- Known limitations and next steps.
+- No credentials or secrets committed.
+
+## 11. YOUR FIRST RESPONSE AND EXECUTION
+
+Do not respond with another long planning document.
+
+Start by inspecting the repository and executing Phase 1.
+
+When Phase 1 is complete, return:
+1. Actual files created or modified.
+2. Commands executed.
+3. Actual verification results.
+4. Problems encountered.
+5. Git commit hash, if committed.
+6. Remaining work and estimated time.
+
+Then continue following the approved implementation plan, always prioritizing P0.
+
+Our objective is a complete, working, defensible end-to-end submission by November 14, 2026, 3:00 PM IST.
+```
+
+- Output summary (optional): **First prompt in this project where real commands
+  were actually executed and real results observed** — everything before this
+  entry was documentation. Inspected the repo (empty except `docs/`/`prompts/`);
+  found Python 3.12.10 available via the `py` launcher (default `python` resolves
+  to 3.14), Node 24/npm 11, git 2.54, no existing `.git`. Created
+  `backend/pyproject.toml`, `backend/app/{__init__.py,config.py,main.py}`, empty
+  package scaffolding for `db/`, `db/models/`, `schemas/`, `api/`, `api/v1/`,
+  `services/`, `analytics/`, `validation/`, `validation/rules/`,
+  `data_generation/`, `data_generation/entities/`, `data_generation/anomalies/`,
+  `backend/tests/test_health.py`, `backend/.env.example`. Ran
+  `py -3.12 -m venv .venv`, `pip install -e ".[dev]"` (succeeded), `pytest tests/`
+  (1 passed), started `uvicorn app.main:app` and confirmed `GET /health` returned
+  the expected JSON with HTTP 200 and `GET /docs` returned HTTP 200, then stopped
+  it. Scaffolded `frontend/` via `npm create vite@latest -- --template react-ts`,
+  `npm install`, `npm install recharts`; ran `npm run build` (succeeded, 222KB
+  bundle) and briefly started `npm run dev` (confirmed it bound to a port and
+  served HTTP 200), then stopped it. Wrote root `.gitignore` and `README.md`.
+  Updated `implementation_plan.md`'s Phase 1 row to "STATUS: COMPLETE" with the
+  actual verification results above, including one noted deviation (no
+  `scripts/setup.sh`/`setup.ps1` — judged premature for this project's size).
+  Database models (Phase 2) were explicitly not started, per this prompt's own
+  instruction.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Every verification claim in this entry corresponds to
+  a command actually run in this session and its actual output (test pass count,
+  HTTP status codes, build output) — none are inferred or assumed. No test
+  result, execution, or review status is invented, per this prompt's explicit
+  instruction.
