@@ -8,6 +8,8 @@ volumes match requirements.
 import json
 import sqlite3
 
+from sqlalchemy.orm import Session
+
 from app.data_generation.export import TABLE_ORDER, export_tables
 from app.data_generation.generator import generate_dataset, load_dataset, write_generation_run
 from app.data_generation.volumes import volumes_for_mode
@@ -136,7 +138,17 @@ def test_generation_run_metadata_correct(tmp_path):
 
     from datetime import datetime
 
-    run_row = write_generation_run(dataset, "starter", 20261022, export_summary, db_path, datetime.now())
+    from app.db.session import make_engine
+    from app.validation.gate import run_baseline_gate
+
+    engine = make_engine(str(db_path))
+    with Session(engine) as session:
+        baseline_report = run_baseline_gate(session, dataset_mode="starter")
+    assert baseline_report["total_violations"] == 0
+
+    run_row = write_generation_run(
+        dataset, "starter", 20261022, export_summary, db_path, datetime.now(), baseline_report
+    )
 
     assert run_row["run_id"] == "GEN-0001"
     assert run_row["seed"] == 20261022
@@ -168,5 +180,14 @@ def test_generation_run_rejects_non_mandated_seed(tmp_path):
 
     from datetime import datetime
 
+    from app.db.session import make_engine
+    from app.validation.gate import run_baseline_gate
+
+    engine = make_engine(str(db_path))
+    with Session(engine) as session:
+        baseline_report = run_baseline_gate(session, dataset_mode="starter")
+
     with pytest.raises(IntegrityError):
-        write_generation_run(dataset, "starter", 99999, export_summary, db_path, datetime.now())
+        write_generation_run(
+            dataset, "starter", 99999, export_summary, db_path, datetime.now(), baseline_report
+        )

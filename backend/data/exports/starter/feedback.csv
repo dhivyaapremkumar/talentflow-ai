@@ -1,28 +1,28 @@
 feedback_id,interview_id,interviewer_id,recommendation,overall_score,strengths_text,concerns_text,submitted_at
-FBK-000001,IVW-000001,IVR-0007,StrongYes,5,Strong technical fundamentals and clear communication.,,2025-06-02T12:51:00
-FBK-000002,IVW-000002,IVR-0019,Yes,5,Strong technical fundamentals and clear communication.,,2025-06-09T19:37:00
-FBK-000003,IVW-000003,IVR-0021,Yes,4,Strong technical fundamentals and clear communication.,,2025-03-24T13:10:00
-FBK-000004,IVW-000004,IVR-0011,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-03-31T19:16:00
-FBK-000005,IVW-000005,IVR-0011,Yes,5,Strong technical fundamentals and clear communication.,,2025-11-18T14:19:00
-FBK-000006,IVW-000006,IVR-0023,Yes,5,Strong technical fundamentals and clear communication.,,2025-11-21T12:51:00
-FBK-000007,IVW-000007,IVR-0019,StrongYes,5,Strong technical fundamentals and clear communication.,,2025-07-02T11:33:00
-FBK-000008,IVW-000008,IVR-0010,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-07-07T11:06:00
-FBK-000009,IVW-000009,IVR-0009,Yes,5,Strong technical fundamentals and clear communication.,,2025-04-14T12:32:00
-FBK-000010,IVW-000010,IVR-0025,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-04-22T13:37:00
-FBK-000011,IVW-000011,IVR-0022,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-05-15T11:31:00
-FBK-000012,IVW-000012,IVR-0004,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-05-27T12:37:00
-FBK-000013,IVW-000013,IVR-0006,Yes,4,Strong technical fundamentals and clear communication.,,2025-05-05T17:37:00
-FBK-000014,IVW-000014,IVR-0002,StrongYes,5,Strong technical fundamentals and clear communication.,,2025-05-13T14:46:00
-FBK-000015,IVW-000015,IVR-0013,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-05-23T12:36:00
-FBK-000016,IVW-000016,IVR-0020,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-06-02T17:39:00
-FBK-000017,IVW-000020,IVR-0006,StrongNo,1,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-03-18T12:12:00
-FBK-000018,IVW-000021,IVR-0019,StrongNo,1,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-07-15T18:36:00
-FBK-000019,IVW-000022,IVR-0020,No,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-07-31T10:34:00
-FBK-000020,IVW-000023,IVR-0022,StrongNo,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-08-15T14:45:00
-FBK-000021,IVW-000024,IVR-0016,StrongNo,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-09-16T13:14:00
-FBK-000022,IVW-000025,IVR-0017,StrongNo,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-07-21T16:14:00
-FBK-000023,IVW-000026,IVR-0012,StrongNo,1,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-09-03T11:01:00
-FBK-000024,IVW-000027,IVR-0005,StrongNo,1,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-04-14T12:37:00
-FBK-000025,IVW-000028,IVR-0013,No,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-03-20T13:12:00
+FBK-000001,IVW-000001,IVR-0007,StrongYes,5,Strong technical fundamentals and clear communication.,,2025-04-02T12:51:00
+FBK-000002,IVW-000002,IVR-0019,Yes,5,Strong technical fundamentals and clear communication.,,2025-04-09T19:37:00
+FBK-000003,IVW-000003,IVR-0021,Yes,4,Strong technical fundamentals and clear communication.,,2025-04-14T13:10:00
+FBK-000004,IVW-000004,IVR-0011,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-04-21T19:16:00
+FBK-000005,IVW-000005,IVR-0011,Yes,5,Strong technical fundamentals and clear communication.,,2025-10-27T14:19:00
+FBK-000006,IVW-000006,IVR-0023,Yes,5,Strong technical fundamentals and clear communication.,,2025-10-30T12:51:00
+FBK-000007,IVW-000007,IVR-0019,StrongYes,5,Strong technical fundamentals and clear communication.,,2025-08-01T11:33:00
+FBK-000008,IVW-000008,IVR-0010,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-08-04T11:06:00
+FBK-000009,IVW-000009,IVR-0009,Yes,5,Strong technical fundamentals and clear communication.,,2025-05-15T12:32:00
+FBK-000010,IVW-000010,IVR-0025,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-05-23T13:37:00
+FBK-000011,IVW-000011,IVR-0022,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-05-29T11:31:00
+FBK-000012,IVW-000012,IVR-0004,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-06-10T12:37:00
+FBK-000013,IVW-000013,IVR-0006,Yes,4,Strong technical fundamentals and clear communication.,,2025-05-22T17:37:00
+FBK-000014,IVW-000014,IVR-0002,StrongYes,5,Strong technical fundamentals and clear communication.,,2025-05-30T14:46:00
+FBK-000015,IVW-000015,IVR-0013,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-05-30T12:36:00
+FBK-000016,IVW-000016,IVR-0020,StrongYes,4,Strong technical fundamentals and clear communication.,,2025-06-09T17:39:00
+FBK-000017,IVW-000020,IVR-0006,StrongNo,1,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-09-09T12:12:00
+FBK-000018,IVW-000021,IVR-0019,StrongNo,1,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-03-24T18:36:00
+FBK-000019,IVW-000022,IVR-0020,No,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-07-18T10:34:00
+FBK-000020,IVW-000023,IVR-0022,StrongNo,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-07-28T14:45:00
+FBK-000021,IVW-000024,IVR-0016,StrongNo,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-08-18T13:14:00
+FBK-000022,IVW-000025,IVR-0017,StrongNo,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-09-12T16:14:00
+FBK-000023,IVW-000026,IVR-0012,StrongNo,1,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-07-28T11:01:00
+FBK-000024,IVW-000027,IVR-0005,StrongNo,1,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-09-01T12:37:00
+FBK-000025,IVW-000028,IVR-0013,No,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-04-21T13:12:00
 FBK-000026,IVW-000029,IVR-0023,StrongNo,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-09-08T11:35:00
 FBK-000027,IVW-000030,IVR-0016,StrongNo,2,Some relevant background.,Gaps relative to role requirements surfaced during the interview.,2025-08-01T17:58:00

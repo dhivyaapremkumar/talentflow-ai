@@ -5,9 +5,10 @@
 Populates all 22 tables in the dependency order fixed by architecture.md
 §4, deterministically under the fixed seed (PROJECT_SPEC.md §5). Does not
 inject anomalies (`AnomalyLabel` stays empty, Phase 5's job) and does not
-run the FastAPI server — this module only touches `app.db.models` and
-plain Python, consistent with the import-direction rule in
-architecture.md §6.
+run the FastAPI server. Calls `app.validation` after loading the baseline
+— the hard gate from business_rules.md §13 — which is a permitted
+dependency (architecture.md §6 only forbids `data_generation/` importing
+`api/`/`services/`, not `validation/`).
 """
 
 import argparse
@@ -54,6 +55,9 @@ from app.db.models import (
     SystemActor,
 )
 from app.db.session import make_engine
+from app.validation.gate import run_baseline_gate
+from app.validation.report import results_only
+from app.validation.runner import run_all_rules
 
 GENERATOR_VERSION = "0.1.0"
 
@@ -233,22 +237,37 @@ def load_dataset(dataset: dict, db_path: Path) -> None:
 
 
 def write_generation_run(
-    dataset: dict, mode: str, seed: int, export_summary: dict, db_path: Path, started_at: datetime
+    dataset: dict,
+    mode: str,
+    seed: int,
+    export_summary: dict,
+    db_path: Path,
+    started_at: datetime,
+    baseline_report: dict,
+    export_dir: Path | None = None,
 ) -> dict:
+    """`baseline_report` must be the real report the baseline gate already
+    produced (`validation.gate.run_baseline_gate`) — never recomputed or
+    fabricated here. `post_injection_validation_report_json` is a second,
+    equally real run of the same validation suite, labeled "post_injection"
+    for forward schema-compatibility — honestly noted as identical to the
+    baseline, since Phase 5 (anomaly injection) does not exist yet in this
+    codebase. Neither field is ever a placeholder claiming a result that
+    wasn't actually computed."""
     engine = make_engine(str(db_path))
     sys_admin_id = dataset["_actor_ids_by_role"]["SYSTEM_ADMINISTRATOR"][0]
     generated_at = datetime.now()
 
-    not_yet_run_report = json.dumps(
-        {
-            "status": "not_yet_run",
-            "reason": (
-                "Phase 4 (validation engine) is not implemented yet as of this "
-                "generation run — this report intentionally does not claim any "
-                "validation result. It will be populated for real once Phase 4/5 run."
-            ),
-            "checked_at": None,
-        }
+    with Session(engine) as session:
+        post_injection_report = run_all_rules(
+            session, dataset_mode=mode, report_mode="post_injection", export_dir=export_dir
+        )
+    post_injection_report["note"] = (
+        "Phase 5 (anomaly injection) has not run yet in this codebase — this is the "
+        "same validation suite genuinely re-run against the unmodified baseline, "
+        "included for forward-compatibility with the GenerationRun schema. The "
+        "documented non-zero counts for VAL-06/08/10/11/12 (validation_strategy.md "
+        "Sec21) will only appear once Phase 5 exists and has actually injected anomalies."
     )
 
     run_row = {
@@ -261,8 +280,8 @@ def write_generation_run(
         "entity_counts_json": json.dumps(export_summary["entity_counts"]),
         "table_checksums_json": json.dumps(export_summary["table_checksums"]),
         "overall_checksum": export_summary["overall_checksum"],
-        "baseline_validation_report_json": not_yet_run_report,
-        "post_injection_validation_report_json": not_yet_run_report,
+        "baseline_validation_report_json": json.dumps(results_only(baseline_report)),
+        "post_injection_validation_report_json": json.dumps(results_only(post_injection_report)),
     }
 
     with Session(engine) as session:
@@ -294,11 +313,21 @@ def main():
     load_dataset(dataset, db_path)
     load_elapsed = time.monotonic() - t1
 
+    # business_rules.md Sec13's gate: run before anomaly injection would be
+    # imported (Phase 5, not implemented) and before anything is exported or
+    # finalized. A non-empty violation list raises BaselineValidationFailed,
+    # an uncaught exception that halts the process right here.
+    engine = make_engine(str(db_path))
+    with Session(engine) as session:
+        baseline_report = run_baseline_gate(session, dataset_mode=args.mode)
+
     export_dir = Path(args.export_dir) if args.export_dir else Path(f"data/exports/{args.mode}")
     export_tables_input = {k: v for k, v in dataset.items() if not k.startswith("_")}
     export_summary = export_tables(export_tables_input, export_dir)
 
-    run_row = write_generation_run(dataset, args.mode, args.seed, export_summary, db_path, started_at)
+    run_row = write_generation_run(
+        dataset, args.mode, args.seed, export_summary, db_path, started_at, baseline_report, export_dir
+    )
 
     print(f"Mode: {args.mode}  Seed: {args.seed}  Generator version: {GENERATOR_VERSION}")
     print(f"Generation time: {gen_elapsed:.2f}s  DB load time: {load_elapsed:.2f}s")
@@ -308,6 +337,10 @@ def main():
     for table, count in export_summary["entity_counts"].items():
         print(f"  {table}: {count}")
     print(f"Overall checksum: {export_summary['overall_checksum']}")
+    print(
+        f"Baseline validation: {baseline_report['total_violations']} violations, "
+        f"{baseline_report['total_warnings']} warnings across {len(baseline_report['rule_ids_run'])} rules"
+    )
     print(f"GenerationRun: {run_row['run_id']}")
 
 

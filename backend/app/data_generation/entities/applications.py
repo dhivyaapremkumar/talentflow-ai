@@ -45,9 +45,25 @@ REJECTED_REASON_BY_BUCKET = {
 # cannot sit against a Closed/Cancelled requisition in a clean baseline —
 # that mismatch is exactly the ClosedReqActiveApplications anomaly, Phase 5
 # only).
-ACTIVE_ONLY_BUCKETS = {"still_interviewing", "still_at_screening", "still_applied", "offer_pending"}
-# Buckets allowed on a Closed requisition too (Open/OnHold/Closed).
-ACTIVE_OR_CLOSED_BUCKETS = {"hired", "offer_declined", "rejected_after_interview"}
+ACTIVE_ONLY_BUCKETS = {"still_interviewing", "still_at_screening", "still_applied"}
+# Offer-creating buckets: restricted to strictly "Open" requisitions only
+# (not even OnHold), never Closed/Cancelled. A real bug, caught by VAL-09
+# the first time this generator's output was actually validated: an
+# Offer's approved_at must find the requisition status "Open" at that
+# exact moment (reconstructed from RequisitionStatusHistory), but this
+# generator's OnHold/Closed transition timing is a fixed offset from
+# opened_at, independent of how long any specific candidate's screening+
+# interview+offer pipeline actually takes - so an OnHold/Closed
+# requisition's offer-approval timestamps could easily land after that
+# fixed transition, which VAL-09 correctly flags. Restricting these three
+# buckets to Open-status requisitions only sidesteps the timing
+# dependency entirely, rather than trying to make the two independently-
+# generated timelines agree.
+OPEN_ONLY_BUCKETS = {"hired", "offer_declined", "offer_pending"}
+# Buckets allowed on a Closed requisition too (Open/OnHold/Closed) - no
+# Offer row is ever created for these, so the approval-timing constraint
+# above does not apply.
+ACTIVE_OR_CLOSED_BUCKETS = {"rejected_after_interview"}
 # Buckets allowed on any requisition status, including Cancelled.
 ANY_STATUS_BUCKETS = {"rejected_at_screening", "withdrawn"}
 
@@ -161,7 +177,9 @@ def generate_applications(
         )
         needs_fail_via_gate = bucket == "rejected_at_screening"
 
-        if bucket in ACTIVE_ONLY_BUCKETS:
+        if bucket in OPEN_ONLY_BUCKETS:
+            req_pool = pools["Open"]
+        elif bucket in ACTIVE_ONLY_BUCKETS:
             req_pool = active_pool
         elif bucket in ACTIVE_OR_CLOSED_BUCKETS:
             req_pool = active_or_closed_pool

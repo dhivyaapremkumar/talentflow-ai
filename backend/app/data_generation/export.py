@@ -10,6 +10,7 @@ import hashlib
 import io
 import json
 from datetime import date, datetime
+from decimal import Decimal
 from pathlib import Path
 
 # Fixed table order, matching architecture.md §4's generation order
@@ -245,12 +246,25 @@ TABLE_COLUMNS = {
 
 
 def _cell(value) -> str:
+    """Canonical string form of one cell value.
+
+    `Decimal` is special-cased: SQLAlchemy returns `Decimal` for `Numeric`
+    columns read straight from the live database (`asdecimal=True` is the
+    default), but the in-memory generation dataset holds plain Python
+    `float` for the same logical values — `str(Decimal('70.00'))` and
+    `str(70.0)` format differently even though the values are equal. A
+    real bug, caught by VAL-13 (`validation/checksums.py`) comparing a
+    live-DB re-export against a recorded manifest for genuinely identical
+    data. Converting to `float` first makes both call sites agree.
+    """
     if value is None:
         return ""
     if isinstance(value, bool):
         return "true" if value else "false"
     if isinstance(value, (datetime, date)):
         return value.isoformat()
+    if isinstance(value, Decimal):
+        value = float(value)
     return str(value)
 
 

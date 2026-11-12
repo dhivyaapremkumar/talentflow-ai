@@ -148,13 +148,22 @@ def generate_offer_status_history(seed: int, offers: list[dict], actor_ids_by_ro
 
     for offer in offers:
         offer_id = offer["offer_id"]
+        # business_rules.md Sec11: only PendingApproval->Approved (and the
+        # Offer.approved_by_actor_id field it shares a gate with) is
+        # APPROVER - every other OfferStatusHistory transition here is
+        # PROCESS_OWNER. Reusing the approver actor for all of them was a
+        # real bug, caught by VAL-14 the first time this generator's
+        # output was actually validated.
         approver = offer["approved_by_actor_id"]
-        add(offer_id, None, "Drafted", offer["created_at"], approver)
-        add(offer_id, "Drafted", "PendingApproval", offer["created_at"] + timedelta(hours=4), approver)
+        process_owner = rng.choice(actor_ids_by_role["PROCESS_OWNER"])
+        add(offer_id, None, "Drafted", offer["created_at"], process_owner)
+        add(
+            offer_id, "Drafted", "PendingApproval", offer["created_at"] + timedelta(hours=4), process_owner
+        )
         add(offer_id, "PendingApproval", "Approved", offer["approved_at"], approver)
-        add(offer_id, "Approved", "Extended", offer["extended_at"], approver)
+        add(offer_id, "Approved", "Extended", offer["extended_at"], process_owner)
         if offer["status"] == "Accepted":
-            add(offer_id, "Extended", "Accepted", offer["decision_at"], approver)
+            add(offer_id, "Extended", "Accepted", offer["decision_at"], process_owner)
         elif offer["status"] == "Declined":
-            add(offer_id, "Extended", "Declined", offer["decision_at"], approver)
+            add(offer_id, "Extended", "Declined", offer["decision_at"], process_owner)
     return rows
