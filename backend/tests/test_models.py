@@ -627,6 +627,28 @@ def test_resume_artifact_valid_insert(session):
     assert session.query(ResumeArtifact).count() == 1
 
 
+def test_resume_artifact_negative_parsed_years_experience_rejected(session):
+    """Phase 3 schema-audit fix: data_dictionary.md Sec6 documents
+    parsed_years_experience >= 0 as a validation rule, but the original
+    Phase 2 model had no CHECK constraint for it (unlike the identical
+    pattern already used on Candidate.years_experience)."""
+    _candidate(session)
+    session.add(
+        ResumeArtifact(
+            resume_artifact_id="RES-000001",
+            candidate_id="CAND-000001",
+            file_name="casey_resume.pdf",
+            file_format="PDF",
+            parsed_years_experience=-1.0,
+            parsed_education_level="Bachelor",
+            is_latest=True,
+            uploaded_at=datetime(2026, 1, 1),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
 def test_resume_artifact_two_latest_for_same_candidate_rejected(session):
     """Structural backstop for 'exactly one is_latest=true per candidate'."""
     _candidate(session)

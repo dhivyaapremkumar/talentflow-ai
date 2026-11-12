@@ -52,6 +52,9 @@ class ResumeArtifact(Base):
             "resume_artifact_id GLOB 'RES-[0-9][0-9][0-9][0-9][0-9][0-9]'",
             name="ck_resume_artifact_id_format",
         ),
+        CheckConstraint(
+            "parsed_years_experience >= 0", name="ck_resume_artifact_parsed_years_nonneg"
+        ),
         Index(
             "uq_resume_artifact_latest",
             "candidate_id",
