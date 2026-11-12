@@ -3088,3 +3088,155 @@ Return actual implementation files, commands, test results, validation summaries
   discovered by running the new code against real generator output, not
   manufactured examples — each is traceable to a specific before/after code
   diff and a specific rule ID that caught it.
+
+---
+
+### Prompt ID: P022
+
+- Date and time: 2026-11-12 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Authorize Phase 5 (deterministic anomaly injection — the five
+  approved anomaly types + `AnomalyLabel` rows), gated behind Phase 4's
+  baseline validation gate, with explicit non-negotiable constraints
+  (preserve baseline records, correct `ApplicationSubmissionAttempt`-based
+  duplicate design, no ground-truth leakage, deterministic, no Phase 6
+  detection/evaluation).
+- Development phase: **Phase 5 — Anomaly injection and ground-truth
+  generation** (Phase 4 — validation engine — reported complete immediately
+  prior: 0 violations/0 warnings on both scales, 145 tests passing)
+- Context/files supplied: The repository state as of Phase 4's completion,
+  plus explicit instruction to (re-)read `docs/PROJECT_SPEC.md`,
+  `docs/business_rules.md`, `docs/validation_strategy.md`,
+  `docs/data_dictionary.md`, `docs/workflow.md`, and
+  `docs/implementation_plan.md` before implementing.
+- Exact prompt:
+
+```text
+# Phase 5 — Deterministic Anomaly Injection
+
+Implement Phase 5 of TalentFlow AI, following the approved project specification and all existing documentation.
+
+Before coding:
+- Read `docs/PROJECT_SPEC.md`, `docs/business_rules.md`, `docs/validation_strategy.md`, `docs/data_dictionary.md`, `docs/workflow.md`, and `docs/implementation_plan.md`.
+- Inspect the completed Phase 3 generator and Phase 4 validation engine.
+- Inspect the existing models and tests.
+- Follow the approved anomaly definitions and counts exactly. Do not invent or reinterpret rules.
+
+## Requirements
+
+Implement deterministic injection for these five approved anomaly types:
+
+1. Interviewer unavailable
+2. Duplicate application
+3. Missing feedback despite application stage advancement
+4. Offer salary outside the approved band
+5. Closed requisition with active applications
+
+Use the approved starter/full incident counts, entity relationships, and anomaly-label conventions from the documentation.
+
+## Non-negotiable constraints
+
+- Run injection only after the clean baseline has passed the Phase 4 hard validation gate.
+- Preserve the original baseline records and modify only the records required by the approved anomaly definitions.
+- Create the correct `AnomalyLabel` records for every affected entity.
+- Follow the approved duplicate-submission design using `ApplicationSubmissionAttempt`. Do not create duplicate canonical `Application` records.
+- Do not delete or silently repair injected anomalies.
+- Do not let operational application logic or detection logic read `AnomalyLabel` or `ground_truth_label_id`.
+- Keep the generator deterministic for the same approved seed.
+- Maintain valid primary keys, foreign keys, and structural integrity.
+- Keep baseline validation results and post-injection validation results separate and accurately labelled.
+- Do not claim that post-injection data is anomaly-free. Structural validation and business anomaly detection are separate concerns.
+- Do not implement Phase 6 detection or evaluation in this phase.
+
+## Testing
+
+Add tests for:
+- Exact starter and full anomaly incident counts.
+- Exact expected `AnomalyLabel` counts and entity types.
+- Correct affected records for each anomaly type.
+- Duplicate submissions linked to the existing canonical Application, without creating another Application.
+- No duplicate canonical applications.
+- Structural integrity after injection.
+- Deterministic anomaly injection and reproducible ground-truth output.
+- Baseline validation gate prevents injection when baseline validation fails.
+- Ground-truth isolation from operational code.
+- Baseline and post-injection validation reports are distinct and correctly described.
+- Existing Phase 1–4 tests continue to pass.
+
+Run both starter and full generation and report actual results. Do not fabricate test results.
+
+## Completion report
+
+Provide:
+1. Files created and changed.
+2. Anomaly counts for starter and full modes, broken down by type.
+3. Exact `AnomalyLabel` counts and affected entity types.
+4. Baseline and post-injection validation results.
+5. Reproducibility checksums and the exact verification method.
+6. Test commands and actual test results.
+7. Git diff summary and proposed Conventional Commit messages.
+8. Any incomplete work, deviations, or limitations.
+
+Do not push to GitHub. Do not begin Phase 6.
+```
+
+- Output summary: Built `backend/app/data_generation/anomalies/` — five
+  injector modules (`unavailable_interviewer.py`, `duplicate_application.py`,
+  `missing_feedback.py`, `salary_band.py`, `closed_requisition.py`) plus
+  `injector.py` (orchestrator, sequential `ANOM-nnnn` IDs across all five
+  combined). Wired into `generator.py`'s entrypoint directly after the
+  Phase 4 baseline gate: gate passes -> inject -> re-export from the live
+  DB (added `export.read_tables_from_db()`, since the in-memory dataset
+  goes stale the moment injection mutates the database) -> re-run the full
+  VAL-01..16 suite as a genuine post-injection report (not deferred to
+  Phase 6 — re-running the same suite is pipeline step 4, generation-time
+  work; Phase 6 is the separate ground-truth precision/recall/F1
+  comparison, step 5, not touched here). Four real bugs found and fixed,
+  all caught by running the injectors against real baseline data, not
+  staged scenarios: (1) picking a `Completed` interview for the
+  unavailable-interviewer anomaly broke `Feedback.submitted_at >=
+  Interview.scheduled_end` once its time was shifted — fixed by
+  restricting to `Scheduled` interviews only. (2) the closed-requisition
+  injector computed `closed_at` only from the 2 applications it was
+  leaving active, ignoring other applications' `Offer.approved_at` on the
+  same requisition, which could be later — made a valid historical
+  approval look like it happened against an already-closed requisition
+  (VAL-09) — fixed by computing `closed_at` from every application/offer
+  event on that requisition. (3) `duplicate_submissions.py` (VAL-11) only
+  checked stored-vs-recomputed consistency (always 0) but never reported
+  detected duplicates as output — the catalog's "15/3 post-injection"
+  figure is a detection-output count, not a consistency-mismatch count —
+  fixed by adding one finding per attempt the shared algorithm determines
+  is a duplicate. (4) `injected_at` was wall-clock `datetime.now()`,
+  caught immediately by comparing two runs' checksums (only `anomaly_label`
+  differed) — validation_strategy.md §13 requires all 21 operational
+  tables, `anomaly_label` included, to be byte-identical across repeated
+  runs; fixed with a deterministic timestamp (`EPOCH + 450 days`).
+  After all four fixes: `python -m app.data_generation.generator --mode
+  starter` then `--mode full` both succeed. Full: 56 `AnomalyLabel` rows
+  (15/15/10/6/10 by type), `ApplicationSubmissionAttempt` 3,015,
+  `Feedback` 528. Starter: 11 rows (3/3/2/1/2), attempts 153, feedback 25.
+  Post-injection validation on both scales: every structural category
+  (VAL-01..05/07a/07b/09/13-16) exactly 0; the five business categories
+  (VAL-06/08/10/11/12) exactly 15/10/6/15/10 (full) and 3/2/1/3/2
+  (starter) — zero drift between injected and detected counts.
+  `PRAGMA foreign_key_check`: zero violations both scales. Same seed,
+  re-run twice: identical overall + per-table checksums including
+  `anomaly_label` (full `649898f0...`, starter `e026ca7b...`). Direct SQL
+  verified: Application count (3,000) == canonical attempt count exactly;
+  0 duplicate (candidate,requisition) Application pairs; 15 attempts with
+  `ground_truth_label_id` set, matching exactly the 15 DuplicateApplication
+  labels. Added `tests/test_anomaly_injection.py` (16 tests covering every
+  scenario the prompt listed). Full suite: **161 passed, 0 failed** (145
+  pre-existing + 16 new).
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Every number and bug description in this entry
+  corresponds to a command actually run in this session and its actual
+  output (the generator's own printed summary lines, direct SQL query
+  results, pytest output). No test result, execution, or review status is
+  invented. All four bugs are real defects discovered by running the code
+  against real generated data, each traceable to a specific before/after
+  diff and the specific check (a validation rule or a checksum comparison)
+  that caught it.
