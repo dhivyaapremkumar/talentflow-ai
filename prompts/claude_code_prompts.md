@@ -2902,3 +2902,189 @@ Return actual commands, generated counts, test results, checksum comparison, sch
   is stored as an honest `{"status": "not_yet_run", ...}` placeholder, not a
   fabricated validation result, since Phase 4 (the validation engine) does
   not exist yet.
+
+---
+
+### Prompt ID: P021
+
+- Date and time: 2026-11-12 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Authorize Phase 4 (the independent validation engine implementing
+  the approved VAL-01..VAL-16 rule catalog). Requires reading six specification
+  documents first, implementing a modular rule engine with a hard baseline
+  gate enforced in code, integrating real results into `GenerationRun`
+  without fabricating anything, and comprehensive tests — including a
+  ground-truth-isolation test and a deliberately-corrupted-data detection
+  test.
+- Development phase: **Phase 4 — Validation engine + shared business-rule
+  formulas** (Phase 3 — deterministic baseline generation — reported complete
+  immediately prior: 22 tables populated at both scales, 120 tests passing)
+- Context/files supplied: The repository state as of Phase 3's completion,
+  plus explicit instruction to (re-)read `docs/validation_strategy.md`,
+  `docs/business_rules.md`, `docs/data_dictionary.md`,
+  `docs/entity_relationships.md`, `docs/workflow.md`, and
+  `docs/implementation_plan.md` before implementing.
+- Exact prompt:
+
+```text
+# TALENTFLOW AI — PHASE 4: VALIDATION ENGINE
+
+Phase 3 is complete:
+- All 22 tables are implemented.
+- Starter and full datasets generated successfully.
+- Required volumes verified.
+- Same-seed checksums reproduced.
+- Foreign-key checks passed.
+- 120 tests passed.
+
+Begin Phase 4: Implement the independent validation engine using the approved 16-rule VAL-01 to VAL-16 catalog in docs/validation_strategy.md.
+
+## 1. Read the specifications
+
+Read:
+- docs/validation_strategy.md
+- docs/business_rules.md
+- docs/data_dictionary.md
+- docs/entity_relationships.md
+- docs/workflow.md
+- docs/implementation_plan.md
+
+Implement the documented validation rules. Do not invent or change business rules.
+
+## 2. Implement validation engine
+
+Requirements:
+- Modular rule implementation.
+- Central validation runner.
+- Rule IDs VAL-01 through VAL-16.
+- Severity classification.
+- Affected entity IDs.
+- Evidence and useful error messages.
+- Structured JSON validation reports.
+- Deterministic validation results.
+- Clear baseline versus post-injection validation modes.
+
+## 3. Baseline validation gate
+
+Implement a hard gate:
+
+1. Generate baseline data.
+2. Run structural validation.
+3. Run baseline business-rule validation.
+4. Require zero baseline violations.
+5. Abort anomaly injection if any baseline violation exists.
+
+The abort must be enforced in executable code, not merely documented.
+
+## 4. Database and data checks
+
+Validate:
+- Primary-key uniqueness.
+- Foreign-key integrity.
+- Required fields.
+- Enum values.
+- Date consistency.
+- Requisition lifecycle.
+- Application lifecycle.
+- Interview availability.
+- Feedback completeness.
+- Salary bands.
+- Duplicate submissions.
+- Screening consistency.
+- Ground-truth isolation.
+- Reproducibility.
+- Export consistency.
+
+Use the exact mapping and coverage from the approved validation catalog.
+
+## 5. GenerationRun integration
+
+Populate:
+- baseline_validation_report_json
+- post_injection_validation_report_json
+
+Do not fabricate results. Preserve actual execution metadata and the approved checksum rules.
+
+## 6. Tests
+
+Add tests for:
+- All 16 validation rule IDs.
+- Clean starter baseline passes.
+- Clean full baseline passes.
+- Deliberately corrupted records are detected.
+- Multiple violations are reported correctly.
+- Baseline gate blocks anomaly injection.
+- Validation output is deterministic.
+- Ground-truth fields are never read by operational validation.
+- Existing 120 tests remain passing.
+
+## 7. Boundaries
+
+Do not implement anomaly injection yet.
+Do not implement frontend features.
+Do not change the 22-table inventory.
+Do not alter approved business policies.
+
+## 8. Git
+
+Run tests, inspect changes and commit the completed validation engine separately.
+
+Suggested commit:
+feat(validation): implement baseline integrity validation engine
+
+Do not push without authorization.
+
+Append this exact prompt to prompts/claude_code_prompts.md using the next available ID.
+
+Return actual implementation files, commands, test results, validation summaries for starter and full datasets, and commit hash. Do not claim anything that was not executed.
+```
+
+- Output summary: Built the validation engine as 13 rule modules under
+  `backend/app/validation/` covering all 17 rule-ID labels (VAL-01..VAL-16,
+  with VAL-07 split into 07a/07b per the catalog), plus `report.py` (shared
+  Finding/report structures), `runner.py` (central runner), `gate.py` (the
+  hard baseline gate — `BaselineValidationFailed`, wired directly into
+  `data_generation/generator.py`'s entrypoint between DB-load and export, so
+  the abort is enforced in executable code, not documentation). Re-read all
+  six specified docs first; found two catalog ambiguities and resolved them
+  transparently rather than inventing new rule IDs (VAL-03 implemented
+  generically off SQLAlchemy metadata instead of a not-yet-built Pydantic
+  layer; OfferStatusHistory transition-legality checked under VAL-07b with
+  a distinct category name, since the catalog's prose covers three history
+  tables but only names two IDs). Running
+  `python -m app.data_generation.generator --mode starter` then `--mode full`
+  found and fixed three real bugs along the way, all caught by the engine
+  actually running against real generator output (not staged corruptions):
+  (1) `history.py` reused one APPROVER actor for every OfferStatusHistory
+  transition instead of only the hard-gated one (VAL-14); (2) offer-bearing
+  applications could land on a requisition whose OnHold/Closed transition
+  timing predated the offer's own approval timestamp (VAL-09); (3) a
+  `Decimal`-vs-`float` string-formatting mismatch between live-DB reads and
+  in-memory generation data produced spurious checksum mismatches (VAL-13's
+  own test caught this one; fixed in `export.py`). After all three fixes,
+  both databases pass the gate with **0 violations, 0 warnings across 17
+  rules**. Added `tests/test_validation.py` (25 tests: all 17 rule-ID labels
+  exercised with a deliberate-corruption case per rule via direct SQL, both
+  clean baselines, multiple-violations reporting, gate-blocks-on-corruption,
+  deterministic output, and the ground-truth leakage scan against this
+  codebase's real `app/` tree returning zero findings). Full suite: **145
+  passed, 0 failed** (120 pre-existing + 25 new). One item explicitly
+  deferred, not silently skipped: `test_hard_role_checks_cannot_be_bypassed`
+  needs `services/requisition_lifecycle.py`/`services/offer_lifecycle.py`,
+  which don't exist yet (Phase 7/8) — noted in `implementation_plan.md`'s
+  Phase 4 row rather than faked. `GenerationRun.baseline_validation_report_json`
+  and `post_injection_validation_report_json` now hold the first genuinely
+  computed reports (replacing Phase 3's honest placeholders); the
+  post-injection field is explicitly noted as identical to baseline, since
+  Phase 5 (anomaly injection) does not exist in this codebase.
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Every number and bug description in this entry
+  corresponds to a command actually run in this session and its actual
+  output (test pass counts, the generator's own printed validation summary
+  line, pytest output). No test result, execution, or review status is
+  invented. The three "bugs found and fixed" are real defects this session
+  discovered by running the new code against real generator output, not
+  manufactured examples — each is traceable to a specific before/after code
+  diff and a specific rule ID that caught it.
