@@ -8,7 +8,9 @@ Phase 2, Unit 2: JobRequisition, JobRequisitionSkill, ScreeningRule.
 Phase 2, Unit 3: Candidate, ResumeArtifact, CandidateSkill.
 Phase 2, Unit 4: Application, ApplicationSubmissionAttempt, ScreeningRun.
 Phase 2, Unit 5: Interview, Feedback.
-Phase 2, Unit 6 (this commit): Offer.
+Phase 2, Unit 6: Offer.
+Phase 2, Unit 7 (this commit): RequisitionStatusHistory,
+ApplicationStageHistory, OfferStatusHistory.
 Remaining tables are added unit by unit.
 """
 
@@ -16,6 +18,11 @@ from app.db.models.actor import SystemActor
 from app.db.models.application import Application, ApplicationSubmissionAttempt
 from app.db.models.candidate import Candidate, ResumeArtifact
 from app.db.models.department import Department
+from app.db.models.history import (
+    ApplicationStageHistory,
+    OfferStatusHistory,
+    RequisitionStatusHistory,
+)
 from app.db.models.interview import Feedback, Interview, Interviewer, InterviewerAvailabilitySlot
 from app.db.models.offer import Offer
 from app.db.models.requisition import JobRequisition, JobRequisitionSkill
@@ -40,4 +47,7 @@ __all__ = [
     "Interview",
     "Feedback",
     "Offer",
+    "RequisitionStatusHistory",
+    "ApplicationStageHistory",
+    "OfferStatusHistory",
 ]

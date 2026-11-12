@@ -19,9 +19,15 @@ Application<->ScreeningRun circular FK.
 Unit 5: Interview, Feedback — round_number/start-before-end CHECKs, and
 the 1:1 Feedback<->Interview unique FK.
 
-Unit 6 (this commit): Offer — the 1:1 Offer<->Application unique FK, and
-the required-iff-status / chronological-ordering CHECK constraints
+Unit 6: Offer — the 1:1 Offer<->Application unique FK, and the
+required-iff-status / chronological-ordering CHECK constraints
 (approval/extension/decision/expiry).
+
+Unit 7 (this commit): RequisitionStatusHistory, ApplicationStageHistory,
+OfferStatusHistory — the three append-only event-history tables. Mostly
+FK-enforcement and ID-format tests; the transition-legality and
+strictly-increasing-changed_at rules are cross-row and deferred to
+Phase 4 (not tested here, consistent with every other such deferral).
 
 Each test gets a fresh in-memory SQLite database with foreign_keys=ON, so
 these tests exercise the exact same engine configuration as app.db.session
@@ -37,6 +43,7 @@ from sqlalchemy.orm import Session
 from app.db.base import Base
 from app.db.models import (
     Application,
+    ApplicationStageHistory,
     ApplicationSubmissionAttempt,
     Candidate,
     CandidateSkill,
@@ -48,6 +55,8 @@ from app.db.models import (
     JobRequisition,
     JobRequisitionSkill,
     Offer,
+    OfferStatusHistory,
+    RequisitionStatusHistory,
     ResumeArtifact,
     ScreeningRule,
     ScreeningRun,
@@ -1461,6 +1470,208 @@ def test_offer_requires_existing_application(session):
             currency="USD",
             status="Drafted",
             created_at=datetime(2026, 1, 1),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+# --- Unit 7: RequisitionStatusHistory, ApplicationStageHistory, ------------
+# --- OfferStatusHistory ------------------------------------------------------
+
+
+def test_requisition_status_history_valid_insert(session):
+    _requisition(session)
+    session.add(
+        RequisitionStatusHistory(
+            history_id="RQH-000001",
+            requisition_id="REQ-00001",
+            from_status=None,
+            to_status="Draft",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+            reason_text=None,
+        )
+    )
+    session.commit()
+    assert session.query(RequisitionStatusHistory).count() == 1
+
+
+def test_requisition_status_history_id_format_rejected(session):
+    _requisition(session)
+    session.add(
+        RequisitionStatusHistory(
+            history_id="BADID",
+            requisition_id="REQ-00001",
+            from_status=None,
+            to_status="Draft",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_requisition_status_history_to_status_enum_rejected(session):
+    _requisition(session)
+    session.add(
+        RequisitionStatusHistory(
+            history_id="RQH-000001",
+            requisition_id="REQ-00001",
+            from_status=None,
+            to_status="NotAStatus",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_requisition_status_history_requires_existing_requisition(session):
+    _department(session)
+    _actor(session)
+    session.add(
+        RequisitionStatusHistory(
+            history_id="RQH-000001",
+            requisition_id="REQ-99999",  # does not exist
+            from_status=None,
+            to_status="Draft",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_application_stage_history_valid_insert(session):
+    _application(session)
+    session.add(
+        ApplicationStageHistory(
+            history_id="APH-000001",
+            application_id="APP-REQ-00001-CAND-000001",
+            from_stage=None,
+            to_stage="Applied",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+            reason_text=None,
+        )
+    )
+    session.commit()
+    assert session.query(ApplicationStageHistory).count() == 1
+
+
+def test_application_stage_history_id_format_rejected(session):
+    _application(session)
+    session.add(
+        ApplicationStageHistory(
+            history_id="BADID",
+            application_id="APP-REQ-00001-CAND-000001",
+            from_stage=None,
+            to_stage="Applied",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_application_stage_history_to_stage_enum_rejected(session):
+    _application(session)
+    session.add(
+        ApplicationStageHistory(
+            history_id="APH-000001",
+            application_id="APP-REQ-00001-CAND-000001",
+            from_stage=None,
+            to_stage="NotAStage",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_application_stage_history_requires_existing_application(session):
+    _department(session)
+    _actor(session)
+    session.add(
+        ApplicationStageHistory(
+            history_id="APH-000001",
+            application_id="APP-REQ-99999-CAND-999999",  # does not exist
+            from_stage=None,
+            to_stage="Applied",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_offer_status_history_valid_insert(session):
+    _offer(session)
+    session.add(
+        OfferStatusHistory(
+            history_id="OFH-000001",
+            offer_id="OFR-00001",
+            from_status=None,
+            to_status="Drafted",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+            reason_text=None,
+        )
+    )
+    session.commit()
+    assert session.query(OfferStatusHistory).count() == 1
+
+
+def test_offer_status_history_id_format_rejected(session):
+    _offer(session)
+    session.add(
+        OfferStatusHistory(
+            history_id="BADID",
+            offer_id="OFR-00001",
+            from_status=None,
+            to_status="Drafted",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_offer_status_history_to_status_enum_rejected(session):
+    _offer(session)
+    session.add(
+        OfferStatusHistory(
+            history_id="OFH-000001",
+            offer_id="OFR-00001",
+            from_status=None,
+            to_status="NotAStatus",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_offer_status_history_requires_existing_offer(session):
+    _department(session)
+    _actor(session)
+    session.add(
+        OfferStatusHistory(
+            history_id="OFH-000001",
+            offer_id="OFR-99999",  # does not exist
+            from_status=None,
+            to_status="Drafted",
+            changed_at=datetime(2026, 1, 1),
+            actor_id="ACT-0001",
         )
     )
     with pytest.raises(IntegrityError):
