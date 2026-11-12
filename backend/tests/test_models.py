@@ -10,11 +10,14 @@ and the uq_screeningrule_current partial unique index.
 
 Unit 3: Candidate, ResumeArtifact, CandidateSkill.
 
-Unit 4 (this commit): Application, ApplicationSubmissionAttempt,
-ScreeningRun — the derived-PK application_id, the canonical/duplicate
-attempt CHECK + uq_attempt_canonical partial unique index, the
-uq_screeningrun_latest partial unique index, and a real insert-level
-round-trip through the Application<->ScreeningRun circular FK.
+Unit 4: Application, ApplicationSubmissionAttempt, ScreeningRun — the
+derived-PK application_id, the canonical/duplicate attempt CHECK +
+uq_attempt_canonical partial unique index, the uq_screeningrun_latest
+partial unique index, and a real insert-level round-trip through the
+Application<->ScreeningRun circular FK.
+
+Unit 5 (this commit): Interview, Feedback — round_number/start-before-end
+CHECKs, and the 1:1 Feedback<->Interview unique FK.
 
 Each test gets a fresh in-memory SQLite database with foreign_keys=ON, so
 these tests exercise the exact same engine configuration as app.db.session
@@ -34,6 +37,8 @@ from app.db.models import (
     Candidate,
     CandidateSkill,
     Department,
+    Feedback,
+    Interview,
     Interviewer,
     InterviewerAvailabilitySlot,
     JobRequisition,
@@ -1024,4 +1029,257 @@ def test_application_latest_screening_run_id_bad_fk_rejected(session):
         session.query(Application).filter_by(application_id="APP-REQ-00001-CAND-000001").update(
             {"latest_screening_run_id": "SCRUN-9999999"}
         )
+        session.commit()
+
+
+# --- Unit 5: Interview, Feedback --------------------------------------------
+
+
+def _interviewer(session, interviewer_id="IVR-0001"):
+    _department(session)
+    i = Interviewer(
+        interviewer_id=interviewer_id,
+        full_name="Ivy Reviewer",
+        email=f"{interviewer_id.lower()}@example.com",
+        department_id="DEPT-0001",
+        title="Senior Engineer",
+        is_active=True,
+    )
+    session.add(i)
+    session.commit()
+    return i
+
+
+def _interview(
+    session,
+    interview_id="IVW-000001",
+    app_id="APP-REQ-00001-CAND-000001",
+    interviewer_id="IVR-0001",
+    scheduled_start=datetime(2026, 2, 1, 10, 0),
+    scheduled_end=datetime(2026, 2, 1, 11, 0),
+    status="Scheduled",
+):
+    _application(session, app_id=app_id)
+    # Insert Interviewer directly rather than via _interviewer(): that helper
+    # always calls _department(), which would try to re-create DEPT-0001
+    # (already created by _application() -> _requisition() above) and
+    # collide on department.cost_center_code's unique constraint.
+    session.add(
+        Interviewer(
+            interviewer_id=interviewer_id,
+            full_name="Ivy Reviewer",
+            email=f"{interviewer_id.lower()}@example.com",
+            department_id="DEPT-0001",
+            title="Senior Engineer",
+            is_active=True,
+        )
+    )
+    session.commit()
+    iv = Interview(
+        interview_id=interview_id,
+        application_id=app_id,
+        interviewer_id=interviewer_id,
+        round_number=1,
+        round_type="Technical",
+        scheduled_start=scheduled_start,
+        scheduled_end=scheduled_end,
+        status=status,
+        location_mode="Remote",
+        created_at=datetime(2026, 1, 15),
+        updated_at=datetime(2026, 1, 15),
+    )
+    session.add(iv)
+    session.commit()
+    return iv
+
+
+def test_interview_valid_insert(session):
+    _interview(session)
+    assert session.query(Interview).count() == 1
+
+
+def test_interview_id_format_rejected(session):
+    _application(session)
+    session.add(
+        Interviewer(
+            interviewer_id="IVR-0001",
+            full_name="Ivy Reviewer",
+            email="ivr-0001@example.com",
+            department_id="DEPT-0001",
+            title="Senior Engineer",
+            is_active=True,
+        )
+    )
+    session.commit()
+    session.add(
+        Interview(
+            interview_id="BADID",
+            application_id="APP-REQ-00001-CAND-000001",
+            interviewer_id="IVR-0001",
+            round_number=1,
+            round_type="Technical",
+            scheduled_start=datetime(2026, 2, 1, 10, 0),
+            scheduled_end=datetime(2026, 2, 1, 11, 0),
+            status="Scheduled",
+            location_mode="Remote",
+            created_at=datetime(2026, 1, 15),
+            updated_at=datetime(2026, 1, 15),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_interview_scheduled_end_before_start_rejected(session):
+    with pytest.raises(IntegrityError):
+        _interview(
+            session,
+            scheduled_start=datetime(2026, 2, 1, 11, 0),
+            scheduled_end=datetime(2026, 2, 1, 10, 0),
+        )
+
+
+def test_interview_round_type_enum_rejected(session):
+    _application(session)
+    session.add(
+        Interviewer(
+            interviewer_id="IVR-0001",
+            full_name="Ivy Reviewer",
+            email="ivr-0001@example.com",
+            department_id="DEPT-0001",
+            title="Senior Engineer",
+            is_active=True,
+        )
+    )
+    session.commit()
+    session.add(
+        Interview(
+            interview_id="IVW-000001",
+            application_id="APP-REQ-00001-CAND-000001",
+            interviewer_id="IVR-0001",
+            round_number=1,
+            round_type="NotARoundType",
+            scheduled_start=datetime(2026, 2, 1, 10, 0),
+            scheduled_end=datetime(2026, 2, 1, 11, 0),
+            status="Scheduled",
+            location_mode="Remote",
+            created_at=datetime(2026, 1, 15),
+            updated_at=datetime(2026, 1, 15),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_interview_status_enum_rejected(session):
+    with pytest.raises(IntegrityError):
+        _interview(session, status="NotAStatus")
+
+
+def test_interview_requires_existing_application(session):
+    _interviewer(session)
+    session.add(
+        Interview(
+            interview_id="IVW-000001",
+            application_id="APP-REQ-99999-CAND-999999",  # does not exist
+            interviewer_id="IVR-0001",
+            round_number=1,
+            round_type="Technical",
+            scheduled_start=datetime(2026, 2, 1, 10, 0),
+            scheduled_end=datetime(2026, 2, 1, 11, 0),
+            status="Scheduled",
+            location_mode="Remote",
+            created_at=datetime(2026, 1, 15),
+            updated_at=datetime(2026, 1, 15),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def _feedback(
+    session,
+    feedback_id="FBK-000001",
+    interview_id="IVW-000001",
+    interviewer_id="IVR-0001",
+    overall_score=4,
+    recommendation="Yes",
+):
+    _interview(session, interview_id=interview_id, interviewer_id=interviewer_id, status="Completed")
+    fb = Feedback(
+        feedback_id=feedback_id,
+        interview_id=interview_id,
+        interviewer_id=interviewer_id,
+        recommendation=recommendation,
+        overall_score=overall_score,
+        strengths_text="Strong problem solving.",
+        concerns_text=None,
+        submitted_at=datetime(2026, 2, 1, 12, 0),
+    )
+    session.add(fb)
+    session.commit()
+    return fb
+
+
+def test_feedback_valid_insert(session):
+    _feedback(session)
+    assert session.query(Feedback).count() == 1
+
+
+def test_feedback_id_format_rejected(session):
+    _interview(session, status="Completed")
+    session.add(
+        Feedback(
+            feedback_id="BADID",
+            interview_id="IVW-000001",
+            interviewer_id="IVR-0001",
+            recommendation="Yes",
+            overall_score=4,
+            submitted_at=datetime(2026, 2, 1, 12, 0),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_feedback_overall_score_out_of_bounds_rejected(session):
+    with pytest.raises(IntegrityError):
+        _feedback(session, overall_score=6)
+
+
+def test_feedback_recommendation_enum_rejected(session):
+    with pytest.raises(IntegrityError):
+        _feedback(session, recommendation="Maybe")
+
+
+def test_feedback_two_rows_for_same_interview_rejected(session):
+    """Structural 1:1 enforcement — unique=True on Feedback.interview_id
+    (data_dictionary.md §13)."""
+    _feedback(session, feedback_id="FBK-000001")
+    session.add(
+        Feedback(
+            feedback_id="FBK-000002",
+            interview_id="IVW-000001",  # same interview again
+            interviewer_id="IVR-0001",
+            recommendation="No",
+            overall_score=2,
+            submitted_at=datetime(2026, 2, 1, 13, 0),
+        )
+    )
+    with pytest.raises(IntegrityError):
+        session.commit()
+
+
+def test_feedback_requires_existing_interview(session):
+    session.add(
+        Feedback(
+            feedback_id="FBK-000001",
+            interview_id="IVW-999999",  # does not exist
+            interviewer_id="IVR-0001",
+            recommendation="Yes",
+            overall_score=4,
+            submitted_at=datetime(2026, 2, 1, 12, 0),
+        )
+    )
+    with pytest.raises(IntegrityError):
         session.commit()
