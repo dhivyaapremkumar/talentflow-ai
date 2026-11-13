@@ -1,0 +1,101 @@
+{
+  "per_type": [
+    {
+      "anomaly_type": "UnavailableInterviewer",
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": null,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "true_positive_ids": [
+        "IVW-000017",
+        "IVW-000018",
+        "IVW-000019"
+      ],
+      "false_positive_ids": [],
+      "false_negative_ids": [],
+      "tn_note": "Not computed. The approved evaluation design (validation_strategy.md Sec22) defines TP/FP/FN/precision/recall/F1 only - it does not define a valid negative population for any anomaly type. The natural candidate population for each type (e.g. every Interview/Offer/Application row) is dominated by rows that were never at risk of that specific anomaly, so treating them as confirmed negatives would invent an unapproved denominator and produce a misleading, inflated accuracy-like figure rather than a reliable metric."
+    },
+    {
+      "anomaly_type": "DuplicateApplication",
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": null,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "true_positive_ids": [
+        "ATT-0000151",
+        "ATT-0000152",
+        "ATT-0000153"
+      ],
+      "false_positive_ids": [],
+      "false_negative_ids": [],
+      "tn_note": "Not computed. The approved evaluation design (validation_strategy.md Sec22) defines TP/FP/FN/precision/recall/F1 only - it does not define a valid negative population for any anomaly type. The natural candidate population for each type (e.g. every Interview/Offer/Application row) is dominated by rows that were never at risk of that specific anomaly, so treating them as confirmed negatives would invent an unapproved denominator and produce a misleading, inflated accuracy-like figure rather than a reliable metric."
+    },
+    {
+      "anomaly_type": "MissingFeedbackStageAdvanced",
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "tn": null,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "true_positive_ids": [
+        "APP-REQ-00007-CAND-000067",
+        "APP-REQ-00007-CAND-000090"
+      ],
+      "false_positive_ids": [],
+      "false_negative_ids": [],
+      "tn_note": "Not computed. The approved evaluation design (validation_strategy.md Sec22) defines TP/FP/FN/precision/recall/F1 only - it does not define a valid negative population for any anomaly type. The natural candidate population for each type (e.g. every Interview/Offer/Application row) is dominated by rows that were never at risk of that specific anomaly, so treating them as confirmed negatives would invent an unapproved denominator and produce a misleading, inflated accuracy-like figure rather than a reliable metric."
+    },
+    {
+      "anomaly_type": "SalaryOutsideBand",
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": null,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "true_positive_ids": [
+        "OFR-00002"
+      ],
+      "false_positive_ids": [],
+      "false_negative_ids": [],
+      "tn_note": "Not computed. The approved evaluation design (validation_strategy.md Sec22) defines TP/FP/FN/precision/recall/F1 only - it does not define a valid negative population for any anomaly type. The natural candidate population for each type (e.g. every Interview/Offer/Application row) is dominated by rows that were never at risk of that specific anomaly, so treating them as confirmed negatives would invent an unapproved denominator and produce a misleading, inflated accuracy-like figure rather than a reliable metric."
+    },
+    {
+      "anomaly_type": "ClosedReqActiveApplications",
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "tn": null,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "true_positive_ids": [
+        "APP-REQ-00007-CAND-000025",
+        "APP-REQ-00007-CAND-000092"
+      ],
+      "false_positive_ids": [],
+      "false_negative_ids": [],
+      "tn_note": "Not computed. The approved evaluation design (validation_strategy.md Sec22) defines TP/FP/FN/precision/recall/F1 only - it does not define a valid negative population for any anomaly type. The natural candidate population for each type (e.g. every Interview/Offer/Application row) is dominated by rows that were never at risk of that specific anomaly, so treating them as confirmed negatives would invent an unapproved denominator and produce a misleading, inflated accuracy-like figure rather than a reliable metric."
+    }
+  ],
+  "overall": {
+    "tp": 11,
+    "fp": 0,
+    "fn": 0,
+    "tn": null,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "tn_note": "Not computed. The approved evaluation design (validation_strategy.md Sec22) defines TP/FP/FN/precision/recall/F1 only - it does not define a valid negative population for any anomaly type. The natural candidate population for each type (e.g. every Interview/Offer/Application row) is dominated by rows that were never at risk of that specific anomaly, so treating them as confirmed negatives would invent an unapproved denominator and produce a misleading, inflated accuracy-like figure rather than a reliable metric.",
+    "aggregation_method": "micro-average (TP/FP/FN summed across all five anomaly types before computing precision/recall/F1 once over the sums)"
+  }
+}
