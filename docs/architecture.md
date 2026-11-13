@@ -294,6 +294,27 @@ TalentFlowAI/
     └── reconcile.py
 ```
 
+**As actually built (Phase 11 note, added rather than silently left
+inconsistent):** the module boundaries above (`analytics/`, `validation/rules/`,
+`data_generation/{entities,anomalies}`, `services/`, `api/v1/`, `schemas/`)
+all match exactly. Differences from this "proposed" tree, each already
+documented at the phase that introduced it: `backend/data/` holds
+`talentflow_starter.db`/`talentflow_full.db`, never a bare `talentflow.db`
+(README's Setup section); exports are `exports/{starter,full}/` — CSV + two
+JSON summary files, no SQL export format was ever built
+(`export_consistency.py`'s own docstring flags this as deferred, not an
+oversight); `backend/tests/` has ten files reflecting the real phase-by-phase
+split (`test_models.py`, `test_data_generation.py`, `test_validation.py`,
+`test_anomaly_injection.py`, `test_phase6_detection_evaluation.py`,
+`test_services.py`, `test_lifecycle.py`, `test_analytics.py`, `test_api.py`,
+`test_config.py`) rather than the four named here; `frontend/src/` additionally
+has `context/` (actor/toast state) and `hooks/`, and `pages/` is organized by
+feature folder (`requisitions/`, `screening/`, `interviews/`, `offers/`, plus
+a top-level `Dashboard.tsx`) rather than one flat `Pipeline`/`Analytics`/
+`Anomalies` page split — the approved 5-screen scope (`implementation_plan.md`
+Phase 10) folds funnel/anomaly analytics into the Executive Dashboard instead
+of separate pages; no repo-root `scripts/` directory exists — the README
+documents the actual generation/startup commands directly instead.
 ## 8. Key architectural decisions and why
 
 | Decision | Why | Alternative considered |

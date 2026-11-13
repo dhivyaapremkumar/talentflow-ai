@@ -25,7 +25,7 @@ it never fills the gap with something plausible-sounding.
 |---|---|
 | `README.md` | this file |
 | `claude_code_prompts.md` | every prompt actually submitted to Claude Code in this project, verbatim |
-| `chatgpt_prompts.md` | every prompt actually submitted to ChatGPT in this project, verbatim (template only until real entries are added — see note in that file) |
+| `chatgpt_prompts.md` | every prompt actually submitted to ChatGPT in this project — 5 entries (P001–P005) as of this writing; three are recorded as historical summaries rather than verbatim text, because the original conversation text was not available to reconstruct exactly, and the file says so explicitly for each one |
 | `ai_usage_disclosure.md` | the YottaFlex-required narrative disclosure: what each tool was used for, what was human-reviewed, what was tested, and known limitations |
 
 ## How prompts are numbered

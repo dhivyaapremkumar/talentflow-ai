@@ -375,6 +375,34 @@ explicit 5-screen list.
 | **Tests required** | The full-stack smoke test itself is the test; plus a final full run of every test suite from every prior phase, green, in one CI-style invocation. |
 | **Definition of done** | Final read-through against the YottaFlex submission checklist (brief §9) before making the repo public; **every claim made in the README or submission narrative is backed by a test that actually ran** — not by a design projection (the §22 lesson generalized: Phase 6 onward, "expected" language must become "measured" language once code exists). |
 
+**STATUS: VERIFICATION COMPLETE, SUBMISSION PENDING USER APPROVAL** (2026-11-13).
+The acceptance criterion itself was verified literally, not just asserted: a
+genuinely fresh `git clone` of `origin/main` (commit `ddd9a4e`) into a clean
+directory, with a brand-new Python 3.12 venv and a brand-new `npm install`
+(no reused state from this session's own working copy), successfully ran the
+full backend suite (290 passed), generated the starter dataset (checksum
+matching every prior run), started the backend with zero environment
+variables, started the frontend, and rendered the dashboard with real data —
+confirmed by a Playwright script checking for console errors and failed
+requests (zero of either). A full live recruitment-workflow demonstration
+(submission → screening → lifecycle → offer → approval → Hired, plus a
+genuine screening-Fail rejection path and a genuine unauthorized-approval
+rejection) was also run against that clean clone — see
+`prompts/claude_code_prompts.md` P034–P044 for the complete, itemized record,
+and the README's "Known limitations" section for the one verified blocker
+found (interview scheduling against this specific starter dataset, whose
+availability data ends 2026-05-20).
+**Deviation, flagged:** no committed `scripts/smoke_test.sh` exists — this
+verification was performed interactively (documented step-by-step in the
+prompt log) rather than as one standing, re-runnable script. Full-mode
+generation + validation measured at under 5 seconds end-to-end, confirming
+the timing concern this row's own "Tasks" column raised is moot at this
+dataset scale. Git history, push to a public GitHub repo, and this phase's
+own documentation corrections are complete through `ddd9a4e`; this entry's
+own documentation-review changes are staged locally, not yet committed,
+pending the user's review (per their explicit "do not commit or push yet"
+instruction for this pass).
+
 ## Table-to-module mapping (all 22 tables, new this pass)
 
 | Table | Model module (Phase 2) | PK | Key FK dependencies | Constraints/indexes | Owning service (writes) | Key validation rule(s) | Test(s) |

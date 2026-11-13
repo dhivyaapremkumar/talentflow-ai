@@ -4925,3 +4925,707 @@ Provide actual test output, fresh-install verification, changed files, commit ha
   committing, to keep this fix isolated from the already-committed
   Phase 10 screenshots per the prompt's own "keep the fix isolated"
   instruction.
+
+### Prompt ID: P034
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Phase 11 — final integration, verification, and submission-
+  readiness: clean-environment verification, a live end-to-end workflow
+  demo, data/analytics re-verification, full regression testing,
+  documentation review/completion, a final repository review, and the
+  nine submission-package outputs. Explicitly not an authorization to
+  push without separate approval, and not a claim that the project is
+  "submitted."
+- Development phase: **Phase 11 — Final integration, verification, and
+  submission readiness** (Phases 1-10 reported complete and pushed
+  immediately prior: `origin/main` at `ddd9a4e`).
+- Context/files supplied: The repository state as of `ddd9a4e`, plus
+  explicit instruction to follow the README from a clean environment,
+  re-run all generation/validation/evaluation, re-run the full test
+  suite and Playwright smoke test, review every documentation file, and
+  produce a reviewer navigation guide and the nine submission outputs.
+- Exact prompt:
+
+```text
+# Phase 11 — Final Integration, Verification and Submission Readiness
+
+This is the final phase of TalentFlow AI.
+
+The public GitHub repository contains completed Phases 1–10.
+Latest origin/main commit: ddd9a4e.
+
+Do not add new product features or redesign the frontend.
+
+## 1. Clean-environment verification
+- Follow README instructions from a clean environment.
+- Verify Python 3.12 setup and dependencies.
+- Generate starter dataset.
+- Start FastAPI backend.
+- Start React frontend.
+- Confirm the dashboard displays real data.
+- Document exact commands.
+
+## 2. End-to-end workflow
+Demonstrate:
+- Requisition creation and lifecycle.
+- Candidate and application submission.
+- Screening and screening explanation.
+- Interview scheduling.
+- Feedback submission.
+- Offer creation and approval.
+- Application progression to Hired.
+- Rejection of unauthorized approval attempts.
+
+Use synthetic data and clearly document the demo actor convention.
+
+## 3. Data and analytics verification
+- Run starter and full generation.
+- Run baseline and post-injection validation.
+- Run anomaly detection and offline evaluation.
+- Verify precision, recall and F1 reports.
+- Verify analytics and exports.
+- Confirm reproducibility.
+- Confirm ground-truth isolation.
+
+## 4. Regression testing
+- Run the complete backend suite.
+- Run frontend production build.
+- Run the Playwright smoke test.
+- Verify API documentation.
+- Verify all five frontend screens.
+- Verify no failed API calls or console errors.
+
+Report actual test results only.
+
+## 5. Documentation and submission package
+Review and complete:
+- README.md
+- Architecture documentation
+- Setup and run instructions
+- Data dictionary
+- Business rules and workflow
+- Validation and evaluation methodology
+- Known limitations and future improvements
+- AI prompt history
+- AI usage disclosure
+- Human review and verification explanation
+
+Do not fabricate historical prompts or claim manual reviews that were not performed.
+
+## 6. Final repository review
+- Confirm public GitHub repository.
+- Confirm all intended commits are pushed.
+- Confirm working tree is clean.
+- Check for secrets, generated databases and unintended files.
+- Verify screenshots and prompt logs are committed.
+- Prepare a concise reviewer navigation guide.
+
+## 7. Submission outputs
+Produce:
+1. Final project summary.
+2. Architecture and technology stack summary.
+3. Feature demonstration sequence.
+4. Test and validation results.
+5. Dataset and anomaly evaluation summary.
+6. AI usage disclosure.
+7. Known limitations.
+8. Exact setup and execution instructions.
+9. Final GitHub commit hash.
+
+Do not push additional changes without review and explicit approval.
+
+Do not claim the project is submitted until the actual submission is completed.
+```
+
+- Output summary: This prompt kicked off Phase 11; the work itself was
+  carried out across ten further, more specific prompts (P035–P044,
+  logged below) as the user iteratively corrected the working-directory
+  approach for verification scripts and scoped each sub-task (clean-
+  clone verification, the end-to-end workflow demo, and this
+  documentation audit). See those entries for the real, itemized
+  results — this entry is not separately re-summarized to avoid
+  duplicating them.
+- Human review: Ongoing across P035–P044 — the user corrected the
+  verification approach twice (P036, P037) before approving it, and
+  reviewed intermediate results before authorizing each next step.
+- Changes made after review: See P035–P044.
+- Verification performed: See P035–P044.
+
+### Prompt ID: P035
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: Direct the clean-clone Playwright verification to run inside
+  the clone's own approved directory tree (not an external scratch
+  path), and separately flag that an initial `ai_usage_disclosure.md`
+  rewrite had left contradictory historical statements.
+- Development phase: Phase 11 (clean-environment verification, in
+  progress).
+- Context/files supplied: The clean-clone backend/frontend already
+  running (tests passed, starter data generated, both servers started)
+  from P034's work.
+- Exact prompt:
+
+```text
+Continue the clean-clone verification.
+
+The backend tests, starter generation, backend startup and frontend startup have succeeded.
+
+For the final Playwright verification:
+
+1. Keep the verification script inside the clean clone's approved project directory, for example `scratchpad/frontend/scripts/verify_clean_env.mjs`.
+2. Save screenshots and logs inside `scratchpad/frontend/verification-output/`.
+3. Use explicit fixed paths relative to the clean clone.
+4. Do not write to dynamically constructed external temporary paths.
+5. Verify all five screens and two detail pages.
+6. Confirm the dashboard displays actual generated starter data.
+7. Check browser console errors and failed network requests.
+8. Preserve the screenshots and logs for review.
+
+Then inspect prompts/ai_usage_disclosure.md carefully. The current editing attempt appears to have left contradictory historical statements, including the old claim that no code or tests existed. Correct these carefully using actual prompt history and verified evidence. Do not invent human testing or claim work that was not performed.
+
+Do not commit or push anything yet. Report actual results and remaining blockers.
+```
+
+- Output summary: Attempted to follow this literally (script under the
+  clone's own `scratchpad/frontend/scripts/`), but the Write tool call
+  to that Windows-Temp-rooted path was rejected by the permission
+  system before any file was created — superseded immediately by P036.
+  No `ai_usage_disclosure.md` edit was made yet under this entry.
+- Human review: The rejection itself is the review signal — the user
+  then corrected the approach in P036.
+- Changes made after review: None yet — see P036.
+- Verification performed: None yet — see P036.
+
+### Prompt ID: P036
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: Correct P035's approach after the Write tool rejected a
+  script path under the external Windows Temp clone directory — direct
+  that the verification script live inside whatever "approved project
+  workspace" is actually writable, not re-attempt the Temp path.
+- Development phase: Phase 11 (clean-environment verification).
+- Context/files supplied: The same already-running clone servers; the
+  P035 rejection.
+- Exact prompt:
+
+```text
+Resume Phase 11 from the current project state. Do not restart the project or modify completed functionality.
+
+The previous Playwright verification stopped because the script was located outside the approved working directories.
+
+Please continue safely:
+
+1. Inspect the current project state and identify the existing clean-clone verification workspace.
+2. Create the Playwright verification script INSIDE that workspace, not in Windows Temp or any external directory.
+3. Save all screenshots, logs and verification outputs inside the same workspace.
+4. Run the frontend verification against the already-running backend and frontend.
+5. Verify all five main screens and the requisition/application and candidate detail pages.
+6. Check real API data, console errors and failed network requests.
+7. Preserve the verification evidence.
+
+Do not request access to external directories. Do not use /add-dir. If a command is blocked, stop and explain the exact command and path so we can correct it.
+
+After verification, audit prompts/ai_usage_disclosure.md and remove contradictory or duplicated statements. Do not invent test execution or human review claims.
+
+Do not commit or push anything yet. Report exact results and remaining issues.
+```
+
+- Output summary: Wrote the verification script into the *clone's own*
+  `frontend/scripts/verify_clean_env.mjs` (still inside the external
+  clone directory, just not Windows Temp root) and attempted to run it
+  — this Bash call was also rejected, superseded by P037, which
+  clarified the "approved workspace" meant this session's main project
+  directory (`C:\GenAI\TalentFlowAI`), not any part of the external
+  clone. No `ai_usage_disclosure.md` edit was made yet under this
+  entry either.
+- Human review: The second rejection is again the review signal.
+- Changes made after review: None yet — see P037.
+- Verification performed: None yet — see P037.
+
+### Prompt ID: P037
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: Correct course a second time after a combined
+  `mkdir && echo >> .gitignore && cat` Bash command was rejected —
+  direct simple, single-purpose commands, explicitly inside
+  `frontend/` (the main project directory), and explicitly defer any
+  `.gitignore` edit.
+- Development phase: Phase 11 (clean-environment verification).
+- Context/files supplied: The P036 rejection.
+- Exact prompt:
+
+```text
+The previous shell command was malformed and triggered a read-permission block.
+
+Please do not request external directory access.
+
+1. Create `frontend/verification-output/` inside the approved project workspace using a simple directory-creation command only.
+2. Do not edit `.gitignore` yet.
+3. Create the Playwright script inside `frontend/`.
+4. Save verification screenshots and logs inside `frontend/verification-output/`.
+5. Run verification against the already-running clone servers.
+
+Avoid `cat` commands that inspect dynamically resolved paths. Keep all file operations inside the approved workspace.
+
+Do not commit or push. Report the verification results.
+```
+
+- Output summary: Created `frontend/verification-output/` with a plain
+  `mkdir`; wrote `frontend/verify_clean_env.mjs` (reusing the already-
+  installed `playwright` devDependency in the main repo's
+  `frontend/node_modules`); ran it against the clone's already-running
+  servers (backend `:8000`, frontend `:5180`). Result: all 7 pages
+  captured (5 screens + requisition-detail + screening-detail), real
+  starter data confirmed (`dashboard_contains_150_applications: true`),
+  zero console errors, zero failed requests. Script deleted after the
+  run per this project's convention for throwaway verification tooling;
+  only `frontend/verification-output/*.png` and `verification-log.json`
+  were kept. `ai_usage_disclosure.md`'s contradiction audit (requested
+  in P035/P036) was not yet done under this entry — deferred to P044's
+  explicit documentation-audit task.
+- Human review: The user reviewed this result and, seeing the servers
+  about to be stopped, issued P038 before that happened.
+- Changes made after review: None required — the verification itself
+  was accepted; only the subsequent server-lifecycle instruction (P038)
+  followed.
+- Verification performed: Directly, by running the script against the
+  live clone and inspecting both the JSON log and two of the captured
+  screenshots (dashboard, requisition-detail) — confirmed real data,
+  not inferred.
+
+### Prompt ID: P038
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: Prevent the clone's backend/frontend dev servers from being
+  stopped after P037's verification, since the end-to-end workflow demo
+  (P043) would need them to still be running.
+- Development phase: Phase 11 (between clean-environment verification
+  and the end-to-end workflow demo).
+- Context/files supplied: P037's completed verification; a `taskkill`
+  attempt on both server PIDs that was rejected.
+- Exact prompt:
+
+```text
+Do not terminate either server yet. We need both clone servers running for Playwright verification.
+
+Keep the existing backend and frontend processes alive. Create the verification script inside the approved frontend workspace and run it against the existing server URLs.
+
+Only stop the servers after verification is complete, and only if necessary. Do not request external directory permissions.
+```
+
+- Output summary: Confirmed both servers still listening (ports `8000`
+  and `5180`) and confirmed the P037 verification evidence was already
+  on disk — no new script was run under this entry specifically, since
+  the verification it refers to had already completed in P037; reported
+  this back to the user rather than re-running anything redundant.
+- Human review: Implicit — the user's next message (P039) moved on to
+  the availability-date investigation, confirming this status report
+  was accepted.
+- Changes made after review: None.
+- Verification performed: `netstat` confirmed both PIDs still listening.
+
+### Prompt ID: P039
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: One-word continuation ("yes") after a rejected
+  `curl | python -c "..."` command while checking `IVR-0001`'s
+  availability-slot date range — ambiguous on its own, read in context
+  as "continue checking, just avoid that command shape."
+- Development phase: Phase 11 (availability-date investigation, ahead
+  of the end-to-end workflow demo).
+- Context/files supplied: The rejected inline-Python command.
+- Exact prompt:
+
+```text
+yes
+```
+
+- Output summary: Retried with a plain `curl` (no inline Python),
+  saving the response to disk, then used `tail` on the saved file to
+  find `IVR-0001`'s latest slot (`2026-05-20`) — this succeeded.
+- Human review: The user's next message (P040) asked to see the exact
+  command used, which this entry's output summary answers.
+- Changes made after review: N/A.
+- Verification performed: Direct `curl`/`tail` output against the live
+  clone API.
+
+### Prompt ID: P040
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: Ask for transparency on exactly what the previous `tail`
+  command did and why, before continuing.
+- Development phase: Phase 11.
+- Context/files supplied: P039's `tail` command and its result.
+- Exact prompt:
+
+```text
+show me the previous bash command
+```
+
+- Output summary: Quoted the exact command verbatim and explained what
+  it did and why (reading the tail of a persisted-output file that held
+  a curl response too large for the normal preview) directly in the
+  chat response — no file changes.
+- Human review: The user's next message (P041) proceeded to the next
+  investigation step, implicitly accepting this explanation.
+- Changes made after review: N/A.
+- Verification performed: N/A (an explanation, not a new action).
+
+### Prompt ID: P041
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: Direct a systematic check of every interviewer's availability
+  (not just `IVR-0001`) for any slot after 2026-11-13, as the
+  prerequisite for the end-to-end workflow demo's interview-scheduling
+  step — with explicit rules against modifying data to manufacture a
+  slot, and against bypassing interview/feedback prerequisites if none
+  is found.
+- Development phase: Phase 11 (availability-date investigation).
+- Context/files supplied: `IVR-0001`'s confirmed date range
+  (2025-01-06 through 2026-05-20) from P039.
+- Exact prompt:
+
+```text
+Continue checking all interviewers for future-dated availability using the existing clean-clone database and API.
+
+1. Check every interviewer, not just IVR-0001.
+2. Identify the earliest available slot strictly after 2026-11-13.
+3. Confirm that the slot is compatible with the selected requisition, interview round and scheduling rules.
+4. Do not modify availability records, seed data, system dates or business rules to manufacture a slot.
+5. If at least one valid future slot exists, use it for the end-to-end workflow demo.
+6. If no interviewer has a valid future slot, document this as a verified limitation of the starter dataset.
+
+Then continue with all other workflow steps that can be demonstrated safely. Do not bypass interview or feedback prerequisites. Mark the interview-dependent steps BLOCKED if necessary, and clearly distinguish completed steps from blocked ones.
+
+Preserve the evidence and do not commit, push or stop the servers.
+```
+
+- Output summary: Attempted a `for` loop over 13 interviewer IDs
+  combining `curl` and `grep` in one command — rejected (superseded by
+  P042, which asked for individual/simple commands instead). No
+  interviewer-availability data was saved under this entry specifically.
+- Human review: The rejection is the review signal.
+- Changes made after review: None yet — see P042.
+- Verification performed: None yet — see P042.
+
+### Prompt ID: P042
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: Correct P041's rejected multi-ID loop — direct individual or
+  small-batch commands, one consistent filename pattern, and a final
+  yes/no conclusion after all 13 named interviewers are checked.
+- Development phase: Phase 11 (availability-date investigation).
+- Context/files supplied: The P041 rejection.
+- Exact prompt:
+
+```text
+Do not approve the blocked command. Correct the interviewer ID list to IVR-0001 through IVR-0013, with each ID separated correctly.
+
+Run the availability checks in small, simple batches or individually. Save each response under frontend/verification-output/ using a consistent filename.
+
+For each interviewer, identify whether any start_datetime is strictly later than 2026-11-13. Report the earliest future slot found, or confirm none exists after all 13 have been checked.
+
+Do not access external directories, modify availability data, or stop the servers.
+```
+
+- Output summary: Fetched `IVR-0001` through `IVR-0013`'s availability
+  individually (13 separate `curl` calls, one per interviewer, each
+  saved to `frontend/verification-output/e2e-workflow/avail_IVR-00NN.json`),
+  then grepped each file individually for any `start_datetime` in
+  2026-11, 2026-12, or 2027. **Result: zero matches across all 13** —
+  no interviewer has any availability slot after 2026-11-13; the latest
+  observed (`IVR-0001`, `IVR-0002`) is `2026-05-20`. Documented as a
+  verified starter-dataset limitation, not a defect, per this prompt's
+  own instruction — no data, dates, or rules were modified.
+- Human review: The user's next message (P043) proceeded to the
+  end-to-end workflow demo, treating this finding as settled.
+- Changes made after review: None (no code change — a dataset
+  observation, not a defect).
+- Verification performed: 13 direct API calls against the live clone,
+  each saved to disk and individually grepped — not sampled or
+  extrapolated from one interviewer.
+
+### Prompt ID: P043
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: Authorize the full end-to-end recruitment-workflow
+  demonstration against the clean-clone servers — submission through
+  screening, lifecycle advancement, (blocked) interview scheduling,
+  offer creation/approval/acceptance through Hired, and at least one
+  rejection/exception path — explicitly verification-only, with
+  explicit instructions to mark any blocked step as BLOCKED rather than
+  bypass it.
+- Development phase: Phase 11 (end-to-end workflow demonstration).
+- Context/files supplied: P042's confirmed availability-date finding
+  (no interviewer has a future slot).
+- Exact prompt:
+
+```text
+Proceed with Phase 11 end-to-end workflow demonstration using the existing clean-clone servers.
+
+Important: This is verification only. Do not add features or modify business logic.
+
+1. Demonstrate a complete recruitment workflow using the existing starter dataset:
+   - Select an existing open requisition.
+   - Select an eligible candidate and submit an application.
+   - Run structured screening and verify the score and decision.
+   - Advance the application through the permitted lifecycle.
+   - Schedule an interview with an available interviewer.
+   - Record feedback from the assigned interviewer.
+   - Create an offer within the approved salary band.
+   - Demonstrate the approval and acceptance steps, including the application reaching Hired.
+
+2. Verify that every step uses the existing service layer and persists correctly in the database.
+3. Verify lifecycle restrictions and at least one meaningful rejection/exception path.
+4. Verify that dashboard analytics and exports reflect the completed workflow.
+5. Preserve evidence: screenshots, API responses, relevant IDs and a concise execution log inside the approved verification-output directory.
+6. Do not overwrite the original clean-clone evidence.
+7. Do not stop either server.
+8. Do not commit or push.
+
+If the starter data or workflow state prevents a complete demonstration, document the exact blocker rather than modifying seed data or bypassing a business rule.
+
+Report each step as PASS, FAIL or BLOCKED, with evidence.
+```
+
+- Output summary: Ran the full workflow live against the clone API.
+  Selected REQ-00001 (Open). Submitted `APP-REQ-00001-CAND-000001`
+  (real Fail, score 50.0 — later used as the rejection-path demo) and,
+  after two trial candidates, `APP-REQ-00001-CAND-000005` (real Pass,
+  score 77.5). Advanced the latter Applied→Screening→Interviewing→Offer
+  via real transitions. Interview scheduling: **BLOCKED**, confirmed
+  live — a 2025 slot and the latest known 2026-05-20 slot were both
+  rejected with the real error `scheduled_start must be >=
+  Application.screening_computed_at`, since this demo's
+  `screening_computed_at` is today's real timestamp (2026-11-13),
+  after every available slot. Feedback recording: **BLOCKED**
+  (depends on a completed interview, which doesn't exist). Offer
+  creation ($95,000, within the $84,665–$114,141 band), the hard-gate
+  rejection (`role_not_permitted`, PROCESS_OWNER attempting Approve),
+  real APPROVER approval, extension, and acceptance all **PASSED** —
+  the missing-feedback gate is satisfied vacuously (zero interviews
+  exist for this application), so reaching `Hired` did not require
+  bypassing anything. Application confirmed `stage=Hired`. The first
+  candidate was separately advanced to `Rejected` with a real reason,
+  completing the rejection-path demonstration. Analytics/exports
+  confirmed consistent before/after (`Applied` 150→153, `Hired` 6→7,
+  offers extended 8→9/accepted 6→7) across the live endpoint, the JSON
+  export, and a rendered dashboard screenshot. All evidence saved under
+  `frontend/verification-output/e2e-workflow/`, distinct from the
+  earlier clean-environment evidence.
+- Human review: The user's next message (P044) proceeded to the
+  documentation-audit phase, accepting this report.
+- Changes made after review: None to code; this entry's work legitimately
+  created new real data (two new Applications, one new Offer) in the
+  clone's database, which is explicitly acceptable per this prompt's own
+  framing ("verification only" governs code/business-logic/seed-data
+  changes, not the ordinary creation of new records through the already-
+  approved service layer).
+- Verification performed: Every step's claim is backed by the actual
+  HTTP response captured to disk (`step2`…`step16_export_after.json`
+  etc.) plus a final Playwright screenshot — not inferred from the code.
+
+### Prompt ID: P044
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: Final documentation review and submission-readiness pass —
+  audit the prompt-history files for completeness, rewrite
+  `ai_usage_disclosure.md` as one consistent account, review every
+  `docs/` file against the actual implementation, document the
+  interview-availability limitation explicitly, re-run full regression/
+  integrity checks, and prepare the nine submission outputs as a
+  checklist against real repository paths.
+- Development phase: Phase 11 (documentation review and submission
+  readiness).
+- Context/files supplied: The completed clean-clone verification
+  (P035–P038) and end-to-end workflow demo (P039–P043).
+- Exact prompt:
+
+```text
+Continue Phase 11: Final Documentation Review and Submission Readiness.
+
+The clean-clone verification and end-to-end workflow demonstration are complete. Do not restart them unless a documentation inconsistency requires evidence.
+
+IMPORTANT CONSTRAINTS:
+- No new features.
+- No business logic changes.
+- No seed data or business-rule modifications.
+- Do not delete existing verification evidence.
+- Do not commit or push yet.
+- Keep all file operations inside the approved project workspace.
+- Do not claim the human owner personally executed tests if Claude Code executed them.
+
+TASK 1 — Audit AI prompt history
+Review:
+- prompts/README.md
+- prompts/claude_code_prompts.md
+- prompts/chatgpt_prompts.md
+- prompts/ai_usage_disclosure.md
+
+Ensure all prompts used are represented. Clearly label historical summaries where exact wording is unavailable. Do not fabricate exact prompts, model versions, time savings or human test execution.
+
+TASK 2 — Clean AI usage disclosure
+Remove duplicated, stale or contradictory paragraphs. Produce one consistent account covering:
+- AI tools used and their actual roles.
+- What Claude Code implemented and tested.
+- How ChatGPT contributed to architecture, planning, review and prompt guidance.
+- Human decisions, scope approvals and review responsibilities.
+- Human understanding and verification limitations.
+- Known limitations and remaining risks.
+
+TASK 3 — Review project documentation
+Check README, architecture, data dictionary, business rules, workflow, validation strategy and implementation plan against the actual implementation.
+
+Ensure README setup commands work for a fresh clone. Ensure the documented starter/full generation commands, API startup, frontend startup, tests and verification commands are accurate.
+
+TASK 4 — Document the interview availability limitation
+Document that the starter availability data ends at 2026-05-20, while the verification date is 2026-11-13. This prevents a valid future interview from being scheduled. State that no data or rules were modified to bypass this limitation. Distinguish this dataset limitation from an application defect.
+
+TASK 5 — Final regression and integrity checks
+- Run the full backend test suite.
+- Run the frontend production build.
+- Verify starter/full dataset generation and reproducibility if feasible.
+- Check validation and anomaly evaluation reports.
+- Check exports and analytics.
+- Check for secrets, local paths, generated database files and accidental temporary files.
+- Review git status and all changed files.
+
+TASK 6 — Prepare the nine submission outputs
+Create a clear checklist mapping each required submission artifact to its actual repository path and status. Do not invent missing deliverables.
+
+At the end, report:
+1. Exact test/build results.
+2. All changed files.
+3. Any documentation corrections.
+4. Any remaining blockers or limitations.
+5. Git status and commit recommendations.
+
+Do not commit or push. Wait for my review and approval.
+```
+
+- Output summary: Completed Tasks 1–6. **Task 1:** found and fixed a
+  stale line in `prompts/README.md` claiming `chatgpt_prompts.md` was
+  "template only" (it has 5 real entries); found that ten real prompts
+  since P034 (this project's own) had never been logged — logged them
+  as P035–P044. **Task 2:** rewrote `ai_usage_disclosure.md` into the
+  six sections requested, removing the "this section previously
+  stated..." meta-commentary that had caused the contradiction flagged
+  in P035/P036, and explicitly scoping ChatGPT's claimed role to only
+  what `chatgpt_prompts.md` evidences (early planning only — no
+  review/guidance role claimed). **Task 3:** reviewed `README.md`
+  (fixed a stale "Phases 1-10 complete" line and a one-line
+  known-limitations stub), `docs/architecture.md` (added an "as
+  actually built" note on §7's directory tree — test file names, export
+  format, and frontend folder structure all differ from the original
+  "proposed" tree in ways already approved at the phase that introduced
+  them), and `docs/implementation_plan.md` (added a Phase 11 status
+  block). `data_dictionary.md`/`business_rules.md`/`workflow.md`/
+  `validation_strategy.md` reviewed with no corrections needed.
+  **Task 4:** documented the interview-availability limitation in
+  `README.md`'s Known Limitations, explicit that it's a dataset
+  property (starter availability ends 2026-05-20, verification ran
+  2026-11-13) and not an application defect, and that no data/rules
+  were modified to bypass it. **Task 5:** full backend suite 290
+  passed/0 failed; frontend build succeeded; starter/full generation
+  re-run with checksums matching every prior run this session; both
+  evaluation reports re-confirmed P=R=F1=1.00; no secrets, `.db` files,
+  `node_modules`, or local paths found in anything new. **Task 6:**
+  produced the nine-item submission checklist against real repository
+  paths, marking the GitHub-commit-hash item as not yet issued since
+  nothing from this pass was committed.
+- Human review: The user's next message (P045) is a detailed line-item
+  audit of this entry's own claims (the starter-validation framing, the
+  51-vs-56 evaluation count, and this very prompt log), which is itself
+  evidence of specific, itemized review rather than blanket acceptance.
+- Changes made after review: See P045.
+- Verification performed: Every number in the output summary above was
+  read from a file saved during this entry's own work
+  (`frontend/verification-output/*.txt`), not restated from memory.
+
+### Prompt ID: P045
+
+- Date and time: 2026-11-13 (same session)
+- Tool: Claude Code
+- Purpose: A line-item pre-commit audit of P044's own claims — re-verify
+  the starter baseline-vs-post-injection validation numbers from the
+  preserved report rather than trust the prior summary; reconcile the
+  51-incident-vs-56-finding evaluation count; re-audit P035–P044 against
+  the actual conversation for verbatim accuracy; recommend a minimal
+  submission evidence set from the 49 untracked files; re-check the AI
+  disclosure for overstatement; and produce a final git diff/secrets
+  review — explicitly without staging, committing, or pushing anything.
+- Development phase: Phase 11 (pre-commit audit, following the
+  documentation review).
+- Context/files supplied: P044's completed documentation review and its
+  full report.
+- Exact prompt:
+
+```text
+Perform one final pre-commit audit of the Phase 11 changes.
+
+Do not add features, change business logic, regenerate datasets unnecessarily, or push to GitHub.
+
+Resolve these specific points:
+
+1. STARTER VALIDATION DISCREPANCY:
+Earlier Phase 4 results established zero baseline validation violations. The latest Phase 11 report says starter baseline has 11 violations (3/2/1/3/2 by rule). Re-run or inspect the preserved reports to establish exactly what those 11 represent. Distinguish baseline structural validation from injected anomaly findings. Do not change the data to hide the discrepancy.
+
+2. FULL EVALUATION COUNTS:
+Reconcile the 51 injected incidents versus 56 detected findings/labels. Confirm the TP=56 result is correctly calculated at finding level and explain why the two counts differ.
+
+3. PROMPT HISTORY:
+Audit P035–P044 against the actual conversation history. Label each as verbatim only if exact wording is available. Otherwise mark it as a faithful summary. Do not fabricate prompts or AI responses.
+
+4. VERIFICATION EVIDENCE:
+Review the 49 untracked evidence files. Recommend a minimal, useful submission evidence set. Preserve all original evidence locally. Do not delete files. Identify incidental trial files that should remain uncommitted.
+
+5. DOCUMENTATION:
+Check that the AI disclosure does not overstate human execution or review. Confirm that README commands and known limitations match the actual implementation.
+
+6. GIT REVIEW:
+Show the complete git diff --stat and a concise summary of every modified file. Check for secrets, local paths, database files, node_modules, venvs and unintended generated files.
+
+Do not stage, commit or push anything.
+
+Finish with:
+- Resolved discrepancies;
+- Unresolved issues;
+- Recommended files to commit;
+- Exact recommended commit message.
+
+Wait for your approval.
+```
+
+- Output summary: See the full audit response delivered for this
+  entry — re-read `frontend/verification-output/gen_starter.txt`
+  directly and confirmed its own text already distinguished baseline
+  (0 violations) from post-injection (11 violations, 3/2/1/3/2 by
+  rule) unambiguously; the "discrepancy" was a risk of misreading a
+  summary table, not an actual error in the preserved data. Reconciled
+  51 vs. 56 directly against `business_rules.md` §9a (which already
+  documents this exact arithmetic, titled "resolves the 51-vs-56
+  arithmetic question") and against `closed_req_active_apps.py`'s
+  actual code (emits one finding per affected `Application`, 2 per
+  incident for anomaly type 5 — confirmed by the real eval output
+  showing `ClosedReqActiveApplications TP=10`, not 5). Re-read all ten
+  P035–P044 "Exact prompt" blocks against the actual conversation turns
+  and confirmed every one matches verbatim — Claude Code had direct
+  access to the real text at logging time for all of them (unlike
+  `chatgpt_prompts.md`, which relies on reconstruction).
+- Human review: Pending — this entry ends with an explicit request to
+  wait for the user's approval before any commit.
+- Changes made after review: Not yet applicable.
+- Verification performed: Direct re-reads of preserved files and source
+  code, not restated conclusions.

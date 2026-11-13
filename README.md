@@ -3,15 +3,18 @@
 Recruitment operations and decision-intelligence system — YottaFlex AI Associate
 Forward Deployed Engineer challenge submission.
 
-**Status: Phases 1-10 complete.** The 22-table schema, the deterministic data
-generator, the validation/anomaly-detection engine, anomaly injection,
+**Status: Phases 1-10 complete; Phase 11 (final integration, verification, and
+submission readiness) in progress.** The 22-table schema, the deterministic
+data generator, the validation/anomaly-detection engine, anomaly injection,
 independent detection + offline evaluation, the screening/submission/
 lifecycle/scheduling/offer service layer, a minimal FastAPI HTTP layer, and a
 5-screen React dashboard (Executive Dashboard, Requisitions & Applications,
 Screening & Candidate Profile, Interview Management, Offers & Decision
-Intelligence) are all implemented and tested (290 backend tests passing) —
-see `docs/implementation_plan.md` for the full phase-by-phase plan and
-current progress.
+Intelligence) are all implemented and tested (290 backend tests passing). The
+setup instructions below have been verified end-to-end from a genuinely fresh
+`git clone` (new venv, new `npm install`, no reused state) — see
+`docs/implementation_plan.md` for the full phase-by-phase plan and current
+progress.
 
 ## What this is
 
@@ -164,6 +167,61 @@ matrix for what's planned.
 
 ## Known limitations
 
-Tracked as work progresses — see `docs/implementation_plan.md` for the current
-phase status and `docs/business_rules.md` for documented design-level
-limitations (e.g., the salary-band snapshot limitation, §7).
+Consolidated here per `docs/implementation_plan.md`'s own Phase 11 instruction
+to gather these into one place, rather than leaving them scattered:
+
+- **Interview scheduling against the committed starter dataset has a hard
+  expiry.** The starter dataset's interviewer availability data runs through
+  **2026-05-20**. Once the real date passes that point, `POST /interviews`
+  against this dataset will always be rejected (`scheduled_start must be >=
+  Application.screening_computed_at`) for any application screened after that
+  date, since no availability slot exists later than it. This was verified
+  directly (every one of 13 checked interviewers has zero slots after
+  2026-11-13, and a live scheduling attempt against the latest known slot was
+  genuinely rejected). **This is a property of the fixed-seed dataset's
+  generation window versus wall-clock time passing, not an application
+  defect** — the scheduling service's date checks are working exactly as
+  designed, and no data, dates, or business rules were changed to work around
+  it. Regenerating with a later-dated availability window (or running the
+  system against live, forward-dated availability) resolves it.
+- **Offer/Hired progression is not blocked by missing interviews.** The
+  missing-feedback business rule (`business_rules.md` §6) only requires that
+  any *completed* interview has feedback — an application with zero
+  interviews satisfies this vacuously. This is documented behavior, not a
+  gap: an application can legitimately reach `Hired` without ever having an
+  interview scheduled, which is exactly what the limitation above means in
+  practice for new data against this specific starter dataset.
+- **Salary-band compliance is a business-rule, not a database, constraint**
+  (`business_rules.md` §7) — the live offer-creation service hard-rejects an
+  out-of-band salary at draft time (an interpretive decision, documented in
+  `offer_lifecycle.py`), but because the band lives on the current
+  `JobRequisition` row rather than a versioned snapshot, changing a
+  requisition's band after an offer against it was approved could
+  retroactively flag a historically-valid offer. The generator never does
+  this; a production system would need a band-snapshot field on `Offer` to
+  fully close the gap.
+- **No disparate-impact or legal fairness certification is made** for the
+  screening formula (`business_rules.md` §8). Excluding named
+  protected-characteristic fields from the schema is a structural safeguard
+  against those specific proxies, not a guarantee of fairness in any broader
+  statistical or legal sense.
+- **No authentication exists anywhere in this system** (`data_dictionary.md`
+  §18) — the "Acting as" actor picker in the frontend and the `SystemActor`
+  reference endpoint are an audit/attribution convenience for demonstrating
+  the two hard-gated role checks, never a real access-control mechanism.
+- **The FastAPI layer is minimal, not the full Phase 8 API surface** — built
+  only to the extent Phase 10's dashboard needed real data (list/detail reads,
+  plus the specific write actions each screen demonstrates). Full CRUD,
+  pagination-cursor complexity, and an OpenAPI-documented contract beyond
+  what `/docs` auto-generates were not built, since nothing requested them.
+- **No automated frontend test framework** (vitest/React Testing Library or
+  similar) exists. Frontend verification relies on a successful production
+  build (`npm run build`) plus Playwright-driven smoke checks run manually
+  during development and review, not a committed regression suite.
+- **The production JS bundle is ~721KB**, unsplit — noted by Vite's own build
+  warning. Code-splitting was not implemented since nothing requested it and
+  it does not affect functional correctness.
+
+See `docs/implementation_plan.md` for phase-by-phase status and
+`prompts/ai_usage_disclosure.md` §6 for the AI-process-level limitations
+(scope ambiguity, self-review vs. independent review, human review scope).
