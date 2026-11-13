@@ -1,0 +1,57 @@
+.stack {
+  position: fixed;
+  top: var(--space-5);
+  right: var(--space-5);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 360px;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  animation: slide-in var(--transition-base);
+}
+.success {
+  background: var(--color-navy-900);
+  color: var(--color-emerald-500);
+}
+.success .message {
+  color: var(--text-inverse);
+}
+.error {
+  background: var(--color-navy-900);
+  color: var(--color-red-500);
+}
+.error .message {
+  color: var(--text-inverse);
+}
+.message {
+  flex: 1;
+}
+.close {
+  background: none;
+  border: none;
+  color: var(--text-inverse-muted);
+  cursor: pointer;
+  display: inline-flex;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,96 @@
+.skeleton {
+  background: linear-gradient(90deg, var(--color-slate-100) 25%, var(--color-slate-200) 37%, var(--color-slate-100) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: var(--radius-sm);
+}
+.skeletonStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+@keyframes shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-10) var(--space-6);
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+.emptyIcon {
+  display: inline-flex;
+  padding: var(--space-3);
+  border-radius: 999px;
+  background: var(--color-slate-100);
+  color: var(--color-slate-400);
+  margin-bottom: var(--space-2);
+}
+.emptyTitle {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: var(--fs-base);
+}
+.emptyDesc {
+  font-size: var(--fs-sm);
+  max-width: 420px;
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-red-50);
+  border: 1px solid #fecaca;
+}
+.errorIcon {
+  color: var(--color-red-600);
+  flex-shrink: 0;
+}
+.errorBody {
+  flex: 1;
+}
+.errorTitle {
+  font-weight: 700;
+  color: var(--color-red-600);
+  font-size: var(--fs-sm);
+}
+.errorMessage {
+  font-size: var(--fs-sm);
+  color: var(--color-slate-700);
+  margin-top: 2px;
+}
+.errorCode {
+  color: var(--text-muted);
+}
+
+.banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.banner.success {
+  background: var(--color-emerald-50);
+  color: var(--color-emerald-700);
+  border: 1px solid var(--color-emerald-100);
+}
+.banner.error {
+  background: var(--color-red-50);
+  color: var(--color-red-600);
+  border: 1px solid #fecaca;
+}

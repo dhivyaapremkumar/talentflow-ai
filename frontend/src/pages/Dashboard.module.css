@@ -1,0 +1,104 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.pageTitle {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.pageSubtitle {
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-size: var(--fs-sm);
+}
+.exportButtons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-4);
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.monoId {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  background: var(--color-slate-100);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.noData {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  text-align: center;
+  padding: var(--space-8) 0;
+}
+
+.velocityList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.velocityRow {
+  display: grid;
+  grid-template-columns: 90px 1fr 44px;
+  align-items: center;
+  gap: var(--space-3);
+}
+.velocityStage {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.velocityBarTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-slate-100);
+  overflow: hidden;
+}
+.velocityBarFill {
+  height: 100%;
+  background: var(--color-emerald-500);
+  border-radius: 999px;
+}
+.velocityValue {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  text-align: right;
+  font-weight: 600;
+}
+
+@media (max-width: 1200px) {
+  .kpiGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

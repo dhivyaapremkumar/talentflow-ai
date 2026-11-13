@@ -1,0 +1,107 @@
+.wrapper {
+  overflow-x: auto;
+}
+
+.table {
+  font-size: var(--fs-sm);
+}
+
+.table th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--color-slate-50);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.sortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: inherit;
+  cursor: pointer;
+}
+.sortIconIdle {
+  opacity: 0.4;
+}
+
+.emptyCell {
+  padding: var(--space-10);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.pageInfo {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+.pageControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.pageBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.pageBtn:hover:not(:disabled) {
+  background: var(--color-slate-50);
+}
+.pageLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  min-width: 90px;
+  text-align: center;
+}

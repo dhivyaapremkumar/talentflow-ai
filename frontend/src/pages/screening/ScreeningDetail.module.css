@@ -1,0 +1,148 @@
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  width: fit-content;
+}
+.backLink:hover {
+  color: var(--text-primary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+.mainCol,
+.sideCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.actionsRow {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.decisionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.bigScore {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.scoreRow {
+  display: grid;
+  grid-template-columns: 120px 1fr 44px;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+.scoreLabel {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.scoreTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-slate-100);
+  overflow: hidden;
+}
+.scoreFill {
+  height: 100%;
+  background: var(--color-emerald-500);
+  border-radius: 999px;
+}
+.scoreValue {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.explanation {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-slate-50);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.noScore {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  padding: var(--space-2) 0;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.profileFact {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-sm);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+.profileFact span {
+  color: var(--text-secondary);
+}
+
+.skillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.skillChip {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  background: var(--color-slate-100);
+  color: var(--text-primary);
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+.skillLevel {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
