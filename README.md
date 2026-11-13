@@ -3,10 +3,13 @@
 Recruitment operations and decision-intelligence system — YottaFlex AI Associate
 Forward Deployed Engineer challenge submission.
 
-**Status: Phase 1 (project setup) complete.** Database models, the data
-generator, validation engine, and API are not implemented yet — see
-`docs/implementation_plan.md` for the full phase-by-phase plan and current
-progress.
+**Status: Phases 1-8 complete.** The 22-table schema, the deterministic data
+generator, the validation/anomaly-detection engine, anomaly injection,
+independent detection + offline evaluation, and the screening/submission/
+lifecycle/scheduling/offer service layer are all implemented and tested
+(240 backend tests passing). The FastAPI HTTP layer (routers/schemas) and the
+React dashboard UI are not implemented yet — see `docs/implementation_plan.md`
+for the full phase-by-phase plan and current progress.
 
 ## What this is
 
@@ -61,15 +64,41 @@ npm run dev
 
 ## Dataset generation and validation
 
-**Not implemented yet** (Phase 3/4 of `docs/implementation_plan.md`). This
-section will be filled in with the actual commands once the generator and
-validation engine exist — it will not claim commands that haven't been
-verified to work.
+From `backend/`, with the venv set up as above:
+
+```bash
+# Generate, inject anomalies, and run baseline + post-injection validation
+# in one pass (starter: 150 applications; full: 3,000):
+.venv/Scripts/python.exe -m app.data_generation.generator --mode starter
+.venv/Scripts/python.exe -m app.data_generation.generator --mode full
+```
+
+Each run writes a SQLite database to `backend/data/talentflow_<mode>.db`,
+CSV/JSON exports to `backend/data/exports/<mode>/` (the `starter/` exports are
+committed; `full/` is regeneratable and gitignored), and prints baseline
+validation (expected: 0 violations, 0 warnings) and post-injection validation
+(expected: 11 violations at starter scale / 56 at full scale, broken out by
+rule ID — the seeded anomaly counts from `business_rules.md` §9).
+
+```bash
+# Independent anomaly detection + offline ground-truth evaluation
+# (reads the database the generator just wrote):
+.venv/Scripts/python.exe -m app.validation.evaluate --mode starter
+.venv/Scripts/python.exe -m app.validation.evaluate --mode full
+```
+
+Writes a JSON report to `backend/data/evaluation_reports/<mode>.json` and
+prints a per-anomaly-type TP/FP/FN/precision/recall/F1 table (expected:
+precision = recall = F1 = 1.00 for every type, both modes — exact match
+against the isolated `AnomalyLabel` ground truth, never used as a detection
+input; see `docs/validation_strategy.md` §22).
 
 ## Tests
 
 Backend: `pytest tests/` from `backend/`, with the venv activated as above.
-Current coverage: one Phase 1 smoke test (`tests/test_health.py`). More tests
+Current coverage: 240 tests across models, the data generator, the
+validation engine, anomaly injection, detection/evaluation, and the
+screening/submission/lifecycle/scheduling/offer service layer. More tests
 land with each subsequent phase — see `docs/implementation_plan.md`'s test
 matrix for what's planned.
 

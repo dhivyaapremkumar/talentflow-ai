@@ -4042,3 +4042,121 @@ Do not push to GitHub. Do not begin Phase 9.
   no-commit core function was verified empirically via
   `test_offer_full_happy_path_through_accepted_sets_hired` (passed on
   first run) rather than merely assumed correct.
+
+### Prompt ID: P028
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Pre-push readiness verification for Phases 1-8 — a 10-point
+  checklist (full test suite, generation, baseline/post-injection
+  validation, Phase 6 evaluation, frontend build, git state, commit
+  presence, staged-file hygiene, README accuracy, remote/branch
+  confirmation) before the first push of this repository to GitHub main.
+  Explicitly not an authorization to push.
+- Development phase: **Pre-push verification** (not a numbered phase;
+  Phase 8 — lifecycle/scheduling/authorization services — reported
+  complete immediately prior: 240 tests passing, two commits
+  `4c3140f`/`abb04a7`, not pushed).
+- Context/files supplied: The repository state as of Phase 8's
+  completion.
+- Exact prompt:
+
+```text
+Prepare the TalentFlow AI repository for its first push of the completed Phases 1–8 to GitHub main.
+
+Do not push yet.
+
+1. Run the complete test suite from the backend using the project's Python 3.12 virtual environment.
+2. Run starter and full generation.
+3. Confirm baseline validation passes.
+4. Confirm post-injection validation and Phase 6 evaluation reports are generated correctly.
+5. Confirm frontend production build succeeds.
+6. Check `git status` and `git log --oneline`.
+7. Confirm all intended Phase 1–8 commits are present locally.
+8. Check that no `.env`, API keys, credentials, databases, virtual environments, node_modules, caches or unintended generated files are staged.
+9. Check that README setup instructions are accurate.
+10. Confirm the configured Git remote and branch are the intended public repository and `main`.
+
+Report all results, the exact remote URL, current branch, commit range and any blockers.
+
+Do not push, force-push, reset, rebase or amend commits.
+```
+
+- Output summary: Ran all 10 checklist items against the real repository
+  state (no push performed):
+  (1) `pytest tests/` from `backend/` with `.venv/Scripts/python.exe`
+  (Python 3.12.10): 240 passed, 0 failed, 9 pre-existing deprecation
+  warnings.
+  (2) `python -m app.data_generation.generator --mode starter` and
+  `--mode full`: both completed; starter produced 11 `AnomalyLabel` rows,
+  full produced 56, matching `business_rules.md` §9's documented totals
+  exactly.
+  (3) Baseline validation (printed by the same run, pre-injection): 0
+  violations, 0 warnings across 17 rules, both modes.
+  (4) Post-injection validation: starter 11 violations
+  (VAL-06=3/VAL-08=2/VAL-10=1/VAL-11=3/VAL-12=2), full 56
+  (VAL-06=15/VAL-08=10/VAL-10=6/VAL-11=15/VAL-12=10) — exact match against
+  the documented per-rule breakdown, every other rule 0. Phase 6 evaluation
+  (`python -m app.validation.evaluate --mode starter`/`--mode full`): both
+  modes report precision = recall = F1 = 1.00 for every one of the five
+  anomaly types and overall (TP=11/56, FP=0, FN=0) — JSON reports written
+  to `backend/data/evaluation_reports/{starter,full}.json`.
+  **Reproducibility evidence, not just an assumption:** regenerating
+  starter mode and re-running both evaluations changed nothing in `git
+  status` except this log entry — the freshly regenerated starter exports
+  and both evaluation JSON reports are byte-identical to what was already
+  committed, a concrete demonstration of the project's determinism claim,
+  not a restated assumption.
+  (5) `npm run build` (Node v24.18.0, npm 11.16.0) in `frontend/`: `tsc -b
+  && vite build` succeeded, 20 modules transformed, output written to
+  `frontend/dist/` (gitignored, confirmed absent from `git status`
+  afterward).
+  (6)/(7) `git status`/`git log --oneline`: 25 commits present locally
+  from `ee6b2a8` (Phase 1) through `abb04a7` (Phase 8 docs), covering
+  every phase 1-8 commit pair reported complete in this session; working
+  tree clean except this log entry and a README fix (below).
+  (8) Scanned all 149 tracked files for `.env`/secrets/credentials/`.db`/
+  `.sqlite`/venv/`node_modules`/`__pycache__`/`.egg-info` patterns: only
+  match was `backend/.env.example` (a template containing no real
+  secrets, consistent with the project having no authentication and no
+  paid external services) — confirmed clean. `backend/data/talentflow_
+  {starter,full}.db`, `backend/data/exports/full/`, `backend/.venv/`,
+  `frontend/node_modules/`, `frontend/dist/`, and all `__pycache__`/
+  `.pytest_cache`/`.egg-info` paths are `git check-ignore`-confirmed
+  ignored, not tracked. No unexpectedly large or binary tracked files
+  (largest is a 608KB starter CSV export); `.git` is 2.3MB.
+  (9) **Found and fixed a real staleness issue**, not a clean pass:
+  `README.md` still said "Phase 1 (project setup) complete... not
+  implemented yet" for the generator/validation engine/API, and its
+  "Dataset generation and validation" section said "Not implemented yet"
+  — both false as of Phase 8. Updated the status line, filled in the
+  actual verified generation/validation/evaluation commands (the same
+  ones run in checks 2-4 above, so the README could not drift from what
+  was actually tested), and corrected the Tests section's stale "one
+  Phase 1 smoke test" claim to the real 240-test count. Verified every
+  other README claim (backend install extras match `pyproject.toml`,
+  `/health` route actually exists on the FastAPI app via import
+  introspection, `prompts/` directory contents match what's listed) before
+  leaving them unchanged.
+  (10) `git remote -v`: `origin` = `https://github.com/dhivyaapremkumar/
+  talentflow-ai.git` (fetch and push). `git branch -vv`: `main`, tracking
+  `origin/main`, ahead by 24 (25 once this entry's own commit lands).
+  `git merge-base main origin/main` equals `origin/main`'s current tip
+  (`ee6b2a8`) exactly — the push, when authorized, would be a clean
+  fast-forward, not a diverged history requiring force. This matches the
+  remote/branch the user has been working against all session (every
+  prior phase's commits were made on this same `main`); final confirmation
+  that this is the intended public repository is the user's call, reported
+  to them rather than assumed.
+- Human review: Pending — awaiting the user's review of this report
+  before any push (none authorized or performed; no push, force-push,
+  reset, rebase, or amend was executed, per the prompt's explicit
+  restriction).
+- Changes made after review: Not yet applicable (review pending).
+- Verification performed: All 10 checks above were executed against real
+  command output, not inferred from documentation or prior session
+  memory — generation/validation/evaluation were re-run fresh rather than
+  trusting the pre-existing `backend/data/` artifacts, specifically so the
+  reproducibility claim could be checked empirically (see check 4's
+  byte-identical-diff evidence) rather than asserted.
