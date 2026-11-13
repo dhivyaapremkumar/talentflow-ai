@@ -1,0 +1,16 @@
+{
+  "base_url": "http://localhost:5180",
+  "pages_captured": [
+    "dashboard",
+    "requisitions-list",
+    "screening-list",
+    "interviews",
+    "offers",
+    "requisition-detail",
+    "screening-detail"
+  ],
+  "dashboard_contains_150_applications": true,
+  "dashboard_contains_executive_dashboard_title": true,
+  "console_errors": [],
+  "failed_requests": []
+}

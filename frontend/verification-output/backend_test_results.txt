@@ -1,0 +1,24 @@
+........................................................................ [ 24%]
+........................................................................ [ 49%]
+........................................................................ [ 74%]
+........................................................................ [ 99%]
+..                                                                       [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\starlette\testclient.py:37
+  C:\GenAI\TalentFlowAI\backend\.venv\Lib\site-packages\starlette\testclient.py:37: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+tests/test_validation.py::test_val04_date_ordering_detects_corrupted_applied_at
+tests/test_validation.py::test_val06_scheduling_conflicts_detects_overlap
+tests/test_validation.py::test_val06_scheduling_conflicts_detects_overlap
+tests/test_validation.py::test_val06_scheduling_conflicts_detects_overlap
+tests/test_validation.py::test_val06_scheduling_conflicts_detects_overlap
+tests/test_validation.py::test_val11_duplicate_submissions_detects_wrong_duplicate_pointer
+tests/test_validation.py::test_val11_detected_duplicate_has_detected_category
+tests/test_validation.py::test_val11_select_detected_duplicates_filters_by_structured_field
+  C:\GenAI\TalentFlowAI\backend\.venv\Lib\site-packages\sqlalchemy\engine\default.py:964: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor.execute(statement, parameters)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+290 passed, 9 warnings in 78.36s (0:01:18)
+EXIT_CODE:0

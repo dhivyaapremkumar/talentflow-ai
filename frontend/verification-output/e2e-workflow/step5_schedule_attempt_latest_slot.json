@@ -1,0 +1,1 @@
+{"error":{"code":"business_rule_violation","message":"scheduled_start must be >= Application.screening_computed_at (data_dictionary.md §12)","field":null}}

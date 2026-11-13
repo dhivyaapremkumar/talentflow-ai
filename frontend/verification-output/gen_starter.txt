@@ -1,0 +1,31 @@
+Mode: starter  Seed: 20261022  Generator version: 0.1.0
+Generation time: 0.12s  DB load time: 0.83s  Injection time: 0.05s
+Anomalies injected: 11 AnomalyLabel rows
+Database: data\talentflow_starter.db
+Export dir: data\exports\starter
+Entity counts:
+  department: 10
+  skill: 40
+  system_actor: 20
+  interviewer: 25
+  interviewer_availability_slot: 8950
+  job_requisition: 10
+  job_requisition_skill: 37
+  screening_rule: 10
+  candidate: 100
+  resume_artifact: 100
+  candidate_skill: 1205
+  application: 150
+  application_submission_attempt: 153
+  screening_run: 150
+  interview: 30
+  feedback: 25
+  offer: 8
+  requisition_status_history: 44
+  application_stage_history: 450
+  offer_status_history: 39
+  anomaly_label: 11
+Overall checksum: e026ca7b6053b9642b0ca9ec63ad15162d0ea7ba8d7239bc588d351783d4af85
+Baseline validation: 0 violations, 0 warnings across 17 rules
+Post-injection validation: 11 violations, 0 warnings (counts_by_rule: {'VAL-01': 0, 'VAL-02': 0, 'VAL-03': 0, 'VAL-04': 0, 'VAL-05': 0, 'VAL-06': 3, 'VAL-07a': 0, 'VAL-07b': 0, 'VAL-08': 2, 'VAL-09': 0, 'VAL-10': 1, 'VAL-11': 3, 'VAL-12': 2, 'VAL-13': 0, 'VAL-14': 0, 'VAL-15': 0, 'VAL-16': 0})
+GenerationRun: GEN-0001

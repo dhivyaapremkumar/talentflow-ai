@@ -1,0 +1,11 @@
+Evaluation report (full)
+Type                             TP   FP   FN   Prec    Rec     F1
+UnavailableInterviewer           15    0    0   1.00   1.00   1.00
+DuplicateApplication             15    0    0   1.00   1.00   1.00
+MissingFeedbackStageAdvanced     10    0    0   1.00   1.00   1.00
+SalaryOutsideBand                 6    0    0   1.00   1.00   1.00
+ClosedReqActiveApplications      10    0    0   1.00   1.00   1.00
+OVERALL (micro-avg)              56    0    0   1.00   1.00   1.00
+TN: not computed for any type or overall — Not computed. The approved evaluation design (validation_strategy.md Sec22) defines TP/FP/FN/precision/recall/F1 only - it does not define a valid negative population for any anomaly type. The natural candidate population for each type (e.g. every Interview/Offer/Application row) is dominated by rows that were never at risk of that specific anomaly, so treating them as confirmed negatives would invent an unapproved denominator and produce a misleading, inflated accuracy-like figure rather than a reliable metric.
+
+JSON report written to data\evaluation_reports\full.json

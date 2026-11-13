@@ -1,0 +1,1 @@
+{"error":{"code":"role_not_permitted","message":"PendingApproval->Approved requires actor role APPROVER, got 'PROCESS_OWNER' (hard-enforced, business_rules.md §11)","field":null}}
