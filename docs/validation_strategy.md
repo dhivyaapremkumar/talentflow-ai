@@ -543,6 +543,54 @@ finalized output and `AnomalyLabel`, but nothing step 5 produces is ever read ba
 into step 4, in the same run or any future one. There is no cycle for ground truth
 or evaluation results to leak through.
 
+**Implemented and actually measured, Phase 6 (this pass — superseding the
+"EXPECTED, not yet tested" framing below for all five categories, not just the
+duplicate-application one):** `validation/detect.py` (the detection entry point —
+groups the already-existing, ground-truth-blind VAL-06/08/10/11/12 checks by
+anomaly type rather than by rule ID) and `validation/evaluate.py` (the offline
+comparison, step 5) are both real code now. Running `evaluate()` against the
+actual generated-and-injected databases, at both scales, produces:
+
+| Category | Full: TP/FP/FN | Starter: TP/FP/FN | Precision / Recall / F1 (both scales) |
+|---|---|---|---|
+| 1. Interviewer unavailable | 15/0/0 | 3/0/0 | 1.00 / 1.00 / 1.00 |
+| 2. Duplicate application | 15/0/0 | 3/0/0 | 1.00 / 1.00 / 1.00 |
+| 3. Missing feedback | 10/0/0 | 2/0/0 | 1.00 / 1.00 / 1.00 |
+| 4. Salary out of band | 6/0/0 | 1/0/0 | 1.00 / 1.00 / 1.00 |
+| 5. Closed req, active apps | 10/0/0 | 2/0/0 | 1.00 / 1.00 / 1.00 |
+| **Overall (micro-average)** | 56/0/0 | 11/0/0 | 1.00 / 1.00 / 1.00 |
+
+Zero drift between what each injector wrote and what the corresponding detector
+independently re-derives, at both scales — the design projection below held
+exactly, for every category, once real code existed to measure it.
+
+**TN is not computed, for any category or overall — a deliberate choice, not an
+omission.** This section defines TP/FP/FN/Precision/Recall/F1 only; it has never
+defined a "negative" population for any category. `validation/evaluate.py`
+reports `tn: null` with an explanatory note rather than inventing a denominator —
+the natural candidate universe for each type (every `Interview`/`Offer`/
+`Application` row) is dominated by rows that were never at risk of that specific
+anomaly in the first place, so counting them as confirmed negatives would produce
+a misleadingly inflated, imbalanced accuracy-like figure the design was never
+built to support.
+
+**Empty-denominator convention (Phase 6, documented explicitly):** `Precision`
+is `None` (undefined) when `TP+FP=0` — the detector made no positive predictions
+for that category, not "it achieved a false-alarm rate of zero." `Recall` is
+`None` when `TP+FN=0` — no ground-truth positives exist for that category.
+`F1` is `None` whenever either factor is itself `None`; the one exception is
+`Precision=0` and `Recall=0` *both already defined* (not undefined) — `F1` is
+then explicitly `0.0`, never a `0/0` crash and never silently coerced to `None`.
+This project's generated datasets never exercise these paths (every category has
+both detections and ground truth at both scales), so they are covered only by
+direct unit tests over the metric function, not by the generated databases.
+
+**Aggregation method:** "overall" is a **micro-average** — `TP`/`FP`/`FN` summed
+across all five categories first, then `Precision`/`Recall`/`F1` computed once
+over those sums — never a macro-average (mean of five per-category scores), which
+would let a tiny category (1 incident, starter) carry equal weight to a much
+larger one (15 incidents, full) in the aggregate.
+
 **Worked example 1 — EXPECTED result (design-derived, not yet tested), duplicate-
 application category (type 2):** 3,015 total `ApplicationSubmissionAttempt` rows;
 exactly 15 carry a seeded `ground_truth_label_id`. The documented algorithm (§11)

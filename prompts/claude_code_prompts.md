@@ -3339,3 +3339,352 @@ Do not implement Phase 6 yet. Do not push to GitHub.
   pre-existing + 4 new), run after the leakage-regression fix, not before.
   Both datasets regenerated and their checksums compared byte-for-byte
   against the pre-change values. No test result or execution is invented.
+
+---
+
+### Prompt ID: P024
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Authorize Phase 6 (independent anomaly detection + offline
+  ground-truth evaluation). **Submission cut off mid-sentence** — section
+  7 ("Completion report") ends at item "4." with no content, and the
+  closing "Do not push / do not begin next phase" boundaries present in
+  every other phase-authorization prompt in this project are absent. Per
+  this project's standing rule (established at P014/P015 in the
+  architecture phase), an incomplete prompt is logged as submitted,
+  exactly as received, and is **not executed** — the model asked for the
+  complete version instead of guessing at the missing items, to avoid
+  fabricating or inferring requirements that were never actually written.
+- Development phase: **Phase 6 — Independent anomaly detection and
+  ground-truth evaluation** (not started by this submission)
+- Context/files supplied: None beyond the prompt text itself.
+- Exact prompt (as received, incomplete):
+
+```text
+# Phase 6 — Independent Anomaly Detection and Evaluation
+
+Implement Phase 6 of TalentFlow AI, following the approved project documentation and the completed Phases 1–5.
+
+Before coding, inspect:
+- `docs/PROJECT_SPEC.md`
+- `docs/business_rules.md`
+- `docs/validation_strategy.md`
+- `docs/data_dictionary.md`
+- `docs/workflow.md`
+- `docs/implementation_plan.md`
+- Phase 4 validation engine
+- Phase 5 anomaly injector
+- Existing Finding/report structures and `select_detected_duplicates()`
+- All relevant tests
+
+Do not redesign approved business rules.
+
+## 1. Independent detection
+
+Implement or complete independent operational-data detection for all five anomaly types:
+
+1. Unavailable interviewer
+2. Duplicate application
+3. Missing feedback despite application stage advancement
+4. Offer salary outside the approved band
+5. Closed requisition with active applications
+
+Use operational records only. Detection must not read:
+- AnomalyLabel
+- ground_truth_label_id
+- injected anomaly metadata
+- any ground-truth-derived shortcut
+
+For duplicate submissions, reuse the existing VAL-11 detection output and `select_detected_duplicates()`. Do not duplicate its detection logic.
+
+Keep detection separate from evaluation. Detection should produce findings before the evaluator accesses ground truth.
+
+## 2. Offline evaluation
+
+Implement a separate read-only evaluation layer, following validation_strategy.md §17 and §22 and business_rules.md §13.
+
+Compare detection findings with ground-truth labels using the approved entity matching keys and anomaly-type mappings.
+
+Calculate:
+- True positives (TP)
+- False positives (FP)
+- False negatives (FN)
+- True negatives (TN), only where the approved evaluation design defines a valid negative population
+- Precision
+- Recall
+- F1 score
+
+Report results per anomaly type and overall, for starter and full datasets.
+
+Do not invent a TN denominator or claim accuracy when the evaluation design does not define a valid negative population. Explain any metrics that cannot be calculated reliably.
+
+## 3. Evaluation correctness
+
+- Use structured rule categories / finding types, never message-text matching.
+- Avoid counting consistency/invariant findings as detected duplicate incidents.
+- Match each anomaly to the correct entity and ground-truth type.
+- Ensure one detection cannot count as multiple true positives.
+- Preserve false positives and false negatives in the report.
+- Handle empty denominators explicitly and document the chosen convention.
+- Keep evaluation read-only; never modify operational data or ground truth.
+- Preserve the separation between detection and evaluation.
+
+## 4. Ground-truth isolation
+
+Extend the leakage checks and tests so that:
+- All operational detector modules are checked for ground-truth access.
+- The evaluation module is explicitly permitted to read ground truth.
+- Detection results are generated before evaluation is invoked.
+- Tests prove that changing or removing ground-truth labels does not change operational detection findings.
+- Evaluation changes when ground truth changes while operational findings remain unchanged.
+
+## 5. Testing
+
+Add tests for:
+- All five anomaly detectors.
+- Exact expected TP, FP and FN counts on controlled fixtures.
+- Precision, recall and F1 calculations.
+- Overall aggregation methodology.
+- Empty-denominator behavior.
+- Duplicate detection category filtering.
+- No ground-truth leakage.
+- Ground-truth independence of operational detection.
+- Read-only evaluation.
+- Starter and full end-to-end evaluation.
+- Reproducibility of evaluation reports.
+
+Run the full existing test suite. Do not fabricate test results.
+
+## 6. Deliverables
+
+Produce:
+- Independent detector implementation.
+- Offline evaluation module.
+- Machine-readable JSON evaluation reports for starter and full.
+- Human-readable summary of per-type and overall metrics.
+- Tests and documentation updates.
+- Clear explanation of matching keys, metric denominators, and limitations.
+
+## 7. Completion report
+
+Report:
+1. Files created and modified.
+2. Detection findings by anomaly type.
+3. TP, FP, FN and supported TN counts.
+4.
+```
+
+- Output summary: Not executed — the model identified the truncation
+  (section 7 ending at a bare "4." with no following text, and no
+  closing "do not push / do not begin next phase" boundary) and asked the
+  user to resend the complete prompt rather than guess at the missing
+  items, per this project's anti-fabrication rule.
+- Human review: N/A — not executed.
+- Changes made after review: N/A.
+- Verification performed: N/A — no code was written against this
+  incomplete version.
+
+---
+
+### Prompt ID: P025
+
+- Date and time: 2026-11-13 (same project session, immediately following
+  P024's incomplete submission)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: The complete resend of P024 — authorize Phase 6 (independent
+  anomaly detection for all five types + a separate, read-only offline
+  evaluation layer computing TP/FP/FN/precision/recall/F1 against ground
+  truth), with explicit correctness/isolation requirements and a full
+  completion-report checklist.
+- Development phase: **Phase 6 — Independent anomaly detection and
+  ground-truth evaluation** (Phase 5 — anomaly injection — reported
+  complete; the P023 VAL-11 `rule_category` refactor, a Phase 5/6
+  boundary preparatory change, also reported complete immediately prior)
+- Context/files supplied: The repository state as of the P023 commit,
+  plus explicit instruction to (re-)read `docs/PROJECT_SPEC.md`,
+  `docs/business_rules.md`, `docs/validation_strategy.md`,
+  `docs/data_dictionary.md`, `docs/workflow.md`,
+  `docs/implementation_plan.md`, the Phase 4 validation engine, the
+  Phase 5 anomaly injector, the existing `Finding`/report structures and
+  `select_detected_duplicates()`, and all relevant tests.
+- Exact prompt:
+
+```text
+# Phase 6 — Independent Anomaly Detection and Evaluation
+
+Implement Phase 6 of TalentFlow AI, following the approved project documentation and the completed Phases 1–5.
+
+Before coding, inspect:
+- `docs/PROJECT_SPEC.md`
+- `docs/business_rules.md`
+- `docs/validation_strategy.md`
+- `docs/data_dictionary.md`
+- `docs/workflow.md`
+- `docs/implementation_plan.md`
+- Phase 4 validation engine
+- Phase 5 anomaly injector
+- Existing Finding/report structures and `select_detected_duplicates()`
+- All relevant tests
+
+Do not redesign approved business rules.
+
+## 1. Independent detection
+
+Implement or complete independent operational-data detection for all five anomaly types:
+
+1. Unavailable interviewer
+2. Duplicate application
+3. Missing feedback despite application stage advancement
+4. Offer salary outside the approved band
+5. Closed requisition with active applications
+
+Use operational records only. Detection must not read:
+- AnomalyLabel
+- ground_truth_label_id
+- injected anomaly metadata
+- any ground-truth-derived shortcut
+
+For duplicate submissions, reuse the existing VAL-11 detection output and `select_detected_duplicates()`. Do not duplicate its detection logic.
+
+Keep detection separate from evaluation. Detection should produce findings before the evaluator accesses ground truth.
+
+## 2. Offline evaluation
+
+Implement a separate read-only evaluation layer, following validation_strategy.md §17 and §22 and business_rules.md §13.
+
+Compare detection findings with ground-truth labels using the approved entity matching keys and anomaly-type mappings.
+
+Calculate:
+- True positives (TP)
+- False positives (FP)
+- False negatives (FN)
+- True negatives (TN), only where the approved evaluation design defines a valid negative population
+- Precision
+- Recall
+- F1 score
+
+Report results per anomaly type and overall, for starter and full datasets.
+
+Do not invent a TN denominator or claim accuracy when the evaluation design does not define a valid negative population. Explain any metrics that cannot be calculated reliably.
+
+## 3. Evaluation correctness
+
+- Use structured rule categories / finding types, never message-text matching.
+- Avoid counting consistency/invariant findings as detected duplicate incidents.
+- Match each anomaly to the correct entity and ground-truth type.
+- Ensure one detection cannot count as multiple true positives.
+- Preserve false positives and false negatives in the report.
+- Handle empty denominators explicitly and document the chosen convention.
+- Keep evaluation read-only; never modify operational data or ground truth.
+- Preserve the separation between detection and evaluation.
+
+## 4. Ground-truth isolation
+
+Extend the leakage checks and tests so that:
+- All operational detector modules are checked for ground-truth access.
+- The evaluation module is explicitly permitted to read ground truth.
+- Detection results are generated before evaluation is invoked.
+- Tests prove that changing or removing ground-truth labels does not change operational detection findings.
+- Evaluation changes when ground truth changes while operational findings remain unchanged.
+
+## 5. Testing
+
+Add tests for:
+- All five anomaly detectors.
+- Exact expected TP, FP and FN counts on controlled fixtures.
+- Precision, recall and F1 calculations.
+- Overall aggregation methodology.
+- Empty-denominator behavior.
+- Duplicate detection category filtering.
+- No ground-truth leakage.
+- Ground-truth independence of operational detection.
+- Read-only evaluation.
+- Starter and full end-to-end evaluation.
+- Reproducibility of evaluation reports.
+
+Run the full existing test suite. Do not fabricate test results.
+
+## 6. Deliverables
+
+Produce:
+- Independent detector implementation.
+- Offline evaluation module.
+- Machine-readable JSON evaluation reports for starter and full.
+- Human-readable summary of per-type and overall metrics.
+- Tests and documentation updates.
+- Clear explanation of matching keys, metric denominators, and limitations.
+
+## 7. Completion report
+
+Report:
+1. Files created and modified.
+2. Detection findings by anomaly type.
+3. TP, FP, FN and supported TN counts.
+4. Precision, recall and F1 per type and overall.
+5. Starter and full results.
+6. Ground-truth leakage test results.
+7. Exact commands executed and actual test results.
+8. Reproducibility checksums or equivalent evidence.
+9. Known limitations and deviations.
+10. Git diff summary and proposed Conventional Commit messages.
+
+Do not push to GitHub. Do not begin Phase 7.
+```
+
+- Output summary: Built `backend/app/validation/detect.py` (the
+  independent detection entry point — no new detection logic, just groups
+  the five already-existing, ground-truth-blind Phase 4 rule checks by
+  anomaly type; for duplicate applications calls
+  `duplicate_submissions.select_detected_duplicates(duplicate_submissions
+  .check(session))` exactly as instructed, never redefining the
+  algorithm) and `backend/app/validation/evaluate.py` (the new offline
+  evaluation layer — runs detection to completion first, then and only
+  then reads `AnomalyLabel`, computes TP/FP/FN/precision/recall/F1 per
+  category plus a micro-averaged overall, reports `tn: null` with an
+  explanatory note for every category since the approved design never
+  defines a negative population, and documents an explicit empty-
+  denominator convention: precision/recall are `None` when their own
+  denominator is 0, F1 is `None` if either factor is `None`, and exactly
+  `0.0` — never a crash — when both are defined and zero). Extended
+  `ground_truth_leakage.py` with a new `SCAN_FILES` list (file-level, not
+  just directory-level) so `detect.py` is covered by the leakage scan
+  despite living outside `validation/rules/`, while `evaluate.py` stays
+  explicitly unscanned (it is permitted to read ground truth). Added a
+  CLI to `evaluate.py` (`python -m app.validation.evaluate --mode
+  starter|full`) writing a JSON report to `data/evaluation_reports/` and
+  printing a human-readable summary table. Ran it for both modes: **every
+  one of the five categories, both scales, scored TP=15/15/10/6/10 (full)
+  / 3/3/2/1/2 (starter), FP=0, FN=0, Precision=Recall=F1=1.00** — the
+  validation_strategy.md §22 "EXPECTED" projection, now actually measured
+  for the first time in this project, with zero drift between what Phase
+  5's injectors wrote and what Phase 4's detectors independently
+  re-derive. Verified reproducibility directly: ran the full
+  generate→inject→evaluate pipeline twice independently (two separate
+  databases, same seed) and confirmed the two evaluation reports are
+  byte-identical, not just reproducible within one open session. Added
+  `tests/test_phase6_detection_evaluation.py` (26 tests covering every
+  scenario this phase's prompt listed, including a real FK-ordering fix
+  needed mid-session: a test that deletes all ground truth had to null
+  `ApplicationSubmissionAttempt.ground_truth_label_id` *before* deleting
+  the `AnomalyLabel` rows it references, not after, to satisfy the actual
+  FK constraint — the test initially failed with a real
+  `sqlite3.IntegrityError` until this was fixed). Updated
+  `validation_strategy.md` §22 with the actually-measured results table,
+  the TN non-computation rationale, the empty-denominator convention, and
+  the micro-averaging method; updated `implementation_plan.md`'s Phase 6
+  row to STATUS: COMPLETE with one flagged deviation (`detect.py` was not
+  in the original file list — added because this phase's own prompt
+  named "independent detector implementation" as a separate deliverable
+  from evaluation).
+- Human review: Pending at the time this entry was logged.
+- Changes made after review: Not yet applicable.
+- Verification performed: Every number in this entry corresponds to a
+  command actually run in this session and its actual output (the
+  evaluation CLI's own printed summary tables, direct report-equality
+  checks across independent pipeline runs, pytest output). No test
+  result, execution, or review status is invented. The FK-ordering bug
+  is a real defect this session hit and fixed, not a manufactured
+  example — traceable to the exact `sqlite3.IntegrityError` message and
+  the before/after test-code diff that resolved it.
