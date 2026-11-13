@@ -235,6 +235,30 @@ deferred as already noted in Phase 6's Definition of done above.**
 | **Tests required** | `test_api.py` (one test class per router — happy path + the hard-enforcement rejection case + at least one validation-error case per endpoint). |
 | **Definition of done** | Manual exercise of each endpoint via `/docs`, cross-checked against a known seeded dataset row; `test_api.py` green. |
 
+**STATUS: SERVICES PORTION COMPLETE** (2026-11-13); **API/schema portion not
+started.** A prompt against this phase (P027 in
+`prompts/claude_code_prompts.md`) explicitly scoped its work to the four
+service modules only (`services/requisition_lifecycle.py`,
+`application_lifecycle.py`, `scheduling.py`, `offer_lifecycle.py`) and said
+nothing about `schemas/*.py` or `api/v1/*.py` — consistent with Phase 7's
+own prompt, which likewise covered only its services, not an API layer.
+That work is implemented exactly as scoped: both hard APPROVER gates
+(`requisition_lifecycle.approve()`, `offer_lifecycle.approve()`), the
+`Open`-readiness precondition (§2), the missing-feedback gate for
+`Offer`/`Hired` (§6), interview scheduling/availability conflict
+prevention (§6/`data_dictionary.md` §11), and the `requisition.status ==
+'Open'`-at-approval precondition for offers (§7) — all reusing
+`validation/rules/lifecycle_transitions.py`'s legal-edge sets verbatim,
+never redefining the transition graphs. `tests/test_lifecycle.py` (31
+tests, controlled fixtures) covers valid/invalid transitions for all
+three lifecycles, the missing-feedback gate, scheduling conflicts and
+availability, salary-band enforcement, both hard-gate-bypass-by-direct-
+call cases, and transaction-rollback-leaves-no-partial-state for all four
+services. Full suite: 240 passed, 0 failed (209 pre-existing + 31 new).
+`schemas/*.py` and `api/v1/*.py` (the FastAPI backend half of this row)
+remain fully outstanding — no HTTP layer exists yet; a future prompt
+against the remainder of this phase is expected before Phase 9 starts.
+
 ## Phase 9 — Analytics and exports
 
 | Attribute | Detail |

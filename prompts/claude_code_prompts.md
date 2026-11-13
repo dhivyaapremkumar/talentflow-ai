@@ -3855,3 +3855,190 @@ Do not push to GitHub. Do not start Phase 8.
   (`Decimal('93.33') == 93.33` is `False` under binary-float imprecision)
   and was fixed in the test, not the service, after confirming the
   service's stored value was correct.
+
+### Prompt ID: P027
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Authorize Phase 8 (lifecycle, scheduling, and authorization
+  services) — requisition lifecycle, application lifecycle, interview
+  scheduling, and offer lifecycle services, including the hard APPROVER-role
+  authorization gate, as plain service-layer functions.
+- Development phase: **Phase 8 — Recruitment workflow services (lifecycle +
+  scheduling + authorization)** (Phase 7 — screening and submission
+  reconciliation services — reported complete immediately prior: 209 tests
+  passing, two commits `1296b3c`/`006a65d`, not pushed).
+- Context/files supplied: The repository state as of Phase 7's completion,
+  plus explicit instruction to inspect `docs/implementation_plan.md`,
+  business rules, workflow documentation, the data dictionary, existing
+  models, Phase 7 services, and existing tests before coding.
+- Exact prompt:
+
+```text
+# Phase 8 — Lifecycle, Scheduling and Authorization Services
+
+Proceed with Phase 8 of TalentFlow AI.
+
+Before coding, inspect `docs/implementation_plan.md` and the approved business rules, workflow documentation, data dictionary, existing models, Phase 7 services and existing tests.
+
+Follow the Phase 8 scope exactly. Do not start later phases or redesign existing business rules.
+
+## 1. Implement the planned services
+
+Implement the service modules assigned to Phase 8:
+
+- `app/services/requisition_lifecycle.py`
+- `app/services/application_lifecycle.py`
+- `app/services/scheduling.py`
+- `app/services/offer_lifecycle.py`
+
+Follow the exact approved lifecycle states, transition rules, scheduling constraints and authorization conventions.
+
+## 2. Requisition lifecycle
+
+- Enforce permitted requisition state transitions.
+- Reject invalid transitions.
+- Enforce role restrictions in the service layer.
+- Record RequisitionStatusHistory for valid transitions.
+- Preserve history and transactional integrity.
+
+## 3. Application lifecycle
+
+- Enforce permitted application-stage transitions.
+- Record ApplicationStageHistory.
+- Prevent invalid stage advancement.
+- Enforce the approved missing-feedback and interview-related workflow requirements.
+- Preserve withdrawn application behavior and Phase 7 submission reconciliation.
+- Do not modify or delete historical records to make transitions pass.
+
+## 4. Interview scheduling
+
+- Implement interview scheduling using the approved interviewer availability rules.
+- Prevent scheduling conflicts and unavailable-interviewer assignments.
+- Enforce the approved interview lifecycle and constraints.
+- Record the appropriate interview and workflow data.
+- Use transactions for multi-record operations.
+
+## 5. Offer lifecycle and hard authorization gate
+
+- Enforce approved offer states and transitions.
+- Enforce salary-band rules.
+- Require the exact APPROVER role for hard-gated approval transitions, as specified in the business rules.
+- Reject unauthorized attempts even when callers bypass the API or UI.
+- Record OfferStatusHistory for valid transitions.
+- Do not claim complete authentication or security; implement only the approved role checks.
+
+## 6. Transaction and data integrity
+
+- Use atomic transactions for each workflow operation.
+- Ensure rejected operations leave no partial state or history rows.
+- Preserve existing foreign-key and check constraints.
+- Do not bypass database constraints.
+- Do not weaken or alter Phase 4 validation rules to accommodate service behavior.
+
+## 7. Testing
+
+Add focused tests covering:
+
+- Valid and invalid requisition transitions.
+- Valid and invalid application-stage transitions.
+- Missing-feedback workflow enforcement.
+- Interviewer availability and scheduling conflicts.
+- Valid and invalid offer transitions.
+- Salary-band enforcement.
+- APPROVER authorization.
+- Unauthorized role attempts.
+- Hard-gate bypass attempts through direct service calls.
+- Transaction rollback and absence of partial history.
+- Regression tests for Phase 7 screening and application submission.
+- Regression tests for Phase 4 validation and Phase 6 detection/evaluation.
+
+Use controlled fixtures for each test. Do not rely only on the large generated datasets.
+
+## 8. Completion report
+
+Report:
+1. Files created and modified.
+2. Each implemented transition and authorization rule.
+3. Tests added and actual results.
+4. Evidence that hard-gated transitions cannot be bypassed through direct service calls.
+5. Transaction rollback results.
+6. Regression test results.
+7. Any deferred work or deviations.
+8. Git diff summary and proposed Conventional Commit messages.
+
+Run the complete test suite. Report actual command output and counts.
+
+Do not push to GitHub. Do not begin Phase 9.
+```
+
+- Output summary: Implemented the four service modules this prompt and
+  `docs/implementation_plan.md`'s Phase 8 row both name:
+  `backend/app/services/requisition_lifecycle.py` (`transition_
+  requisition`, `approve`), `backend/app/services/application_lifecycle.py`
+  (`transition_application_stage`, `withdraw`, `reject`, plus the internal
+  no-commit `_transition_application_stage_core` used by offer_lifecycle's
+  Accepted->Hired composition), `backend/app/services/scheduling.py`
+  (`schedule_interview`, `transition_interview_status`, `submit_feedback`),
+  `backend/app/services/offer_lifecycle.py` (`create_offer`,
+  `transition_offer`, `approve`). All three legal-edge sets
+  (`REQUISITION_LEGAL_EDGES`/`APPLICATION_LEGAL_EDGES`/`OFFER_LEGAL_EDGES`)
+  and the role-expectation table are imported verbatim from
+  `validation/rules/lifecycle_transitions.py`, never redefined. Both hard
+  APPROVER gates reject a wrong-role actor before any row is written,
+  called directly with no API/UI layer in between (`requisition_lifecycle.
+  approve()`/`offer_lifecycle.approve()`, matching
+  `validation_strategy.md` §14's named test design exactly). Added
+  `backend/tests/test_lifecycle.py` (31 new tests, controlled fixtures):
+  valid/invalid transitions for all three lifecycles; the `Open`-readiness
+  precondition (§2); `rejected_reason`/`withdrawn_at` requirements; the
+  missing-feedback gate blocking `Offer`/`Hired` advancement; interview
+  scheduling (containment, overlap, post-cancellation reuse, contiguous
+  round numbers, wrong-stage rejection); salary-band enforcement at offer
+  creation; both hard-gate role checks (success and direct-call-bypass
+  rejection); the `requisition.status == 'Open'`-at-approval precondition;
+  the full Drafted->...->Accepted path proving `Application.stage`
+  becomes `Hired` in the same transaction; and rollback-leaves-no-partial-
+  state for all four services. Full suite: **240 passed, 0 failed** (209
+  pre-existing + 31 new; same 9 pre-existing deprecation warnings) —
+  confirming Phases 1-7 behavior is unchanged.
+  **Deviation, flagged per this prompt's own "do not silently expand
+  scope" framing applied the other direction:** this prompt's own section
+  1 names only the four service files, and nowhere mentions
+  `schemas/*.py` or `api/v1/*.py` — the FastAPI-backend half of
+  `implementation_plan.md`'s Phase 8 row. That half is not implemented;
+  `docs/implementation_plan.md`'s Phase 8 row is marked "SERVICES PORTION
+  COMPLETE / API portion not started" rather than fully complete, so the
+  gap is visible rather than silently absorbed into a premature "Phase 8
+  complete" claim.
+  **Interpretive decision on salary-band enforcement, flagged (not a
+  silent assumption):** `business_rules.md` §7 says band compliance is
+  "checked by the validation engine, not a DB constraint," written to
+  explain why it isn't a structural CHECK (the dataset must be able to
+  represent the seeded `SalaryOutsideBand` anomalies, which the data
+  generator writes directly, bypassing this service entirely). Read
+  literally that sentence could mean "never blocked anywhere," but this
+  prompt's own section 5 explicitly lists "Enforce salary-band rules" as
+  a Phase 8 requirement distinct from role authorization, and section 6
+  the testing list separately names "Salary-band enforcement" — so
+  `offer_lifecycle.create_offer()` hard-rejects an out-of-band
+  `proposed_salary` at draft time. This does not conflict with the
+  dataset's ability to contain the seeded anomalies (those bypass this
+  service) and does not weaken `validation/rules/salary_band.py`, which
+  continues to audit the full dataset defensively.
+- Human review: Pending — awaiting the user's review of this completion
+  report and the diff before any push (none authorized or performed).
+- Changes made after review: Not yet applicable (review pending).
+- Verification performed: Ran `pytest tests/test_lifecycle.py -v` (31
+  passed) and the full suite `pytest tests/ -q` (240 passed, 9 warnings,
+  0 failures), plus a targeted run of the ground-truth-leakage scanner
+  tests (`-k "leakage or val15"`, 6 passed) to confirm the new service
+  files did not self-trip VAL-15 the way earlier phases' files
+  incidentally did. No new bugs were found during this phase's
+  implementation that required a design change — the double-commit/
+  rollback composition pattern used for `offer_lifecycle.transition_
+  offer()`'s `Accepted->Hired` call into `application_lifecycle`'s
+  no-commit core function was verified empirically via
+  `test_offer_full_happy_path_through_accepted_sets_hired` (passed on
+  first run) rather than merely assumed correct.
