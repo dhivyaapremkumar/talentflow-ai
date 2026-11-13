@@ -4614,3 +4614,152 @@ Complete Phase 10 as a polished, demonstrable product. Do not push to GitHub unt
   the word "Open") was caught by eye on the first screenshot pass and
   fixed with a dedicated `YesNoBadge` component, then re-verified on a
   second screenshot pass.
+
+### Prompt ID: P032
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Pre-push quality-gate review of the three Phase 10 commits
+  (`38c18fb`/`d28d9fc`/`df35d2a`) — git/backend/frontend/security review
+  plus a final push recommendation. Explicitly review-only ("do not
+  modify code initially... do not rewrite or amend commits... do not
+  introduce new features").
+- Development phase: **Pre-push review** (not a numbered phase; Phase 10
+  reported complete immediately prior, not yet pushed).
+- Context/files supplied: The repository state as of the three Phase 10
+  commits.
+- Exact prompt:
+
+```text
+# Phase 10 Final Review — Pre-Push Quality Gate
+
+Review the three Phase 10 commits before pushing.
+
+Commits:
+- 38c18fb — FastAPI API layer
+- d28d9fc — Frontend application
+- df35d2a — Documentation and prompt history
+
+Do not modify code initially. Perform a thorough review.
+
+## 1. Git review
+- Verify all three commits and their parent relationships.
+- Run git status and confirm a clean working tree.
+- Inspect git show --stat and git diff for each commit.
+- Run git diff --check.
+- Confirm no unintended files or generated artifacts are included.
+
+## 2. Backend review
+- Run all 280+ backend tests.
+- Verify all API routes and their response schemas.
+- Confirm write endpoints call existing service functions.
+- Confirm APPROVER hard gates cannot be bypassed through direct service calls.
+- Verify invalid requests return appropriate HTTP status codes.
+- Check pagination and filtering behavior.
+- Check that ordinary operational endpoints do not expose ground-truth labels.
+- Check CORS and environment configuration.
+- Verify API documentation is accessible.
+
+## 3. Frontend review
+- Run npm run build.
+- Run the Playwright smoke test again against the actual backend.
+- Verify all five screens and detail pages.
+- Verify no failed API requests or console errors.
+- Test desktop and tablet layouts.
+- Confirm loading, empty, error and success states.
+- Verify JSON export downloads.
+- Check that the actor picker is clearly a demonstration convention, not a real authentication system.
+- Confirm screenshots correspond to the final application.
+
+## 4. Security and repository review
+- Scan for API keys, passwords, tokens and .env files.
+- Confirm no real candidate PII is present.
+- Confirm generated databases and temporary files are excluded.
+- Check screenshot and prompt-log contents.
+- Verify README instructions from a clean environment.
+
+## 5. Final report
+Provide:
+- Commit-by-commit review.
+- All commands executed and actual results.
+- Any defects found.
+- Critical blockers versus non-blocking improvements.
+- Confirmation of working tree status.
+- Final push recommendation.
+
+Do not push to GitHub. Do not rewrite or amend commits. Do not introduce new features.
+```
+
+- Output summary: Completed a review-only pass (no code modified) across
+  all five requested areas. **Git:** confirmed a clean linear 3-commit
+  chain (`ad6864c`→`38c18fb`→`d28d9fc`→`df35d2a`, each single-parent),
+  zero `git diff --check` whitespace errors, and no unintended files
+  (node_modules/dist/__pycache__/.db/.env patterns all absent from the
+  diff). **Backend:** 280/280 tests passed; all 29 routes enumerated
+  from the live OpenAPI schema match what was implemented; confirmed by
+  `grep` that no router performs a raw `session.add`/`.commit()` (every
+  write goes through a `services/` function); hard-gate rejection is
+  proven by `test_api.py`'s two dedicated tests (direct `TestClient`
+  calls, same ASGI code path as a live request); 404/422 behavior,
+  pagination, and filtering all verified live against the running
+  server; `/api/v1/analytics/anomaly-summary`'s response body and the
+  full OpenAPI schema both contain zero references to `AnomalyLabel`/
+  ground truth; CORS preflight returns `access-control-allow-origin: *`
+  (correct given no authentication exists to protect); `/docs`/`/redoc`/
+  `/openapi.json` all return 200. **Frontend:** `npm run build` succeeds
+  with 0 TypeScript errors (matches the committed build); a fresh
+  Playwright pass across all 5 screens + 2 detail pages at both
+  viewports found zero console errors and zero failed network requests;
+  explicitly exercised and screenshotted the empty state (Draft-status
+  filter → "No requisitions match these filters"), the error state
+  (`/requisitions/REQ-DOES-NOT-EXIST` → the real backend 404 message
+  with a Retry button), and the success state (Run Screening → toast +
+  a genuinely new `ScreeningRun` row appearing in the history table);
+  confirmed the funnel-report JSON export actually downloads
+  (`funnel_report.json`); confirmed the "No authentication — demo
+  attribution only" disclaimer is present in the sidebar on every page.
+  **Security/repo:** zero matches for API-key/secret/password/token
+  patterns across the entire tracked repository; only tracked `.env`
+  file is the secret-free `.env.example`; spot-checked candidate PII
+  fields (Faker-generated name, `@example.com` email — RFC 2606 reserved
+  domain, no phone/SSN/DOB/address field exists in the schema at all);
+  confirmed the throwaway verification screenshots/scripts this review
+  produced were never staged and were deleted before finishing, leaving
+  only the 12 screenshots already committed in `d28d9fc`.
+  **Two real defects found, not fixed (review-only per this prompt's own
+  instruction):** (1) FastAPI's built-in request-body validation errors
+  (HTTP 422, e.g. a missing required field) return the framework's
+  default `{"detail": [...]}` shape, not the documented
+  `{"error": {"code","message","field"}}` contract — no exception
+  handler was registered for `RequestValidationError`. The frontend's
+  `ApiError` parser degrades gracefully (falls back to a generic
+  message) rather than crashing, but the specific validation message is
+  lost to the user. Non-blocking. (2) **A real blocker, reproduced
+  live:** the README's documented backend "Verify" step
+  (`uvicorn app.main:app --reload`, no `DATABASE_PATH` override) combined
+  with its separate Frontend section, followed in order by a new
+  developer, leaves the API pointed at `data/talentflow.db` — a path no
+  generator run ever produces (only the `_starter`/`_full`-suffixed
+  names exist). SQLite silently auto-creates an empty file there, and
+  every data-touching endpoint then 500s with a raw, undocumented
+  traceback-derived message (`no such table: job_requisition`) instead
+  of the documented error contract — reproduced directly, not inferred,
+  and the stray empty `data/talentflow.db` this created was deleted
+  immediately after (confirmed gitignored either way, so it was never a
+  repo-state risk, only a live-server one). The README never instructs
+  setting `DATABASE_PATH=data/talentflow_starter.db` before running
+  `uvicorn`, so the dashboard — Phase 10's primary deliverable — would
+  not work for anyone following the documented setup literally.
+- Human review: Pending — awaiting the user's decision on the two
+  defects above (in particular the README/`DATABASE_PATH` blocker)
+  before any push.
+- Changes made after review: None — no code was modified in this pass,
+  per the prompt's explicit instruction.
+- Verification performed: Every check above was run against live command
+  output (pytest, curl, a running uvicorn/Vite pair, Playwright), not
+  inferred from the Phase 10 completion report's own claims — the
+  DATABASE_PATH defect in particular was only found by actually
+  restarting the server without the environment override and observing
+  the real 500 response and traceback, not by reading the config code
+  and assuming it would be fine.
