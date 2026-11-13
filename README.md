@@ -110,6 +110,10 @@ npm run dev
 
 Open the printed `localhost` URL (typically `http://localhost:5173`) — the
 dashboard renders real data read live from the backend API started in step 3.
+If port 5173 is already in use (e.g. another `npm run dev` instance is still
+running), Vite auto-increments to the next free port (5174, 5175, ...) and
+prints the actual URL it bound to — always use that printed URL rather than
+assuming 5173.
 
 ### Optional: full-scale dataset
 
