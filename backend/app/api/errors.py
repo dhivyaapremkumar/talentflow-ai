@@ -8,8 +8,10 @@ re-decides anything.
 """
 
 from fastapi import Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from app.db.session import DatabaseNotConfiguredError
 from app.services.application_lifecycle import ApplicationLifecycleError
 from app.services.application_submission import ApplicationSubmissionError
 from app.services.offer_lifecycle import OfferLifecycleError
@@ -55,7 +57,50 @@ def not_found_handler(request: Request, exc: NotFoundError) -> JSONResponse:
     )
 
 
+_LOC_PREFIXES = ("body", "query", "path", "header")
+
+
+def _field_for_loc(loc: tuple) -> str | None:
+    parts = [str(p) for p in loc if str(p) not in _LOC_PREFIXES]
+    return ".".join(parts) if parts else None
+
+
+def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """Maps FastAPI/Pydantic's built-in request-validation failures
+    (missing/invalid fields, malformed JSON) onto the same documented
+    `{"error": {"code","message","field"}}` shape every other 4xx/5xx
+    uses — previously these fell through to FastAPI's own default
+    `{"detail": [...]}` body instead (a real inconsistency, found and
+    fixed as a follow-up to the Phase 10 review). Only the parsed
+    `msg`/`loc` from Pydantic's error list is surfaced — never a raw
+    stack trace."""
+    errors = exc.errors()
+    first = errors[0] if errors else {}
+    message = first.get("msg", "Validation failed")
+    if len(errors) > 1:
+        message = f"{message} (and {len(errors) - 1} more validation error(s))"
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": {
+                "code": "validation_error",
+                "message": message,
+                "field": _field_for_loc(tuple(first.get("loc", ()))),
+            }
+        },
+    )
+
+
+def database_not_configured_handler(request: Request, exc: DatabaseNotConfiguredError) -> JSONResponse:
+    return JSONResponse(
+        status_code=503,
+        content={"error": {"code": "database_not_configured", "message": str(exc), "field": None}},
+    )
+
+
 def register_exception_handlers(app) -> None:
     for exc_type in SERVICE_ERROR_TYPES:
         app.add_exception_handler(exc_type, service_error_handler)
     app.add_exception_handler(NotFoundError, not_found_handler)
+    app.add_exception_handler(RequestValidationError, validation_error_handler)
+    app.add_exception_handler(DatabaseNotConfiguredError, database_not_configured_handler)

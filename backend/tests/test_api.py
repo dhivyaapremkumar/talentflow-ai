@@ -390,3 +390,53 @@ class TestExports:
         resp2 = client.get("/api/v1/exports/anomaly-summary.json")
         assert resp2.status_code == 200
         assert "attachment" in resp2.headers["content-disposition"]
+
+
+class TestValidationErrorContract:
+    """B1 (Phase 10 pre-push review, P032/P033): FastAPI's built-in
+    request-validation failures must use the same documented
+    `{"error": {"code","message","field"}}` shape as every other 4xx/5xx,
+    not the framework's default `{"detail": [...]}` body."""
+
+    def test_missing_required_field_returns_documented_error_shape(self, client, session):
+        _seed_actors(session)
+        _seed_requisition(session, status="PendingApproval")
+        resp = client.post("/api/v1/requisitions/REQ-00020/transition", json={"to_status": "Approved"})
+        assert resp.status_code == 422
+        body = resp.json()
+        assert "detail" not in body
+        assert body["error"]["code"] == "validation_error"
+        assert body["error"]["field"] == "actor_id"
+        assert "required" in body["error"]["message"].lower()
+
+    def test_malformed_json_returns_documented_error_shape(self, client, session):
+        resp = client.post(
+            "/api/v1/offers",
+            content=b"not json",
+            headers={"Content-Type": "application/json"},
+        )
+        assert resp.status_code == 422
+        body = resp.json()
+        assert "detail" not in body
+        assert body["error"]["code"] == "validation_error"
+        assert body["error"]["message"]
+
+    def test_existing_404_contract_unchanged(self, client, session):
+        _seed_actors(session)
+        resp = client.get("/api/v1/requisitions/REQ-99999")
+        assert resp.status_code == 404
+        assert resp.json() == {
+            "error": {"code": "not_found", "message": "JobRequisition 'REQ-99999' does not exist", "field": None}
+        }
+
+    def test_existing_business_rule_error_contract_unchanged(self, client, session):
+        _seed_actors(session)
+        _seed_requisition(session, status="Draft")
+        resp = client.post(
+            "/api/v1/requisitions/REQ-00020/transition",
+            json={"to_status": "Open", "actor_id": "ACT-0001"},
+        )
+        assert resp.status_code == 400
+        body = resp.json()
+        assert body["error"]["code"] == "invalid_transition"
+        assert "field" in body["error"] and body["error"]["field"] is None

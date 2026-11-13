@@ -4763,3 +4763,165 @@ Do not push to GitHub. Do not rewrite or amend commits. Do not introduce new fea
   restarting the server without the environment override and observing
   the real 500 response and traceback, not by reading the config code
   and assuming it would be fine.
+
+### Prompt ID: P033
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Authorize and scope the fix for the two defects P032's review
+  found (B2 — the `DATABASE_PATH` blocker; B1 — the 422 error-shape
+  inconsistency), as one isolated corrective commit, with specific
+  requirements for path resolution, fail-fast startup behavior, README
+  accuracy, and regression tests.
+- Development phase: **Corrective fix following pre-push review** (not a
+  numbered phase; Phase 10 + its P032 review reported complete
+  immediately prior, not yet pushed).
+- Context/files supplied: The repository state as of the P032 review,
+  plus the two defects it found.
+- Exact prompt:
+
+```text
+# Final Release Blocker Fixes — B2 and B1
+
+I approve fixing both identified issues in a single small corrective commit.
+
+## B2 — Fresh-install database configuration (BLOCKER)
+
+1. Inspect database configuration, generator output paths, environment settings and README instructions.
+2. Make the default application database point to the generated starter database at `data/talentflow_starter.db`.
+3. Preserve `DATABASE_PATH` as an explicit environment-variable override.
+4. Resolve paths consistently from the project/backend root, not the caller's current working directory.
+5. Do not silently create an empty schema or empty database when the configured database file is missing.
+6. Return a clear actionable startup/configuration error if the configured database is unavailable.
+7. Update README with exact commands to:
+   - Generate starter data.
+   - Start the backend.
+   - Start the frontend.
+   - Optionally generate and use full data.
+8. Verify that a fresh developer following README instructions sees real starter data in the dashboard.
+
+## B1 — Consistent validation error response
+
+1. Add a FastAPI RequestValidationError handler.
+2. Return the documented `{"error": {...}}` response contract.
+3. Include a useful error code/message and field-level validation details.
+4. Preserve HTTP 422 status.
+5. Do not expose internal stack traces or sensitive details.
+
+## Tests
+
+Add regression tests for:
+- Default database path.
+- DATABASE_PATH override.
+- Path resolution from a different working directory.
+- Missing configured database behavior.
+- Fresh starter database startup.
+- Missing required API fields returning the documented error structure.
+- Malformed JSON returning the documented error structure.
+- Existing 404 and business-rule errors retaining their existing response contracts.
+
+Run:
+- Complete backend test suite.
+- Starter generation and validation.
+- Full generation and validation.
+- Frontend production build.
+- Full Playwright smoke test, including the real-data dashboard.
+- README setup procedure from a clean test environment if practical.
+
+## Commit requirements
+
+- Inspect the complete diff.
+- Keep the fix isolated; do not add features or redesign the application.
+- Create one new Conventional Commit for the fixes.
+- Do not amend previous commits.
+- Do not push to GitHub.
+
+## Final report
+
+Provide actual test output, fresh-install verification, changed files, commit hash and any remaining limitations.
+```
+
+- Output summary: Fixed both defects as one isolated corrective commit.
+  **B2:** `backend/app/config.py` now resolves `DATABASE_PATH` against a
+  new `BACKEND_ROOT` constant (`Path(__file__).resolve().parent.parent`)
+  rather than the caller's CWD, and defaults to
+  `data/talentflow_starter.db` instead of the never-generated
+  `data/talentflow.db`; the `DATABASE_PATH` env var remains a full
+  override (relative or absolute). `backend/app/db/session.py` no longer
+  eagerly builds a module-level `engine`/`SessionLocal` at import time —
+  `make_engine()` is untouched (generator.py/evaluate.py still call it
+  directly with explicit, sometimes-not-yet-existing paths, since they
+  create those files); a new lazy `get_session_local()` builds the live
+  app's default session factory on first actual use, raising the new
+  `DatabaseNotConfiguredError` if `DATABASE_PATH` doesn't exist —
+  **never** touching SQLite first, so no empty file is ever silently
+  created. `api/deps.py:get_db()` calls this instead of the old eager
+  singleton. `api/errors.py` registers a handler for
+  `DatabaseNotConfiguredError` returning 503 in the documented
+  `{"error":{...}}` shape. The lazy-not-eager design is deliberate and
+  documented in-code: an eager check (at import time, or via a FastAPI
+  `lifespan` hook) would break `tests/test_api.py`, which imports
+  `app.main` and drives it through `TestClient` with
+  `dependency_overrides` — those overrides apply to routes, not to
+  module-import or lifespan code, so an eager check would still fire in
+  a fresh checkout with no generated database, regardless of the
+  override.
+  **B1:** `api/errors.py` adds `validation_error_handler` for FastAPI's
+  `RequestValidationError` (covers both missing/invalid fields and
+  malformed JSON bodies), mapping Pydantic's first reported error onto
+  the documented `{"code":"validation_error","message","field"}` shape
+  (message notes "(and N more...)" when there are additional errors;
+  only the parsed `msg`/`loc` is ever surfaced, never a raw traceback),
+  registered alongside the existing handlers.
+  **README**: rewrote Setup as an explicit 4-step fresh-install sequence
+  (backend env → generate starter data → start backend → start
+  frontend), stating plainly that step 2 is required before step 3 and
+  explaining why (the new default + fail-fast behavior), documented the
+  `DATABASE_PATH` override for switching to the full dataset, and fixed
+  the still-stale "Phases 1-8 complete... FastAPI HTTP layer... not
+  implemented yet" status line and test count (240→290) left over from
+  before Phases 9/10.
+  **Tests**: `backend/tests/test_config.py` (new, 6 tests) — default
+  path resolution, env override (relative and absolute), CWD-independence
+  (asserted by `monkeypatch.chdir`-ing into a tmp_path and confirming the
+  resolved path is unchanged), `get_session_local()` raising without
+  creating a file when missing, and succeeding against a freshly
+  generated (not the committed, potentially-mutated-by-manual-testing)
+  starter database. `backend/tests/test_api.py` gains a
+  `TestValidationErrorContract` class (4 tests): missing required field,
+  malformed JSON, and two tests pinning the existing 404/business-rule
+  contracts as unchanged by this fix.
+- Human review: Pending — awaiting the user's review of this report
+  before any push (none authorized or performed; commit not amended).
+- Changes made after review: N/A for this entry (this *is* the review-
+  requested fix); no further changes made after it beyond what's
+  described above.
+- Verification performed: `pytest tests/` — **290 passed, 0 failed**
+  (280 pre-existing + 10 new). Ran starter and full generation fresh
+  (`app.data_generation.generator --mode starter`/`--mode full`) —
+  both checksums (`e026ca7b...`/`649898f0...`) matched every prior run
+  this session, confirming the config change doesn't affect generation
+  determinism (the generator CLI never reads `app.config.DATABASE_PATH`
+  at all). Regenerated starter exports are byte-identical to the
+  committed ones (`git status` showed no diff under `backend/data/`).
+  **Live fresh-install simulation, not just unit tests:** started
+  `uvicorn app.main:app` with zero environment variables set and
+  confirmed `GET /api/v1/requisitions` now returns real data (previously
+  a 500); pointed `DATABASE_PATH` at a nonexistent file and confirmed a
+  503 with the documented error shape, an actionable message naming the
+  resolved absolute path, and — checked directly with `ls`, not assumed
+  — that no file was created at that path; confirmed the 422 shape for
+  both a missing-required-field request and a malformed-JSON request,
+  and confirmed the existing 404/business-rule response bodies are
+  byte-identical to before this fix. `npm run build`: 0 TypeScript
+  errors. Re-ran the Playwright screenshot/smoke script against the
+  zero-env-var backend: all 5 screens + 2 detail pages captured with
+  real data, zero failed network requests, zero console errors — the
+  dashboard screenshot in particular now proves the exact scenario P032
+  found broken (fresh backend, no `DATABASE_PATH`) now works. Reverted
+  three incidentally-re-rendered screenshot files (byte-level
+  anti-aliasing noise only, visually confirmed identical) before
+  committing, to keep this fix isolated from the already-committed
+  Phase 10 screenshots per the prompt's own "keep the fix isolated"
+  instruction.

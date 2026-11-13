@@ -3,13 +3,15 @@
 Recruitment operations and decision-intelligence system — YottaFlex AI Associate
 Forward Deployed Engineer challenge submission.
 
-**Status: Phases 1-8 complete.** The 22-table schema, the deterministic data
+**Status: Phases 1-10 complete.** The 22-table schema, the deterministic data
 generator, the validation/anomaly-detection engine, anomaly injection,
-independent detection + offline evaluation, and the screening/submission/
-lifecycle/scheduling/offer service layer are all implemented and tested
-(240 backend tests passing). The FastAPI HTTP layer (routers/schemas) and the
-React dashboard UI are not implemented yet — see `docs/implementation_plan.md`
-for the full phase-by-phase plan and current progress.
+independent detection + offline evaluation, the screening/submission/
+lifecycle/scheduling/offer service layer, a minimal FastAPI HTTP layer, and a
+5-screen React dashboard (Executive Dashboard, Requisitions & Applications,
+Screening & Candidate Profile, Interview Management, Offers & Decision
+Intelligence) are all implemented and tested (290 backend tests passing) —
+see `docs/implementation_plan.md` for the full phase-by-phase plan and
+current progress.
 
 ## What this is
 
@@ -31,9 +33,12 @@ frontend/            React + TypeScript + Vite dashboard
 
 ## Setup
 
-Requires Python 3.12 and Node.js 20+.
+Requires Python 3.12 and Node.js 20+. Follow this order on a fresh clone —
+the backend API server needs a generated database to serve, and the
+frontend needs the backend running: generate data, then start the backend,
+then start the frontend.
 
-### Backend
+### 1. Backend environment
 
 ```bash
 cd backend
@@ -45,8 +50,6 @@ py -3.12 -m venv .venv
 Verify:
 ```bash
 .venv/Scripts/python.exe -m pytest tests/ -v
-.venv/Scripts/python.exe -m uvicorn app.main:app --reload
-# then: curl http://127.0.0.1:8000/health
 ```
 
 No `.env` file is required to run — `backend/.env.example` documents the only
@@ -54,7 +57,47 @@ two configuration values (`DATABASE_PATH`, `DATASET_MODE`), and this project
 has no authentication and no paid external services, so there are no secrets
 to configure.
 
-### Frontend
+### 2. Generate the starter dataset
+
+Still from `backend/`:
+
+```bash
+.venv/Scripts/python.exe -m app.data_generation.generator --mode starter
+```
+
+Writes `backend/data/talentflow_starter.db` (150 applications), plus CSV/JSON
+exports to `backend/data/exports/starter/`, and prints baseline validation
+(expected: 0 violations, 0 warnings) and post-injection validation (expected:
+11 violations, broken out by rule ID — the seeded anomaly counts from
+`business_rules.md` §9). **This step is required before starting the
+backend** — the API server's default `DATABASE_PATH` points at exactly this
+file, and it refuses to start serving data (a clear `database_not_configured`
+error, not a silent empty database) until it exists.
+
+### 3. Start the backend API server
+
+Still from `backend/`:
+
+```bash
+.venv/Scripts/python.exe -m uvicorn app.main:app --reload
+# then: curl http://127.0.0.1:8000/health
+# and:  curl http://127.0.0.1:8000/api/v1/requisitions
+```
+
+No environment variable is needed — `DATABASE_PATH` defaults to
+`backend/data/talentflow_starter.db` (resolved from the backend directory,
+not the shell's current working directory, so this works the same regardless
+of where `uvicorn` is launched from). To serve a different database instead
+(e.g. the full-mode one generated below), set `DATABASE_PATH` explicitly
+before starting uvicorn — either absolute, or relative to `backend/`:
+
+```bash
+DATABASE_PATH=data/talentflow_full.db .venv/Scripts/python.exe -m uvicorn app.main:app --reload
+```
+
+### 4. Start the frontend
+
+In a separate terminal:
 
 ```bash
 cd frontend
@@ -62,27 +105,24 @@ npm install
 npm run dev
 ```
 
-## Dataset generation and validation
+Open the printed `localhost` URL (typically `http://localhost:5173`) — the
+dashboard renders real data read live from the backend API started in step 3.
 
-From `backend/`, with the venv set up as above:
+### Optional: full-scale dataset
 
 ```bash
-# Generate, inject anomalies, and run baseline + post-injection validation
-# in one pass (starter: 150 applications; full: 3,000):
-.venv/Scripts/python.exe -m app.data_generation.generator --mode starter
+cd backend
 .venv/Scripts/python.exe -m app.data_generation.generator --mode full
 ```
 
-Each run writes a SQLite database to `backend/data/talentflow_<mode>.db`,
-CSV/JSON exports to `backend/data/exports/<mode>/` (the `starter/` exports are
-committed; `full/` is regeneratable and gitignored), and prints baseline
-validation (expected: 0 violations, 0 warnings) and post-injection validation
-(expected: 11 violations at starter scale / 56 at full scale, broken out by
-rule ID — the seeded anomaly counts from `business_rules.md` §9).
+Writes `backend/data/talentflow_full.db` (3,000 applications) and
+`backend/data/exports/full/` (regeneratable, gitignored — unlike the
+committed `starter/` exports). Point the backend at it as shown in step 3
+above to browse the full-scale dataset in the dashboard instead of starter.
 
 ```bash
 # Independent anomaly detection + offline ground-truth evaluation
-# (reads the database the generator just wrote):
+# (reads whichever database was just generated):
 .venv/Scripts/python.exe -m app.validation.evaluate --mode starter
 .venv/Scripts/python.exe -m app.validation.evaluate --mode full
 ```
@@ -96,10 +136,13 @@ input; see `docs/validation_strategy.md` §22).
 ## Tests
 
 Backend: `pytest tests/` from `backend/`, with the venv activated as above.
-Current coverage: 240 tests across models, the data generator, the
-validation engine, anomaly injection, detection/evaluation, and the
-screening/submission/lifecycle/scheduling/offer service layer. More tests
-land with each subsequent phase — see `docs/implementation_plan.md`'s test
+Current coverage: 290 tests across models, the data generator, the
+validation engine, anomaly injection, detection/evaluation, the
+screening/submission/lifecycle/scheduling/offer service layer, and the
+FastAPI HTTP layer (routing, pagination/filtering, the hard-gate rejections,
+and the documented error-response contract). Frontend: no automated test
+framework is wired up yet (`npm run build` verifies the TypeScript compiles
+and the production bundle builds); see `docs/implementation_plan.md`'s test
 matrix for what's planned.
 
 ## Documentation
