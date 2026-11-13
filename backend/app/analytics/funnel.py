@@ -142,6 +142,18 @@ def compute_requisition_funnel(session: Session, group_by: str | None = None) ->
     return rows
 
 
+def compute_requisition_status_distribution(session: Session) -> list[dict]:
+    """Returns `{"status": str, "count": int}` for every `JobRequisition.
+    status` value present — added this phase (10) to power the Executive
+    Dashboard's requisition-status chart; a pure count-by-status read,
+    same category as every other function in this module, not a new
+    business rule."""
+    counts: dict[str, int] = defaultdict(int)
+    for req in session.execute(select(JobRequisition)).scalars():
+        counts[req.status] += 1
+    return [{"status": status, "count": count} for status, count in sorted(counts.items())]
+
+
 def compute_time_in_stage(session: Session) -> dict:
     """Returns `{stage: {"mean_days": float, "sample_size": int}}` for
     every stage that has at least one measurable interval. A stage with
@@ -294,6 +306,7 @@ def build_funnel_report(session: Session) -> dict:
         "requisition_funnel_overall": compute_requisition_funnel(session, group_by=None),
         "requisition_funnel_by_requisition": compute_requisition_funnel(session, group_by="requisition"),
         "requisition_funnel_by_department": compute_requisition_funnel(session, group_by="department"),
+        "requisition_status_distribution": compute_requisition_status_distribution(session),
         "time_in_stage": compute_time_in_stage(session),
         "interviewer_load": compute_interviewer_load(session),
         "offer_acceptance_rate_overall": compute_offer_acceptance_rate(session, group_by=None),
