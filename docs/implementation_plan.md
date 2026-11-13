@@ -272,6 +272,44 @@ against the remainder of this phase is expected before Phase 9 starts.
 | **Tests required** | `test_analytics.py` (one test per defined metric, against the seeded dataset's known values), `test_export_consistency.py` (round-trip + SQL-replay + cross-run byte-identity). |
 | **Definition of done** | `test_analytics.py` and `test_export_consistency.py` green. |
 
+**STATUS: ANALYTICS/EXPORTS PORTION COMPLETE** (2026-11-13); **`api/v1/
+analytics.py` not started.** A prompt against this phase (P029 in
+`prompts/claude_code_prompts.md`) scoped its work to analytics computation
+and export functionality only — its 10 numbered requirements never mention
+an HTTP endpoint, consistent with Phase 8's own API/schema portion still
+being unstarted (no `api/v1/*.py` router exists for any entity yet, so
+`analytics.py` would have no established pattern to follow). Implemented
+`analytics/funnel.py` (`compute_requisition_funnel`, `compute_time_in_stage`,
+`compute_interviewer_load`, `compute_offer_acceptance_rate`,
+`compute_duplicate_submission_rate`, `build_funnel_report`,
+`export_funnel_report`) and `analytics/anomaly_summary.py`
+(`operational_anomaly_summary` — reuses `validation.detect.run_detectors()`
+verbatim, never `AnomalyLabel`; `evaluation_summary_from_report` — loads a
+Phase 6 JSON report verbatim, the one function in this phase whose output
+is ground-truth-derived; `export_operational_anomaly_summary`).
+`validation/rules/export_consistency.py` (`VAL-16`) turned out to already
+be fully implemented (Phase 4, not a Phase 9 task after all) and already
+wired into `generator.py`'s post-injection step — re-confirmed passing (0
+violations, both modes) rather than re-implemented, per requirement 9's
+"do not change ... unless a real defect is demonstrated." `tests/
+test_analytics.py` (22 tests): known-value assertions against a freshly
+generated, injected starter/full database (not a stale fixture), ground-
+truth isolation (deleting every `AnomalyLabel` row changes nothing),
+Phase 6 report reuse, exports, and empty-database/invalid-input safety.
+Full suite: 262 passed, 0 failed (240 pre-existing + 22 new). Two real
+bugs were found and fixed before this was reported done: an initial
+`operational_anomaly_summary` draft used `validation.runner.run_all_rules`'s
+coarse per-rule-ID counts, which mix `DuplicateApplication`/
+`ClosedReqActiveApplications` findings together with unrelated VAL-11
+consistency/invariant findings and VAL-12 row-count-vs-synthetic-target
+reconciliation noise (caught by this phase's own empty-database test
+reporting 3 phantom violations) — fixed by switching to
+`validation.detect.run_detectors()`, Phase 6's own correctly-scoped
+per-anomaly-type entry point; and three `group_by` validators that only
+raised `ValueError` from inside a per-row closure never invoked on an
+empty dataset — fixed by validating `group_by` unconditionally before
+any loop.
+
 ## Phase 10 — React + TypeScript + Vite frontend
 
 | Attribute | Detail |

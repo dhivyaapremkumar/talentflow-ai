@@ -4160,3 +4160,133 @@ Do not push, force-push, reset, rebase or amend commits.
   trusting the pre-existing `backend/data/` artifacts, specifically so the
   reproducibility claim could be checked empirically (see check 4's
   byte-identical-diff evidence) rather than asserted.
+
+### Prompt ID: P029
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Authorize Phase 9 (recruitment operational analytics, metrics,
+  and exports) — read-only analytics over operational records, reuse of
+  Phase 6 evaluation reports rather than reimplementing detection, and
+  the approved export formats.
+- Development phase: **Phase 9 — Analytics, metrics and exports** (Phase
+  1-8 reported complete and pushed to GitHub immediately prior: commit
+  range `ee6b2a8..8da0fc9`, 25 commits, 240 tests passing).
+- Context/files supplied: The repository state as of the Phase 1-8 push,
+  plus explicit instruction to inspect `docs/implementation_plan.md`,
+  `docs/PROJECT_SPEC.md`, `docs/business_rules.md`,
+  `docs/validation_strategy.md`, existing models/service modules, Phase 4
+  validation and Phase 6 evaluation outputs, and existing export/
+  generation modules before implementing.
+- Exact prompt:
+
+```text
+# Phase 9 — Analytics, Metrics and Exports
+
+Proceed with Phase 9 of TalentFlow AI.
+
+First inspect:
+- docs/implementation_plan.md
+- docs/PROJECT_SPEC.md
+- docs/business_rules.md
+- docs/validation_strategy.md
+- Existing models and service modules
+- Phase 4 validation and Phase 6 evaluation outputs
+- Existing export and generation modules
+
+Implement exactly the Phase 9 scope in the approved implementation plan.
+
+Requirements:
+1. Implement the documented recruitment operational analytics.
+2. Provide meaningful metrics across requisitions, applications, screening, interviews, feedback, offers and hiring outcomes, according to the approved specification.
+3. Ensure calculations use operational records and correct lifecycle definitions.
+4. Reuse the existing Phase 6 anomaly evaluation reports rather than duplicating or changing detection logic.
+5. Implement the approved CSV, JSON and other documented export functionality.
+6. Ensure filters and aggregations handle empty datasets and missing values safely.
+7. Keep metrics reproducible and deterministic where applicable.
+8. Avoid exposing ground-truth labels in ordinary operational dashboards or exports unless explicitly required for evaluation reporting.
+9. Do not change the approved generator, anomaly injection, detection or evaluation behavior unless a real defect is demonstrated.
+10. Add meaningful tests for calculations, edge cases, filters and exports.
+
+Run the complete test suite, plus any relevant export and analytics verification commands.
+
+Completion report:
+- Files created and modified.
+- Metrics implemented and their calculation definitions.
+- Export formats and example output.
+- Test commands and actual results.
+- Regression results for Phases 1–8.
+- Known limitations and deviations.
+- Git diff summary and proposed Conventional Commit messages.
+
+Do not push to GitHub.
+Do not start Phase 10.
+```
+
+- Output summary: Implemented `backend/app/analytics/funnel.py` and
+  `backend/app/analytics/anomaly_summary.py`, the two modules
+  `implementation_plan.md`'s Phase 9 row names, plus
+  `backend/tests/test_analytics.py` (22 tests). `funnel.py`: five pure
+  metric functions (`compute_requisition_funnel`, `compute_time_in_stage`,
+  `compute_interviewer_load`, `compute_offer_acceptance_rate`,
+  `compute_duplicate_submission_rate`) matching `workflow.md` §8's named
+  computations, using `implementation_plan.md`'s exact formulas for
+  funnel conversion rate / time-in-stage / offer acceptance rate
+  (interviewer load and duplicate-submission rate had no prior-approved
+  exact formula, so this phase's own reasonable interpretation is flagged
+  explicitly in the module docstring), plus `build_funnel_report`/
+  `export_funnel_report` bundling all five into one JSON + per-metric-CSV
+  export. `anomaly_summary.py`: `operational_anomaly_summary` (ground-
+  truth-free, reuses Phase 6's `validation.detect.run_detectors()`
+  verbatim), `evaluation_summary_from_report` (loads an already-computed
+  Phase 6 JSON report verbatim — the one ground-truth-derived function in
+  this phase, reserved for an "evaluation reporting" context per
+  requirement 8), and `export_operational_anomaly_summary`.
+  `validation/rules/export_consistency.py` (VAL-16) turned out to already
+  be fully implemented since Phase 4 (not actually Phase 9 work, contrary
+  to the plan's row wording) and already wired into `generator.py`'s
+  post-injection step — re-confirmed passing (0 violations, both modes)
+  rather than touched, since no defect existed (requirement 9).
+  Full suite: **262 passed, 0 failed** (240 pre-existing + 22 new).
+  **Deviation, flagged:** this prompt's 10 numbered requirements never
+  mention an HTTP endpoint, so `api/v1/analytics.py` (named in the plan's
+  "Deliverables" row) was not implemented — consistent with Phase 8's own
+  API/schema portion still being entirely unstarted, with no router
+  pattern yet to follow for any entity.
+- Human review: Pending — awaiting the user's review of this report
+  before any push (none authorized or performed).
+- Changes made after review: Not yet applicable (review pending).
+- Verification performed: Ran `pytest tests/test_analytics.py -v` (22
+  passed) and the full suite `pytest tests/ -q` (262 passed, 9 warnings,
+  0 failures). Smoke-tested every exported function against the real
+  generated starter database (not just controlled fixtures) and confirmed
+  every number by hand against the known seeded dataset (funnel reached-
+  counts 150/147/22/8/6, offer acceptance 6/8=0.75, anomaly breakdown
+  3/2/1/3/2=11 at starter and 15/10/6/15/10=56 at full, matching
+  `business_rules.md` §9 exactly) before writing a single test assertion.
+  **Two real bugs were found and fixed before this was reported done,
+  both caught by tests, not by inspection:** (1) the first
+  `operational_anomaly_summary` draft used `validation.runner.
+  run_all_rules`'s per-rule-ID `counts_by_rule`, which silently mixes
+  together structurally different finding kinds under one `VAL-nn` ID for
+  two of the five anomaly types (`VAL-11`'s three `rule_category` values;
+  `VAL-12`'s row-count-vs-synthetic-target reconciliation noise mixed with
+  `ClosedReqActiveApplications` findings) — an empty-database test caught
+  this immediately (3 phantom "violations" on a database with zero rows
+  of anything), and the fix was to switch to `validation.detect.
+  run_detectors()`, Phase 6's own already-correctly-scoped per-anomaly-
+  type entry point, rather than add filtering logic of this phase's own
+  on top of the wrong function; (2) all three `group_by` parameter
+  validators raised `ValueError` from inside a per-row closure that is
+  never invoked when the input table has zero rows, so an invalid
+  `group_by` on an empty database silently returned `[]` instead of
+  raising — fixed by validating `group_by` unconditionally at the top of
+  each function, independent of how much data exists. A third issue
+  (not a bug in the code under test) was a test-isolation mistake of my
+  own: the ground-truth-deletion test originally ran against the shared
+  module-scoped `starter_engine` fixture and permanently deleted its
+  `AnomalyLabel` rows, which then starved a later test's fresh
+  `evaluate()` call of ground truth (TP dropped from 11 to 0) — fixed by
+  giving that one destructive test its own isolated, function-scoped
+  database instead of mutating shared fixture state.
