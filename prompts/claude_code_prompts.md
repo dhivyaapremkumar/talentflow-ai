@@ -3688,3 +3688,170 @@ Do not push to GitHub. Do not begin Phase 7.
   is a real defect this session hit and fixed, not a manufactured
   example — traceable to the exact `sqlite3.IntegrityError` message and
   the before/after test-code diff that resolved it.
+
+---
+
+### Prompt ID: P026
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Authorize Phase 7 (business services and workflow logic) —
+  screening service, duplicate-submission/canonical-reconciliation
+  service, and requisition/offer lifecycle services with hard-gated
+  role authorization, all as plain service-layer functions (no API/
+  frontend work), with an explicit instruction to defer anything the
+  approved plan assigns to a later phase rather than silently expanding
+  scope.
+- Development phase: **Phase 7 — Screening engine and duplicate-
+  submission reconciliation services / requisition+offer lifecycle
+  services** (Phase 6 — independent detection + offline evaluation —
+  reported complete immediately prior: TP/FP/FN exact match, P=R=F1=1.00
+  both scales, 191 tests passing)
+- Context/files supplied: The repository state as of Phase 6's
+  completion, plus explicit instruction to inspect
+  `docs/implementation_plan.md`, relevant business rules/workflow
+  documentation, existing models, validation modules, and existing
+  tests before implementing.
+- Exact prompt:
+
+```text
+# Phase 7 — Business Services and Workflow Logic
+
+Proceed with Phase 7 of TalentFlow AI.
+
+Before implementation, inspect the approved `docs/implementation_plan.md` and all relevant business rules, workflow documentation, models, validation modules and existing tests.
+
+Implement only the work assigned to Phase 7 in the approved plan. Do not begin API integration, frontend implementation or later phases prematurely.
+
+## Required service areas
+
+Implement the approved service functionality for:
+
+1. Candidate screening using the exact approved deterministic screening formula.
+2. Screening history, rule version/snapshot and latest-result consistency.
+3. Duplicate application submission handling using ApplicationSubmissionAttempt.
+4. Canonical submission reconciliation, including out-of-order arrivals.
+5. Requisition lifecycle transitions and their authorization rules.
+6. Offer lifecycle transitions and their authorization rules.
+
+If any service area is assigned to a later phase in the implementation plan, leave it for that phase and document the dependency. Do not silently expand scope.
+
+## Critical business rules
+
+### Screening
+- Skill 50%, experience 30%, education 20%.
+- Mandatory minimum education gate.
+- Default pass threshold 70.0, inclusive.
+- Apply the approved experience and education normalization rules exactly.
+- Store immutable ScreeningRun history.
+- Maintain Application.latest_screening_run_id and is_latest consistency atomically.
+- Do not use an LLM to make screening decisions.
+
+### Duplicate submissions
+- One canonical Application per candidate/requisition pair.
+- Use ApplicationSubmissionAttempt for every submission attempt.
+- Reconcile canonical attempts using the approved ordering: submitted_at, then attempt_id.
+- A later submission after withdrawal must not reopen or replace the withdrawn Application.
+- Do not delete or silently repair historical attempts.
+- Preserve deterministic behavior for out-of-order arrivals.
+
+### Lifecycle and authorization
+- Follow the approved lifecycle transitions and role restrictions exactly.
+- Enforce hard-gated transitions in the service layer, not only in the UI.
+- Reject unauthorized transitions and invalid state changes.
+- Record appropriate history rows.
+- Use transactions so failed operations do not leave partial state.
+- Do not describe the role conventions as a complete authentication/security system.
+
+## Testing
+
+Add tests for:
+- Screening formula boundary cases and education gate.
+- Screening history and latest-result consistency.
+- Repeated screening runs.
+- Duplicate submission and canonical reconciliation.
+- Out-of-order duplicate submissions.
+- Withdrawal followed by resubmission.
+- Invalid lifecycle transitions.
+- Unauthorized role attempts, including attempts to bypass hard-gated transitions.
+- Transaction rollback on failure.
+- Existing validation and anomaly evaluation behavior remaining unchanged.
+
+Run the complete existing test suite and report actual results.
+
+## Completion report
+
+Include:
+1. Services and files implemented.
+2. Business rules enforced.
+3. Test cases and actual results.
+4. Any deferred work and why.
+5. Evidence that screening and lifecycle behavior match the documentation.
+6. Git diff summary and proposed Conventional Commit messages.
+
+Do not push to GitHub. Do not start Phase 8.
+```
+
+- Output summary: Implemented the two Phase 7 service areas the approved
+  `docs/implementation_plan.md` actually assigns to Phase 7:
+  `backend/app/services/screening.py` (`run_screening`) and
+  `backend/app/services/application_submission.py`
+  (`submit_application`). Both reuse Phase 4's shared pure functions
+  verbatim (`app.screening_formula.compute_screening_result`;
+  `app.validation.rules.duplicate_submissions.recompute_canonical_
+  assignment`) rather than reimplementing any formula or reconciliation
+  logic. **Deviation from this prompt's "Required service areas" items 5
+  and 6 (requisition/offer lifecycle + authorization) and the matching
+  "Lifecycle and authorization" rules/tests:** the approved
+  `implementation_plan.md` assigns `services/requisition_lifecycle.py`,
+  `services/application_lifecycle.py`, `services/offer_lifecycle.py`, and
+  `services/scheduling.py` — including the hard-reject-non-APPROVER rule
+  — explicitly to **Phase 8**, not Phase 7. Per this prompt's own
+  instruction ("If any service area is assigned to a later phase in the
+  implementation plan, leave it for that phase and document the
+  dependency. Do not silently expand scope."), items 5/6 and their
+  corresponding tests were deferred to Phase 8 and the dependency is
+  documented in both services' module docstrings and in
+  `docs/implementation_plan.md`'s Phase 7 row, rather than implemented
+  now or silently dropped.
+  Added `backend/tests/test_services.py` (18 new tests) covering the
+  screening formula/boundary/gate cases, screening history/is_latest
+  consistency, repeated screening runs, historical-run survival across
+  rule redefinition, first-time/duplicate/out-of-order submission
+  reconciliation, withdrawal-then-resubmission (same requisition,
+  out-of-order, and different-requisition cases), ground-truth-blind
+  detection, and transaction-rollback-leaves-no-partial-state for both
+  services. Full existing suite: **209 passed, 0 failed** (9 pre-existing
+  `DeprecationWarning`s from Starlette/SQLAlchemy, unrelated to this
+  change) — confirming Phases 1-6 behavior (schema, generator,
+  validation, anomaly injection, detection, offline evaluation) is
+  unchanged.
+- Human review: Pending — awaiting the user's review of this completion
+  report and the diff before any push (none authorized or performed).
+- Changes made after review: Not yet applicable (review pending).
+- Verification performed: Ran `pytest tests/test_services.py -v`
+  (18 passed) and the full suite `pytest tests/ -q` (209 passed, 9
+  warnings, 0 failures) after implementation, confirming both the new
+  services and all pre-existing Phase 1-6 behavior. Three real bugs were
+  found and fixed during this work before it was considered done: (1) a
+  literal `ground_truth_label_id=None` in a service constructor call
+  self-tripped the VAL-15 ground-truth-leakage scanner's plain substring
+  match — fixed by omitting the field (nullable, defaults to NULL); (2)
+  the original submission-service draft inserted placeholder
+  `(is_canonical=False, duplicate_of_attempt_id=None)` rows, which
+  violates `ck_attempt_canonical_duplicate_consistency` immediately
+  because SQLite enforces CHECK constraints per-statement, not deferred
+  to commit — fixed by computing a CHECK-valid initial state at insert
+  time and applying the reconciliation's corrections afterward via a
+  two-phase update (all `False` reassignments flushed before any `True`
+  reassignment) so the `uq_attempt_canonical` partial unique index is
+  also never transiently violated during a canonical-reassignment swap;
+  (3) test-fixture helper functions needed explicit `session.flush()`
+  calls between dependency-ordered inserts (e.g. `Department` before
+  `SystemActor`), since SQLAlchemy does not topologically sort inserts
+  across unrelated `session.add()` calls without an ORM `relationship()`
+  configured between the mapped classes. A fourth issue was test-only
+  (`Decimal('93.33') == 93.33` is `False` under binary-float imprecision)
+  and was fixed in the test, not the service, after confirming the
+  service's stored value was correct.

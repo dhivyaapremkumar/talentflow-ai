@@ -201,6 +201,27 @@ because Phase 5's own gate requires running it first.
 | **Tests required** | `test_business_rules.py` (screening + reconciliation, now against live services), the withdrawal/resubmission suite, a concurrency test simulating two near-simultaneous submissions for the same pair (SQLite serialization — `data_dictionary.md` §8a). |
 | **Definition of done** | Every test case named in `validation_strategy.md` §18/§19 passes against this phase's code specifically (not the Phase 4 pure-function unit tests alone). |
 
+**STATUS: COMPLETE** (2026-11-13). `services/screening.py` (`run_screening`)
+and `services/application_submission.py` (`submit_application`)
+implemented exactly as scoped above — both wrap Phase 4's pure functions
+(`app.screening_formula.compute_screening_result`,
+`app.validation.rules.duplicate_submissions.recompute_canonical_
+assignment`) verbatim in one atomic transaction each, with no
+reimplementation of either algorithm. `tests/test_services.py` (18 tests)
+covers the screening boundary/gate cases, `is_latest`/history
+consistency, repeated runs, historical-run survival across rule
+redefinition, first-time/duplicate/out-of-order submission reconciliation,
+and the withdrawal/resubmission edge cases from `validation_strategy.md`
+§18. Full suite: 209 passed, 0 failed. **Note — a prompt issued against
+this phase (P026 in `prompts/claude_code_prompts.md`) additionally asked
+for requisition/offer lifecycle transitions and their role authorization.
+Those are this plan's Phase 8 scope (see below — `requisition_lifecycle.py`
+/`offer_lifecycle.py` and the hard APPROVER-role check), not Phase 7's, so
+they were left for Phase 8 per that prompt's own instruction to defer
+rather than silently expand scope. No lifecycle/authorization code or
+tests exist yet; `test_hard_role_checks_cannot_be_bypassed` remains
+deferred as already noted in Phase 6's Definition of done above.**
+
 ## Phase 8 — Recruitment workflow services and FastAPI backend
 
 | Attribute | Detail |
