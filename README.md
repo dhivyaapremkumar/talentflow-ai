@@ -180,14 +180,22 @@ to gather these into one place, rather than leaving them scattered:
   against this dataset will always be rejected (`scheduled_start must be >=
   Application.screening_computed_at`) for any application screened after that
   date, since no availability slot exists later than it. This was verified
-  directly (every one of 13 checked interviewers has zero slots after
-  2026-11-13, and a live scheduling attempt against the latest known slot was
-  genuinely rejected). **This is a property of the fixed-seed dataset's
+  directly (all 25 interviewers' availability ends on 2026-05-20, and a live
+  scheduling attempt against the latest known slot was genuinely rejected).
+  **This is a property of the fixed-seed dataset's
   generation window versus wall-clock time passing, not an application
   defect** — the scheduling service's date checks are working exactly as
   designed, and no data, dates, or business rules were changed to work around
   it. Regenerating with a later-dated availability window (or running the
   system against live, forward-dated availability) resolves it.
+- **The Interview Management "Schedule Interview" dialog shows only the
+  latest 15 availability slots on file** for the selected interviewer, not a
+  full slot browser. In the starter dataset, booked slots exist (1-3 per
+  interviewer) but occur earlier in each interviewer's availability
+  timeline, so this latest-15 view never contains a booked row — only
+  "Open" ones are visible there. This is a dataset-timing limitation, not a
+  UI rendering or backend-validation defect; the "Booked" vs. "Open" styling
+  itself was verified to render correctly.
 - **Offer/Hired progression is not blocked by missing interviews.** The
   missing-feedback business rule (`business_rules.md` §6) only requires that
   any *completed* interview has feedback — an application with zero

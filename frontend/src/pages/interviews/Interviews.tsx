@@ -143,14 +143,21 @@ function ScheduleDialog({
   const [end, setEnd] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorHint, setErrorHint] = useState<string | null>(null);
 
   const availability = useApi(
     () => (interviewerId ? getInterviewerAvailability(interviewerId) : Promise.resolve([])),
     [interviewerId],
   );
 
+  const latestSlotEnd =
+    availability.data && availability.data.length > 0
+      ? availability.data[availability.data.length - 1].end_datetime
+      : null;
+
   const handleSubmit = async () => {
     setError(null);
+    setErrorHint(null);
     if (!applicationId.trim() || !interviewerId || !start || !end) {
       setError('All fields are required.');
       return;
@@ -172,7 +179,19 @@ function ScheduleDialog({
       setStart('');
       setEnd('');
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'Scheduling failed.');
+      const message = e instanceof ApiError ? e.message : 'Scheduling failed.';
+      setError(message);
+      if (message.includes('not fully contained in any availability slot')) {
+        setErrorHint(
+          latestSlotEnd
+            ? `This interviewer's latest known availability slot ends ${new Date(latestSlotEnd).toLocaleString()}. Pick a start/end time fully inside one of the open slots listed below, or choose a different interviewer.`
+            : 'This interviewer has no availability slots on file.',
+        );
+      } else if (message.includes('must be >= Application.screening_computed_at')) {
+        setErrorHint('The scheduled start time must be on or after the application was screened — pick a later start time.');
+      } else if (message.includes('overlaps existing interview')) {
+        setErrorHint('This interviewer already has another interview booked over this window — pick a non-overlapping time.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -196,7 +215,12 @@ function ScheduleDialog({
       }
     >
       {error && (
-        <p style={{ color: 'var(--color-red-600)', fontSize: 13, marginBottom: 12, fontWeight: 600 }}>{error}</p>
+        <div style={{ marginBottom: 12 }}>
+          <p style={{ color: 'var(--color-red-600)', fontSize: 13, fontWeight: 600, margin: 0 }}>{error}</p>
+          {errorHint && (
+            <p style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4 }}>{errorHint}</p>
+          )}
+        </div>
       )}
       <FormField label="Application ID" required hint="Application must be at stage 'Interviewing'">
         <Input value={applicationId} onChange={(e) => setApplicationId(e.target.value)} placeholder="APP-REQ-00001-CAND-000003" />
@@ -212,11 +236,57 @@ function ScheduleDialog({
         </Select>
       </FormField>
       {interviewerId && (
-        <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: -8, marginBottom: 12 }}>
-          {availability.loading
-            ? 'Loading availability…'
-            : `${availability.data?.length ?? 0} availability slot(s) on file for this interviewer.`}
-        </p>
+        <div style={{ marginTop: -8, marginBottom: 12 }}>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>
+            {availability.loading
+              ? 'Loading availability…'
+              : `${availability.data?.length ?? 0} availability slot(s) on file for this interviewer.`}
+          </p>
+          {!availability.loading && (availability.data?.length ?? 0) > 0 && (
+            <>
+              <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>
+                Most recent {Math.min(15, availability.data!.length)} slot(s) on file (latest ends{' '}
+                {new Date(latestSlotEnd!).toLocaleString()}) — a chosen start/end must fall fully inside one
+                open slot:
+              </p>
+              <div
+                style={{
+                  maxHeight: 140,
+                  overflowY: 'auto',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '2px 8px',
+                }}
+              >
+                {availability.data!.slice(-15).map((slot) => (
+                  <div
+                    key={slot.slot_id}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: 8,
+                      fontSize: 11,
+                      padding: '4px 0',
+                      borderBottom: '1px solid var(--color-border)',
+                    }}
+                  >
+                    <span>
+                      {new Date(slot.start_datetime).toLocaleString()} – {new Date(slot.end_datetime).toLocaleTimeString()}
+                    </span>
+                    <span
+                      style={{
+                        color: slot.is_booked ? 'var(--color-red-600)' : 'var(--color-emerald-600)',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {slot.is_booked ? 'Booked' : 'Open'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       )}
       <FormField label="Round Type" required>
         <Select value={roundType} onChange={(e) => setRoundType(e.target.value)}>
