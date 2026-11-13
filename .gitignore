@@ -16,6 +16,11 @@ backend/data/*.db
 # the starter-mode exports under backend/data/exports/starter/ ARE committed.
 backend/data/exports/full/
 
+# Phase 9 analytics exports (funnel/anomaly-summary JSON+CSV) are deterministic,
+# regeneratable from the committed starter DB/exports — not committed, same
+# treatment as the full-mode dataset exports above.
+backend/data/analytics/
+
 # Node / frontend
 frontend/node_modules/
 frontend/dist/
