@@ -4290,3 +4290,327 @@ Do not start Phase 10.
   `evaluate()` call of ground truth (TP dropped from 11 to 0) — fixed by
   giving that one destructive test its own isolated, function-scoped
   database instead of mutating shared fixture state.
+
+### Prompt ID: P030
+
+- Date and time: 2026-11-13 (same project session; exact submission time not
+  independently captured)
+- Tool: Claude Code (model reported for this session: Sonnet 5 / `claude-sonnet-5`)
+- Purpose: Authorize Phase 10 (React frontend + dashboard), sent as one
+  message combining the functional scope (screens, backend integration
+  rules, testing) with a second "Mandatory Visual Design and UI Quality
+  Requirements" section specifying the exact design system (colors,
+  typography, Lucide icons) and interaction-quality bar.
+- Development phase: **Phase 10 — React frontend and dashboard** (Phase
+  9 — analytics/exports — reported complete immediately prior: 262
+  tests passing, two commits `591a0f7`/`ad6864c`, not pushed).
+- Context/files supplied: The repository state as of Phase 9's
+  completion, plus explicit instruction to inspect
+  `docs/implementation_plan.md`, `docs/PROJECT_SPEC.md`, the existing
+  React/TS/Vite scaffold, backend models/services/analytics/API
+  architecture, and existing design/functionality requirements before
+  implementing.
+- Exact prompt:
+
+```text
+# Phase 10 — React Frontend and Dashboard
+
+Implement Phase 10 of TalentFlow AI, following the approved implementation plan.
+
+Before coding:
+- Inspect docs/implementation_plan.md and docs/PROJECT_SPEC.md.
+- Inspect the existing React + TypeScript + Vite application.
+- Inspect backend models, services, analytics and API architecture.
+- Review the design and functionality requirements already documented.
+- Identify what is already implemented and avoid rebuilding existing functionality unnecessarily.
+
+## 1. Frontend architecture
+
+Build a responsive, professional recruitment operations dashboard using the existing React, TypeScript, Vite and Recharts stack.
+
+Use reusable components, typed API contracts, clear loading/error/empty states and a maintainable page structure.
+
+## 2. Required screens
+
+Implement the screens specified in the project plan, including:
+
+- Executive dashboard with key recruitment KPIs.
+- Requisition listing and details.
+- Candidate and application listing/details.
+- Structured screening results and explanations.
+- Interview scheduling and feedback.
+- Offer lifecycle management.
+- Recruitment funnel analytics.
+- Operational anomaly monitoring.
+- Data export interface.
+
+Provide appropriate search, filters, sorting, pagination and detail views where required.
+
+## 3. Backend integration
+
+Connect to actual backend APIs.
+
+Important:
+- First inspect which API endpoints exist.
+- Do not create fake API responses or hardcode sample dashboard metrics.
+- If required endpoints are missing, identify the backend API work needed and implement only what the approved Phase 10 scope permits.
+- Keep business decisions and validation in backend services.
+- Never implement screening, authorization or lifecycle decisions solely in frontend code.
+- Display meaningful API errors instead of silently substituting mock data.
+
+## 4. Visual quality
+
+Aim for a polished enterprise SaaS experience:
+- Clear information hierarchy.
+- Consistent typography, spacing and colors.
+- Professional sidebar navigation.
+- Well-designed tables and data visualizations.
+- Responsive desktop and tablet layouts.
+- Consistent status indicators and action feedback.
+- Accessible controls and readable charts.
+
+Avoid excessive animation and decorative elements that distract from recruitment workflows.
+
+## 5. Functional requirements
+
+- Forms must validate required inputs.
+- Tables must use real API data.
+- Actions must call the appropriate backend endpoints.
+- Lifecycle actions must reflect backend authorization and validation results.
+- Analytics must use the Phase 9 API data.
+- Export buttons must download actual generated reports.
+- Include loading, error, success and empty states.
+
+## 6. Testing
+
+Add tests for important UI behavior and API integration.
+
+Verify:
+- Production frontend build.
+- Navigation and screen rendering.
+- API success and failure states.
+- Filters and search.
+- Lifecycle action feedback.
+- Analytics rendering.
+- Export functionality.
+- Responsive layouts where testable.
+
+Run all backend tests and frontend tests/build.
+
+## 7. Completion report
+
+Report:
+1. Screens and components implemented.
+2. Backend endpoints consumed.
+3. New or missing API endpoints.
+4. UI functionality completed and deferred.
+5. Tests and actual results.
+6. Production build output.
+7. Screenshots or evidence of the running application.
+8. Git diff summary and proposed Conventional Commit messages.
+
+Do not push to GitHub.
+Do not begin Phase 11.
+
+## Mandatory Visual Design and UI Quality Requirements
+
+Build TalentFlow AI as a premium, production-quality enterprise SaaS product. Visual quality is a core Phase 10 deliverable, not optional polish.
+
+### Design identity
+- Product: TalentFlow AI
+- Positioning: Recruitment Operations & Decision Intelligence
+- Style: Premium, sophisticated, modern enterprise SaaS.
+- Primary theme: Light workspace with deep navy navigation.
+- Background: Warm off-white (#F7F8FA).
+- Sidebar: Midnight navy (#111827).
+- Primary accent: Emerald (#10B981).
+- Secondary colors: Muted slate and restrained blue.
+- Typography: Inter or an existing suitable installed font.
+- Icons: Lucide icon system.
+
+### Visual quality
+- Design a consistent design system before implementing individual screens.
+- Use reusable components for cards, buttons, tables, charts, filters, dialogs, forms, status badges and navigation.
+- Use strong typography hierarchy, intentional whitespace and consistent alignment.
+- KPI cards should have clear values, labels and meaningful contextual indicators.
+- Charts must have professional legends, tooltips, labels, axes and responsive sizing.
+- Avoid excessive gradients, unnecessary glassmorphism, oversized rounded cards and decorative animations.
+- Avoid a generic template appearance.
+- Every page should feel like part of the same cohesive commercial product.
+
+### Executive dashboard
+Create a visually impressive landing dashboard with:
+- Recruitment KPI cards.
+- Application funnel.
+- Requisition status distribution.
+- Screening performance.
+- Interview and offer analytics.
+- Anomaly overview.
+- Useful date/filter controls where supported by APIs.
+
+### Interaction quality
+- Consistent hover, active, selected, disabled and focus states.
+- Smooth but restrained transitions.
+- Skeleton loading states.
+- Professional empty states with useful guidance.
+- Clear success and error notifications.
+- Responsive sidebar and navigation.
+- Accessible contrast and keyboard navigation.
+
+### Important implementation rules
+- Build the design system and application shell first.
+- Implement each screen using the shared design system.
+- Use actual backend data; do not use fabricated metrics.
+- Never sacrifice functional behavior for visual appearance.
+- Do not leave screens as static mockups.
+- Complete the visual design during Phase 10, including responsive layouts.
+- Test the actual running application at desktop and tablet sizes.
+- Capture screenshots of the finished dashboard and key workflows for the completion report.
+
+The objective is to deliver a polished product that looks credible in a professional technical interview and live demonstration without requiring a separate visual redesign phase.
+```
+
+- Output summary: See P031 below — this prompt's scope was narrowed by a
+  mid-turn user message (logged as P031) before implementation began, so
+  the two are reported together once, against what was actually built,
+  rather than describing a 9-screen scope this session never attempted.
+- Human review: Pending — awaiting the user's review of this report and
+  screenshots before any push (none authorized or performed).
+- Changes made after review: Not yet applicable (review pending).
+- Verification performed: See P031.
+
+### Prompt ID: P031
+
+- Date and time: 2026-11-13, same session, sent mid-turn immediately
+  after P030 — before any Phase 10 code was written — in response to an
+  `AskUserQuestion` this session raised about two blocking decisions: (1)
+  no backend HTTP API existed yet (only `/health`), so building a
+  dashboard against "actual backend APIs" as P030 required meant
+  building some amount of new backend API surface first; (2) P030's
+  9-screen list was large enough that attempting all nine at the
+  requested premium visual bar risked shallow execution everywhere
+  rather than a genuinely polished, working product.
+- Purpose: Narrow Phase 10 to 5 consolidated screens, authorize building
+  "the minimum real FastAPI endpoints needed for these screens" (resolving
+  blocking decision 1 as "build a minimal real API layer now," the option
+  this session had recommended), and set explicit priority order for
+  what to preserve if time ran short.
+- Exact prompt:
+
+```text
+Choose Option 1: Fewer screens, completed to the full premium quality bar.
+
+I approve a focused Phase 10 scope of five core screens:
+
+1. Executive Dashboard
+2. Requisitions & Applications
+3. Screening & Candidate Profile
+4. Interview Management
+5. Offers & Decision Intelligence
+
+Priorities:
+
+- Build the premium shared design system and application shell first.
+- Build the minimum real FastAPI endpoints needed for these screens.
+- Reuse existing backend services and business rules.
+- Make the end-to-end recruitment workflow genuinely functional.
+- Use actual database and analytics data, never fabricated dashboard values.
+- Include loading, error, empty and success states.
+- Include working CSV/JSON exports.
+- Make the five screens responsive and visually cohesive.
+- Capture screenshots of the finished application.
+
+Do not attempt nine partially implemented screens. Do not spend time on decorative animations or advanced features until the core workflow works.
+
+If time becomes constrained, preserve backend correctness, the working end-to-end workflow and the premium executive dashboard. Document any deferred features honestly.
+
+Complete Phase 10 as a polished, demonstrable product. Do not push to GitHub until reviewed.
+```
+
+- Output summary: Built the minimal backend API layer
+  (`backend/app/api/deps.py`, `api/errors.py`, 8 routers under
+  `api/v1/`, 8 schema modules under `schemas/`) as thin HTTP adapters —
+  every write goes through the existing Phase 7/8 service functions
+  verbatim (`requisition_lifecycle`, `application_lifecycle`,
+  `application_submission`, `screening`, `scheduling`,
+  `offer_lifecycle`), every analytics read goes through Phase 9's
+  `analytics/funnel.py`/`anomaly_summary.py` verbatim, and a single
+  `{"error":{"code","message","field"}}` contract (with
+  `code="role_not_permitted"` for the two hard-gate rejections) is
+  applied via `FastAPI` exception handlers. Added one new pure read
+  (`compute_requisition_status_distribution` in `funnel.py`) to power the
+  dashboard's requisition-status chart — same category as every other
+  function in that module, not a new business rule.
+  Built the full design system (`src/styles/tokens.css` — the exact
+  navy/emerald/off-white palette and Inter typography specified) and
+  application shell (`AppShell` with collapsing-on-tablet sidebar,
+  actor-picker topbar), then the five approved screens: Executive
+  Dashboard (5 KPI cards, funnel bar chart, requisition-status donut,
+  live anomaly bar chart, pipeline-velocity bars, working JSON export
+  buttons), Requisitions & Applications (searchable/filterable/paginated
+  list, detail page with a real lifecycle-transition control and
+  submit-application dialog), Screening & Candidate Profile (searchable
+  application list, detail page with score-component bars, the exact
+  generated explanation string, screening-run history, submission-
+  attempt history, candidate profile/skills/resume panels, run-screening
+  and advance-stage actions), Interview Management (filterable list,
+  schedule dialog with live availability lookup, status transitions,
+  feedback dialog), Offers & Decision Intelligence (acceptance-rate KPIs
+  reusing Phase 9's exact formula, filterable list, create-offer dialog
+  with salary-band validation surfaced as a real error, transition
+  dialog proving the hard APPROVER gate). Reusable component library:
+  `Badge`/`StatusBadge`/`YesNoBadge`, `Button`, `Card`/`KPICard`,
+  `DataTable`/`Pagination`, `FilterBar`/`SearchInput`/`FilterSelect`,
+  `Dialog`, `Form` (Input/Select/Textarea/FormField), `States`
+  (Skeleton/EmptyState/ErrorState), toast notifications
+  (`ToastContext`), and an `ActorContext` for the documented "acting as"
+  SystemActor convenience (no authentication, data_dictionary.md §18).
+  Three Recharts wrappers (`FunnelChart`, `StatusDonut`,
+  `AnomalyBarChart`).
+  **Deferred, honestly, per this prompt's own priority order:**
+  Candidate/Application CRUD beyond what the five screens need;
+  requisition/offer/application full CRUD forms (create-only where the
+  workflow needs it, not edit-in-place); an automated frontend test
+  framework (no vitest/RTL was added — verification instead used the
+  TypeScript build, a Playwright-driven smoke/screenshot script
+  (`frontend/scripts/screenshot.mjs`, not a committed test suite), and
+  direct visual review of the captured screenshots); code-splitting for
+  the 721KB JS bundle (noted by Vite's own build warning, not fixed).
+- Human review: Pending — awaiting the user's review of this report and
+  the 12 captured screenshots before any push (none authorized or
+  performed).
+- Changes made after review: Not yet applicable (review pending).
+- Verification performed: `pytest tests/` (backend): 280 passed, 0
+  failed (262 pre-existing + 18 new `test_api.py` tests), after fixing a
+  SQLite thread-affinity issue in the API test fixture
+  (`TestClient` dispatches on a worker thread; a plain in-memory
+  connection is thread-affine — fixed with `StaticPool` +
+  `check_same_thread=False`) and three test-data bugs (a duplicate
+  `JobRequisitionSkill` insert; interview-scheduling dates that were
+  actually in the past relative to this session's real wall-clock date,
+  tripping the service's own `created_at <= scheduled_start` check; an
+  empty-funnel assertion that didn't account for zero seeded
+  applications). `npm run build` (frontend): succeeds, 0 TypeScript
+  errors (after fixing a Recharts `Tooltip` formatter type mismatch and
+  one unused import). Started the real backend (pointed at the
+  committed starter database) and the real Vite dev server, then used a
+  Playwright script to navigate all five screens plus the two detail
+  pages at both 1440px (desktop) and 834px (tablet) widths and capture
+  screenshots — not a mockup; every number visible (150 applications, 6
+  hired, 75% offer acceptance, 11 live anomalies, per-candidate
+  screening scores and explanations) is read live from the generated
+  starter dataset through the real API. A second Playwright pass
+  specifically checked for failed network requests across all five
+  pages and the two detail pages, which caught **one real bug**: the
+  Screening detail page's candidate/skills/resume queries fired a
+  request to `/api/v1/candidates/undefined` on first render (before the
+  parent application record had loaded and supplied the real
+  `candidate_id`) — fixed by guarding those three dependent queries to
+  resolve immediately with an empty value instead of fetching until the
+  real id is known, re-verified with zero failed requests afterward. A
+  second, smaller bug (two boolean table columns rendered via a
+  `StatusBadge` reusing the literal strings `"Open"`/`"Cancelled"` as a
+  color hack, so a "Latest" or "Canonical" column could literally read
+  the word "Open") was caught by eye on the first screenshot pass and
+  fixed with a dedicated `YesNoBadge` component, then re-verified on a
+  second screenshot pass.

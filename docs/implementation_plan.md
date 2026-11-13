@@ -323,6 +323,45 @@ any loop.
 | **Tests required** | Minimal frontend integration tests (page renders without error against a mocked API response matching the Phase 8 schema); this is explicitly the lowest-priority test tier (§5/§7 — frontend correctness is not where this project's mandatory requirements live). |
 | **Definition of done** | Manual walkthrough of each page in a browser, confirmed against `workflow.md`'s flows. |
 
+**STATUS: 5-SCREEN SCOPE COMPLETE** (2026-11-13), narrowed from this row's
+original 6-page list by the user's own explicit approval (P031 in
+`prompts/claude_code_prompts.md`) to: Executive Dashboard, Requisitions &
+Applications, Screening & Candidate Profile, Interview Management, Offers
+& Decision Intelligence. The frozen Phase 8/9 API this row assumed did not
+exist yet (Phase 8/9's own prompts scoped out the HTTP layer) — P031
+explicitly authorized building "the minimum real FastAPI endpoints needed
+for these screens" first, so this phase also added `backend/app/api/v1/*.py`
+(8 routers), `backend/app/schemas/*.py` (8 modules), `backend/app/api/
+deps.py`/`errors.py`, and `backend/tests/test_api.py` (18 tests) —
+explicitly flagged as going beyond this row's original frontend-only
+scope, authorized by P031. Every write endpoint is a thin adapter over the
+existing Phase 7/8 service functions; every analytics read is a thin
+adapter over Phase 9's `analytics/` modules — no business logic is
+duplicated in the API layer, satisfying this row's original acceptance
+criterion in spirit even though the API itself is new code, not a stable
+pre-existing contract. Design system (`frontend/src/styles/`), application
+shell (`AppShell`, `ActorContext`, `ToastContext`), a dozen reusable
+components (`frontend/src/components/`), three Recharts wrappers
+(`frontend/src/charts/`), and the five pages (`frontend/src/pages/`) are
+all implemented against this real API, reading real data from the
+committed starter dataset — no fabricated dashboard values anywhere.
+`npm run build` succeeds (721KB JS bundle — noted as a deferred code-
+splitting opportunity, not fixed). Backend regression: 280 passed, 0
+failed (262 pre-existing + 18 new). No automated frontend test framework
+was added (deferred, documented honestly per P031's own instruction to
+report deferrals rather than silently skip) — verification instead used
+the TypeScript build, a Playwright-driven screenshot/smoke-check script
+(`frontend/scripts/screenshot.mjs`, not a committed test suite), and
+direct review of 12 captured screenshots at 1440px/834px, which caught
+and led to fixing two real bugs (a stray `/api/v1/candidates/undefined`
+request from an unguarded dependent query; two boolean columns rendering
+the literal word "Open" via a status-badge color hack). Anomaly
+monitoring (the validation-report/ground-truth dev view) and a dedicated
+data-export page are not separate screens in this narrowed scope — live
+anomaly counts appear on the Executive Dashboard instead, and CSV/JSON
+export is two working download buttons on that same page, per P031's
+explicit 5-screen list.
+
 ## Phase 11 — Integration testing, documentation, and submission
 
 | Attribute | Detail |
