@@ -24,6 +24,46 @@ it. Full design rationale, data dictionary, business rules, and validation
 strategy are in `docs/`. The complete record of prompts used to build this
 project, and an AI-usage disclosure, are in `prompts/`.
 
+## Application Screenshots
+
+All screenshots show the running application against the committed synthetic
+starter dataset (150 applications) — no mockups, no real candidate data.
+
+### Executive Dashboard
+Headline KPIs (open requisitions, applications, screening pass rate, offer
+acceptance rate, live anomaly count), the Applied → Hired recruitment funnel,
+requisition status distribution, operational anomalies detected by live
+validation, and mean days spent in each pipeline stage.
+
+![Executive Dashboard](docs/screenshots/dashboard.png)
+
+### Requisitions & Applications
+A requisition's detail view — salary band, headcount, and dates — with every
+application against it, its current lifecycle stage, screening score, and
+pass/fail decision.
+
+![Requisitions and applications](docs/screenshots/requisitions.png)
+
+### Screening & Candidate Profile
+A candidate's screening result with the weighted skill/experience/education
+breakdown and plain-language explanation, screening run history, submission
+attempts, and the candidate profile, skills, and resume.
+
+![Screening and candidate profile](docs/screenshots/screening.png)
+
+### Interview Management
+The interview list with status and feedback actions, and the Schedule
+Interview dialog showing the selected interviewer's availability slots on
+file, marked Open or Booked.
+
+![Interview management with interviewer availability](docs/screenshots/interviews.png)
+
+### Offers & Decision Intelligence
+Offer acceptance analytics and the offer lifecycle — proposed salary, status
+(Accepted / Declined / Extended), approving actor, and available transitions.
+
+![Offers and decision intelligence](docs/screenshots/offers.png)
+
 ## Repository layout
 
 ```
